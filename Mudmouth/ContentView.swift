@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  Mudmouth
 //
-//  Created by 谢之皓 on 2023/9/20.
+//  Created by Xie Zhihao on 2023/9/20.
 //
 
 import SwiftUI
@@ -12,76 +12,70 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Profile.name, ascending: true)],
         animation: .default)
-    private var items: FetchedResults<Item>
+    private var profiles: FetchedResults<Profile>
+    @State private var selectedProfile: Profile? = nil
+
+    @State private var profileOperation: DataOperation<Profile>?
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+            List(selection: $selectedProfile) {
+                Section("Profile") {
+                    ForEach(profiles, id: \.self) { profile in
+                        Text(profile.name!)
+                            .swipeActions(allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    viewContext.delete(profile)
+                                    save()
+                                    if profile == selectedProfile {
+                                        selectedProfile = nil
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                Button {
+                                    profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
+                                } label: {
+                                    Label("Edit", systemImage: "square.and.pencil")
+                                }
+                                .tint(Color(UIColor.systemOrange))
+                            }
+                    }
+                    Button("New Profile") {
+                        profileOperation = CreateOperation(with: viewContext)
+                    }
+                    .sheet(item: $profileOperation, onDismiss: {
+                        save()
+                    }) { operation in
+                        ProfileView(profile: operation.object)
+                            .environment(\.managedObjectContext, operation.context)
                     }
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                Section("Tap") {
+                    Button("Generate and Trust Root CA") {
+                        
                     }
+                    Button("Capture Request") {
+                        
+                    }
+                    .disabled(selectedProfile == nil)
                 }
             }
-            Text("Select an item")
+            .navigationTitle("Mudmouth")
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+    
+    private func save() {
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Failed to save view context \(nsError)")
         }
     }
 }
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

@@ -7,15 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E425B8D22ABC035200776F46 /* DataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425B8D12ABC035200776F46 /* DataOperation.swift */; };
 		E42FB9392ABB2D2200670B6C /* MudmouthApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */; };
 		E42FB93B2ABB2D2200670B6C /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93A2ABB2D2200670B6C /* Persistence.swift */; };
 		E42FB93E2ABB2D2200670B6C /* Mudmouth.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93C2ABB2D2200670B6C /* Mudmouth.xcdatamodeld */; };
 		E42FB9402ABB2D2200670B6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93F2ABB2D2200670B6C /* ContentView.swift */; };
 		E42FB9422ABB2D2400670B6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42FB9412ABB2D2400670B6C /* Assets.xcassets */; };
 		E42FB9462ABB2D2400670B6C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42FB9452ABB2D2400670B6C /* Preview Assets.xcassets */; };
+		E4C5C83C2ABB4B5F006F8797 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C83B2ABB4B5F006F8797 /* Action.swift */; };
+		E4C5C84A2ABBEA8E006F8797 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C8492ABBEA8E006F8797 /* ProfileView.swift */; };
+		E4C5C84E2ABBEB9C006F8797 /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C84D2ABBEB9C006F8797 /* Binding.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E425B8D12ABC035200776F46 /* DataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataOperation.swift; sourceTree = "<group>"; };
 		E42FB9352ABB2D2200670B6C /* Mudmouth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mudmouth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MudmouthApp.swift; sourceTree = "<group>"; };
 		E42FB93A2ABB2D2200670B6C /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -24,6 +29,9 @@
 		E42FB9412ABB2D2400670B6C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E42FB9432ABB2D2400670B6C /* Mudmouth.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mudmouth.entitlements; sourceTree = "<group>"; };
 		E42FB9452ABB2D2400670B6C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E4C5C83B2ABB4B5F006F8797 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		E4C5C8492ABBEA8E006F8797 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		E4C5C84D2ABBEB9C006F8797 /* Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Binding.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,9 +64,11 @@
 		E42FB9372ABB2D2200670B6C /* Mudmouth */ = {
 			isa = PBXGroup;
 			children = (
+				E4C5C83A2ABB4B51006F8797 /* Models */,
 				E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */,
 				E42FB93A2ABB2D2200670B6C /* Persistence.swift */,
 				E42FB93F2ABB2D2200670B6C /* ContentView.swift */,
+				E4C5C8492ABBEA8E006F8797 /* ProfileView.swift */,
 				E42FB9412ABB2D2400670B6C /* Assets.xcassets */,
 				E42FB9432ABB2D2400670B6C /* Mudmouth.entitlements */,
 				E42FB93C2ABB2D2200670B6C /* Mudmouth.xcdatamodeld */,
@@ -73,6 +83,16 @@
 				E42FB9452ABB2D2400670B6C /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		E4C5C83A2ABB4B51006F8797 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E4C5C83B2ABB4B5F006F8797 /* Action.swift */,
+				E4C5C84D2ABBEB9C006F8797 /* Binding.swift */,
+				E425B8D12ABC035200776F46 /* DataOperation.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -148,6 +168,10 @@
 				E42FB9392ABB2D2200670B6C /* MudmouthApp.swift in Sources */,
 				E42FB93E2ABB2D2200670B6C /* Mudmouth.xcdatamodeld in Sources */,
 				E42FB9402ABB2D2200670B6C /* ContentView.swift in Sources */,
+				E4C5C84E2ABBEB9C006F8797 /* Binding.swift in Sources */,
+				E425B8D22ABC035200776F46 /* DataOperation.swift in Sources */,
+				E4C5C83C2ABB4B5F006F8797 /* Action.swift in Sources */,
+				E4C5C84A2ABBEA8E006F8797 /* ProfileView.swift in Sources */,
 				E42FB93B2ABB2D2200670B6C /* Persistence.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -295,7 +319,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = name.sketch.Mudmouth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -333,7 +359,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = name.sketch.Mudmouth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
