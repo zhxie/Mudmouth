@@ -5,19 +5,22 @@
 //  Created by Xie Zhihao on 2023/9/20.
 //
 
-import SwiftUI
 import CoreData
+import NetworkExtension
+import SwiftUI
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.scenePhase) private var scenePhase
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Profile.name, ascending: true)],
         animation: .default)
     private var profiles: FetchedResults<Profile>
     @State private var selectedProfile: Profile? = nil
-
     @State private var profileOperation: DataOperation<Profile>?
+    
+    @State private var manager: NETunnelProviderManager?
 
     var body: some View {
         NavigationView {
@@ -57,13 +60,41 @@ struct ContentView: View {
                     Button("Generate and Trust Root CA") {
                         
                     }
-                    Button("Capture Request") {
-                        
+                    if manager == nil {
+                        Button("Install VPN") {
+                            let manager = NETunnelProviderManager()
+                            manager.localizedDescription = "Mudmouth"
+                            let proto = NETunnelProviderProtocol()
+                            proto.providerBundleIdentifier = "name.sketch.Mudmouth.PacketTunnel"
+                            proto.serverAddress = "Mudmouth"
+                            manager.protocolConfiguration = proto
+                            manager.isEnabled = true
+                            manager.saveToPreferences { error in
+                                if let error = error {
+                                    fatalError("Failed to add VPN profile: \(error.localizedDescription)")
+                                }
+                            }
+                        }
                     }
-                    .disabled(selectedProfile == nil)
+                    if manager != nil {
+                        Button("Capture Request") {
+                            
+                        }
+                        .disabled(selectedProfile == nil)
+                    }
                 }
             }
             .navigationTitle("Mudmouth")
+        }
+        .onChange(of: scenePhase) { newValue in
+            if newValue == .active {
+                NETunnelProviderManager.loadAllFromPreferences { managers, error in
+                    manager = managers?.first
+                    if let error = error {
+                        fatalError("Failed to load VPN profile: \(error.localizedDescription)")
+                    }
+                }
+            }
         }
     }
     
@@ -71,8 +102,7 @@ struct ContentView: View {
         do {
             try viewContext.save()
         } catch {
-            let nsError = error as NSError
-            fatalError("Failed to save view context \(nsError)")
+            fatalError("Failed to save view context: \(error.localizedDescription)")
         }
     }
 }
