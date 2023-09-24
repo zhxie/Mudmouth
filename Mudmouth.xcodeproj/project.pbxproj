@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		E425B8D22ABC035200776F46 /* DataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425B8D12ABC035200776F46 /* DataOperation.swift */; };
+		E425B8E72ABC27E500776F46 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425B8E62ABC27E500776F46 /* NetworkExtension.framework */; };
+		E425B8EA2ABC27E500776F46 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425B8E92ABC27E500776F46 /* PacketTunnelProvider.swift */; };
+		E425B8EF2ABC27E500776F46 /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E425B8E42ABC27E500776F46 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E42FB9392ABB2D2200670B6C /* MudmouthApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */; };
 		E42FB93B2ABB2D2200670B6C /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93A2ABB2D2200670B6C /* Persistence.swift */; };
 		E42FB93E2ABB2D2200670B6C /* Mudmouth.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93C2ABB2D2200670B6C /* Mudmouth.xcdatamodeld */; };
@@ -19,8 +22,37 @@
 		E4C5C84E2ABBEB9C006F8797 /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C84D2ABBEB9C006F8797 /* Binding.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		E425B8ED2ABC27E500776F46 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E42FB92D2ABB2D2200670B6C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E425B8E32ABC27E500776F46;
+			remoteInfo = PacketTunnel;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E425B8F02ABC27E500776F46 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E425B8EF2ABC27E500776F46 /* PacketTunnel.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		E425B8D12ABC035200776F46 /* DataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataOperation.swift; sourceTree = "<group>"; };
+		E425B8E42ABC27E500776F46 /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E425B8E62ABC27E500776F46 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
+		E425B8E92ABC27E500776F46 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		E425B8EB2ABC27E500776F46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E425B8EC2ABC27E500776F46 /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
 		E42FB9352ABB2D2200670B6C /* Mudmouth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mudmouth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MudmouthApp.swift; sourceTree = "<group>"; };
 		E42FB93A2ABB2D2200670B6C /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -35,6 +67,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E425B8E12ABC27E500776F46 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E425B8E72ABC27E500776F46 /* NetworkExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42FB9322ABB2D2200670B6C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,10 +85,30 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E425B8E52ABC27E500776F46 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E425B8E62ABC27E500776F46 /* NetworkExtension.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E425B8E82ABC27E500776F46 /* PacketTunnel */ = {
+			isa = PBXGroup;
+			children = (
+				E425B8E92ABC27E500776F46 /* PacketTunnelProvider.swift */,
+				E425B8EB2ABC27E500776F46 /* Info.plist */,
+				E425B8EC2ABC27E500776F46 /* PacketTunnel.entitlements */,
+			);
+			path = PacketTunnel;
+			sourceTree = "<group>";
+		};
 		E42FB92C2ABB2D2200670B6C = {
 			isa = PBXGroup;
 			children = (
 				E42FB9372ABB2D2200670B6C /* Mudmouth */,
+				E425B8E82ABC27E500776F46 /* PacketTunnel */,
+				E425B8E52ABC27E500776F46 /* Frameworks */,
 				E42FB9362ABB2D2200670B6C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -57,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				E42FB9352ABB2D2200670B6C /* Mudmouth.app */,
+				E425B8E42ABC27E500776F46 /* PacketTunnel.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -98,6 +159,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		E425B8E32ABC27E500776F46 /* PacketTunnel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E425B8F32ABC27E500776F46 /* Build configuration list for PBXNativeTarget "PacketTunnel" */;
+			buildPhases = (
+				E425B8E02ABC27E500776F46 /* Sources */,
+				E425B8E12ABC27E500776F46 /* Frameworks */,
+				E425B8E22ABC27E500776F46 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PacketTunnel;
+			productName = PacketTunnel;
+			productReference = E425B8E42ABC27E500776F46 /* PacketTunnel.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E42FB9342ABB2D2200670B6C /* Mudmouth */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E42FB9492ABB2D2400670B6C /* Build configuration list for PBXNativeTarget "Mudmouth" */;
@@ -105,10 +183,12 @@
 				E42FB9312ABB2D2200670B6C /* Sources */,
 				E42FB9322ABB2D2200670B6C /* Frameworks */,
 				E42FB9332ABB2D2200670B6C /* Resources */,
+				E425B8F02ABC27E500776F46 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E425B8EE2ABC27E500776F46 /* PBXTargetDependency */,
 			);
 			name = Mudmouth;
 			productName = Mudmouth;
@@ -125,6 +205,9 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					E425B8E32ABC27E500776F46 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
 					E42FB9342ABB2D2200670B6C = {
 						CreatedOnToolsVersion = 14.3.1;
 					};
@@ -144,11 +227,19 @@
 			projectRoot = "";
 			targets = (
 				E42FB9342ABB2D2200670B6C /* Mudmouth */,
+				E425B8E32ABC27E500776F46 /* PacketTunnel */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		E425B8E22ABC27E500776F46 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42FB9332ABB2D2200670B6C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -161,6 +252,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E425B8E02ABC27E500776F46 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E425B8EA2ABC27E500776F46 /* PacketTunnelProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E42FB9312ABB2D2200670B6C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -178,7 +277,72 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		E425B8EE2ABC27E500776F46 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E425B8E32ABC27E500776F46 /* PacketTunnel */;
+			targetProxy = E425B8ED2ABC27E500776F46 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		E425B8F12ABC27E500776F46 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PSXQUH2HR6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PacketTunnel;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = name.sketch.Mudmouth.PacketTunnel;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E425B8F22ABC27E500776F46 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PSXQUH2HR6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PacketTunnel;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = name.sketch.Mudmouth.PacketTunnel;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		E42FB9472ABB2D2400670B6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -291,6 +455,7 @@
 		E42FB94A2ABB2D2400670B6C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Mudmouth/Mudmouth.entitlements;
@@ -331,6 +496,7 @@
 		E42FB94B2ABB2D2400670B6C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Mudmouth/Mudmouth.entitlements;
@@ -371,6 +537,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E425B8F32ABC27E500776F46 /* Build configuration list for PBXNativeTarget "PacketTunnel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E425B8F12ABC27E500776F46 /* Debug */,
+				E425B8F22ABC27E500776F46 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E42FB9302ABB2D2200670B6C /* Build configuration list for PBXProject "Mudmouth" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

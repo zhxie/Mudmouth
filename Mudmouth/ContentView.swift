@@ -21,6 +21,8 @@ struct ContentView: View {
     @State private var profileOperation: DataOperation<Profile>?
     
     @State private var manager: NETunnelProviderManager?
+    @State private var observer: AnyObject?
+    @State private var status: NEVPNStatus = .invalid
 
     var body: some View {
         NavigationView {
@@ -75,12 +77,30 @@ struct ContentView: View {
                                 }
                             }
                         }
-                    }
-                    if manager != nil {
-                        Button("Capture Request") {
-                            
+                    } else {
+                        if status == .connected {
+                            Button("Stop Capturing Request") {
+                                manager!.connection.stopVPNTunnel()
+                            }
+                        } else {
+                            Button("Capture Request") {
+                                do {
+                                    try manager!.connection.startVPNTunnel(options: [
+                                        NEVPNConnectionStartOptionUsername: selectedProfile!.url! as NSObject
+                                    ])
+                                } catch {
+                                    fatalError("Failed to start VPN: \(error.localizedDescription)")
+                                }
+                                switch selectedProfile!.preActionEnum {
+                                case .none:
+                                    break
+                                case .urlScheme:
+                                    UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
+                                    break
+                                }
+                            }
+                            .disabled(selectedProfile == nil || status != .disconnected)
                         }
-                        .disabled(selectedProfile == nil)
                     }
                 }
             }
@@ -89,7 +109,22 @@ struct ContentView: View {
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
                 NETunnelProviderManager.loadAllFromPreferences { managers, error in
+                    NSLog("Load %d VPN profile", managers?.count ?? 0)
                     manager = managers?.first
+                    if observer != nil {
+                        NotificationCenter.default.removeObserver(observer!)
+                        observer = nil
+                    }
+                    if manager != nil {
+                        status = manager!.connection.status
+                        NSLog("VPN connection status %d", status.rawValue)
+                        observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main) { _ in
+                            status = manager!.connection.status
+                            NSLog("VPN connection status changed to %d", status.rawValue)
+                        }
+                    } else {
+                        status = .invalid
+                    }
                     if let error = error {
                         fatalError("Failed to load VPN profile: \(error.localizedDescription)")
                     }
