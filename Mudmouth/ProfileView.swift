@@ -19,85 +19,58 @@ struct ProfileView: View {
         title = profile.name ?? ""
     }
     
-    var isValid: Bool {
-        if (profile.name ?? "").isEmpty {
-            return false
-        }
-        if URL(string: profile.url ?? "") == nil {
-            return false
-        }
-        switch profile.preActionEnum {
-        case .none:
-            break
-        case .urlScheme:
-            if URL(string: profile.preActionUrlScheme ?? "") == nil {
-                return false
-            }
-            break
-        }
-        switch profile.postActionEnum {
-        case .none:
-            break
-        case .urlScheme:
-            if URL(string: profile.postActionUrlScheme ?? "") == nil {
-                return false
-            }
-            break
-        }
-        return true
-    }
-    
     var body: some View {
         NavigationView {
-            ZStack {
-                Color(UIColor.secondarySystemBackground)
-                    .ignoresSafeArea(edges: .all)
-
-                Form {
-                    Section("Profile") {
-                        TextField("Name", text: $profile.name.defaultValue(""))
-                        TextField("URL", text: $profile.url.defaultValue(""))
-                    }
-                    Section("Pre-Action") {
-                        Picker("Action", selection: $profile.preActionEnum) {
-                            ForEach(Action.allCases, id: \.self) {
-                                Text($0.name).tag($0)
-                            }
-                        }
-                        .animation(.none, value: profile.preActionEnum)
-                        if profile.preActionEnum == .urlScheme {
-                            TextField("URL Scheme", text: $profile.preActionUrlScheme.defaultValue(""))
+            List {
+                Section {
+                    TextField("Name", text: $profile.name.defaultValue(""))
+                    TextField("URL", text: $profile.url.defaultValue(""))
+                } header: {
+                    Text("Profile")
+                } footer: {
+                    Text("Mudmouth only taps HTTPS requests.")
+                }
+                Section("Pre-Action") {
+                    Picker("Action", selection: $profile.preActionEnum) {
+                        ForEach(Action.allCases, id: \.self) {
+                            Text($0.name).tag($0)
                         }
                     }
-                    Section {
-                        Picker("Action", selection: $profile.postActionEnum) {
-                            ForEach(Action.allCases, id: \.self) {
-                                Text($0.name).tag($0)
-                            }
-                        }
-                        .animation(.none, value: profile.postActionEnum)
-                        if profile.postActionEnum == .urlScheme {
-                            TextField("URL Scheme", text: $profile.postActionUrlScheme.defaultValue(""))
-                        }
-                    } header: {
-                        Text("Post-Action")
-                    } footer: {
-                        if profile.postActionEnum == .urlScheme {
-                            Text("MudMouth will trigger the URL Scheme in the form of <URL_SCHEME>?[HEADER=VALUE] on completion.")
+                    .animation(.none, value: profile.preActionEnum)
+                    if profile.preActionEnum == .urlScheme {
+                        TextField("URL Scheme", text: $profile.preActionUrlScheme.defaultValue(""))
+                    }
+                }
+                Section {
+                    Picker("Action", selection: $profile.postActionEnum) {
+                        ForEach(Action.allCases, id: \.self) {
+                            Text($0.name).tag($0)
                         }
                     }
+                    .animation(.none, value: profile.postActionEnum)
+                    if profile.postActionEnum == .urlScheme {
+                        TextField("URL Scheme", text: $profile.postActionUrlScheme.defaultValue(""))
+                    }
+                } header: {
+                    Text("Post-Action")
+                } footer: {
+                    if profile.postActionEnum == .urlScheme {
+                        Text("MudMouth will trigger the URL Scheme in the form of <URL_SCHEME>?[HEADER=VALUE] on completion.")
+                    }
+                }
+                Section {
                     Button(title.isEmpty ? "Add" : "Save") {
                         withAnimation {
                             try? childContext.save()
                             dismiss()
                         }
                     }
-                    .disabled(!isValid)
+                    .disabled(!profile.isValid)
                 }
-                .animation(Animation.easeInOut, value: profile.preActionEnum)
-                .animation(Animation.easeInOut, value: profile.postActionEnum)
-                .navigationTitle(title.isEmpty ? "New Profile" : title)
             }
+            .animation(Animation.easeInOut, value: profile.preActionEnum)
+            .animation(Animation.easeInOut, value: profile.postActionEnum)
+            .navigationTitle(title.isEmpty ? "New Profile" : title)
         }
     }
 }

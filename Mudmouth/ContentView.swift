@@ -99,7 +99,7 @@ struct ContentView: View {
                                     break
                                 }
                             }
-                            .disabled(selectedProfile == nil || status != .disconnected)
+                            .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
                         }
                     }
                 }

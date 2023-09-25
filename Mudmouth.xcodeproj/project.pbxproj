@@ -11,6 +11,7 @@
 		E425B8E72ABC27E500776F46 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E425B8E62ABC27E500776F46 /* NetworkExtension.framework */; };
 		E425B8EA2ABC27E500776F46 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425B8E92ABC27E500776F46 /* PacketTunnelProvider.swift */; };
 		E425B8EF2ABC27E500776F46 /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E425B8E42ABC27E500776F46 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E427B1182AC1BD7500F2D715 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E427B1172AC1BD7500F2D715 /* Profile.swift */; };
 		E42FB9392ABB2D2200670B6C /* MudmouthApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */; };
 		E42FB93B2ABB2D2200670B6C /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93A2ABB2D2200670B6C /* Persistence.swift */; };
 		E42FB93E2ABB2D2200670B6C /* Mudmouth.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93C2ABB2D2200670B6C /* Mudmouth.xcdatamodeld */; };
@@ -53,6 +54,7 @@
 		E425B8E92ABC27E500776F46 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		E425B8EB2ABC27E500776F46 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E425B8EC2ABC27E500776F46 /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
+		E427B1172AC1BD7500F2D715 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		E42FB9352ABB2D2200670B6C /* Mudmouth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mudmouth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MudmouthApp.swift; sourceTree = "<group>"; };
 		E42FB93A2ABB2D2200670B6C /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 				E4C5C83B2ABB4B5F006F8797 /* Action.swift */,
 				E4C5C84D2ABBEB9C006F8797 /* Binding.swift */,
 				E425B8D12ABC035200776F46 /* DataOperation.swift */,
+				E427B1172AC1BD7500F2D715 /* Profile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -271,6 +274,7 @@
 				E425B8D22ABC035200776F46 /* DataOperation.swift in Sources */,
 				E4C5C83C2ABB4B5F006F8797 /* Action.swift in Sources */,
 				E4C5C84A2ABBEA8E006F8797 /* ProfileView.swift in Sources */,
+				E427B1182AC1BD7500F2D715 /* Profile.swift in Sources */,
 				E42FB93B2ABB2D2200670B6C /* Persistence.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
