@@ -7,6 +7,7 @@
 
 import CoreData
 import NetworkExtension
+import OSLog
 import SwiftUI
 
 struct ContentView: View {
@@ -22,6 +23,7 @@ struct ContentView: View {
     
     @State private var manager: NETunnelProviderManager?
     @State private var observer: AnyObject?
+    @State private var isEnabled: Bool = false
     @State private var status: NEVPNStatus = .invalid
 
     var body: some View {
@@ -84,19 +86,25 @@ struct ContentView: View {
                             }
                         } else {
                             Button("Capture Request") {
-                                do {
-                                    try manager!.connection.startVPNTunnel(options: [
-                                        NEVPNConnectionStartOptionUsername: selectedProfile!.url! as NSObject
-                                    ])
-                                } catch {
-                                    fatalError("Failed to start VPN: \(error.localizedDescription)")
-                                }
-                                switch selectedProfile!.preActionEnum {
-                                case .none:
-                                    break
-                                case .urlScheme:
-                                    UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
-                                    break
+                                manager!.isEnabled = true
+                                manager!.saveToPreferences { error in
+                                    if let error = error {
+                                        fatalError("Failed to enable VPN: \(error.localizedDescription)")
+                                    }
+                                    do {
+                                        try manager!.connection.startVPNTunnel(options: [
+                                            NEVPNConnectionStartOptionUsername: selectedProfile!.url! as NSObject
+                                        ])
+                                    } catch {
+                                        fatalError("Failed to start VPN: \(error.localizedDescription)")
+                                    }
+                                    switch selectedProfile!.preActionEnum {
+                                    case .none:
+                                        break
+                                    case .urlScheme:
+                                        UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
+                                        break
+                                    }
                                 }
                             }
                             .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
@@ -109,7 +117,7 @@ struct ContentView: View {
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
                 NETunnelProviderManager.loadAllFromPreferences { managers, error in
-                    NSLog("Load %d VPN profile", managers?.count ?? 0)
+                    os_log(.info, "Load %d VPN profile", managers?.count ?? 0)
                     manager = managers?.first
                     if observer != nil {
                         NotificationCenter.default.removeObserver(observer!)
@@ -117,10 +125,10 @@ struct ContentView: View {
                     }
                     if manager != nil {
                         status = manager!.connection.status
-                        NSLog("VPN connection status %d", status.rawValue)
+                        os_log(.info, "VPN connection status %d", status.rawValue)
                         observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main) { _ in
                             status = manager!.connection.status
-                            NSLog("VPN connection status changed to %d", status.rawValue)
+                            os_log(.info, "VPN connection status changed to %d", status.rawValue)
                         }
                     } else {
                         status = .invalid
