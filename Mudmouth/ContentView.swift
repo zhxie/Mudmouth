@@ -25,6 +25,8 @@ struct ContentView: View {
     @State private var observer: AnyObject?
     @State private var isEnabled: Bool = false
     @State private var status: NEVPNStatus = .invalid
+    
+    @State private var showNotificationAlert = false
 
     var body: some View {
         NavigationView {
@@ -61,7 +63,7 @@ struct ContentView: View {
                     }
                 }
                 Section("Tap") {
-                    Button("Generate and Trust Root CA") {
+                    Button("Generate and Install Root Certificate") {
                         
                     }
                     if manager == nil {
@@ -86,28 +88,42 @@ struct ContentView: View {
                             }
                         } else {
                             Button("Capture Request") {
-                                manager!.isEnabled = true
-                                manager!.saveToPreferences { error in
+                                UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, error in
                                     if let error = error {
-                                        fatalError("Failed to enable VPN: \(error.localizedDescription)")
+                                        fatalError("Failed to request notification permission: \(error.localizedDescription)")
                                     }
-                                    do {
-                                        try manager!.connection.startVPNTunnel(options: [
-                                            NEVPNConnectionStartOptionUsername: selectedProfile!.url! as NSObject
-                                        ])
-                                    } catch {
-                                        fatalError("Failed to start VPN: \(error.localizedDescription)")
+                                    if !granted {
+                                        showNotificationAlert.toggle()
+                                        return
                                     }
-                                    switch selectedProfile!.preActionEnum {
-                                    case .none:
-                                        break
-                                    case .urlScheme:
-                                        UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
-                                        break
+                                    manager!.isEnabled = true
+                                    manager!.saveToPreferences { error in
+                                        if let error = error {
+                                            fatalError("Failed to enable VPN: \(error.localizedDescription)")
+                                        }
+                                        do {
+                                            try manager!.connection.startVPNTunnel(options: [
+                                                NEVPNConnectionStartOptionUsername: selectedProfile!.url! as NSObject
+                                            ])
+                                        } catch {
+                                            fatalError("Failed to start VPN: \(error.localizedDescription)")
+                                        }
+                                        switch selectedProfile!.preActionEnum {
+                                        case .none:
+                                            break
+                                        case .urlScheme:
+                                            UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
+                                            break
+                                        }
                                     }
                                 }
                             }
                             .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
+                            .alert(isPresented: $showNotificationAlert) {
+                                Alert(title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."), dismissButton: .default(Text("OK")) {
+                                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                                })
+                            }
                         }
                     }
                 }
