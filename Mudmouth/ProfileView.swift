@@ -28,7 +28,7 @@ struct ProfileView: View {
                 } header: {
                     Text("Profile")
                 } footer: {
-                    Text("Mudmouth only taps HTTPS requests.")
+                    Text("Mudmouth only supports tapping on HTTPS requests.")
                 }
                 Section("Pre-Action") {
                     Picker("Action", selection: $profile.preActionEnum) {

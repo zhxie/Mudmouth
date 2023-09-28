@@ -21,6 +21,8 @@ struct ContentView: View {
     @State private var selectedProfile: Profile? = nil
     @State private var profileOperation: DataOperation<Profile>?
     
+    @State private var showCertificate = false
+    
     @State private var manager: NETunnelProviderManager?
     @State private var observer: AnyObject?
     @State private var isEnabled: Bool = false
@@ -63,8 +65,11 @@ struct ContentView: View {
                     }
                 }
                 Section("Tap") {
-                    Button("Generate and Install Root Certificate") {
-                        
+                    Button("Configure Root Certificate") {
+                        showCertificate.toggle()
+                    }
+                    .sheet(isPresented: $showCertificate) {
+                        CertificateView()
                     }
                     if manager == nil {
                         Button("Install VPN") {
