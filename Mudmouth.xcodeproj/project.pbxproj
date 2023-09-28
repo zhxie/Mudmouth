@@ -12,6 +12,11 @@
 		E425B8EA2ABC27E500776F46 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E425B8E92ABC27E500776F46 /* PacketTunnelProvider.swift */; };
 		E425B8EF2ABC27E500776F46 /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E425B8E42ABC27E500776F46 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E427B1182AC1BD7500F2D715 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E427B1172AC1BD7500F2D715 /* Profile.swift */; };
+		E427B11D2AC1DC1900F2D715 /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = E427B11C2AC1DC1900F2D715 /* NIO */; };
+		E427B11F2AC1DC1900F2D715 /* NIOHTTP1 in Frameworks */ = {isa = PBXBuildFile; productRef = E427B11E2AC1DC1900F2D715 /* NIOHTTP1 */; };
+		E427B1212AC1DC1900F2D715 /* NIOTLS in Frameworks */ = {isa = PBXBuildFile; productRef = E427B1202AC1DC1900F2D715 /* NIOTLS */; };
+		E427B1232AC1E09B00F2D715 /* NIOCore in Frameworks */ = {isa = PBXBuildFile; productRef = E427B1222AC1E09B00F2D715 /* NIOCore */; };
+		E427B1252AC1E0A200F2D715 /* NIOPosix in Frameworks */ = {isa = PBXBuildFile; productRef = E427B1242AC1E0A200F2D715 /* NIOPosix */; };
 		E42FB9392ABB2D2200670B6C /* MudmouthApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */; };
 		E42FB93B2ABB2D2200670B6C /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93A2ABB2D2200670B6C /* Persistence.swift */; };
 		E42FB93E2ABB2D2200670B6C /* Mudmouth.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93C2ABB2D2200670B6C /* Mudmouth.xcdatamodeld */; };
@@ -73,7 +78,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E427B1252AC1E0A200F2D715 /* NIOPosix in Frameworks */,
 				E425B8E72ABC27E500776F46 /* NetworkExtension.framework in Frameworks */,
+				E427B11F2AC1DC1900F2D715 /* NIOHTTP1 in Frameworks */,
+				E427B1232AC1E09B00F2D715 /* NIOCore in Frameworks */,
+				E427B1212AC1DC1900F2D715 /* NIOTLS in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +90,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E427B11D2AC1DC1900F2D715 /* NIO in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,6 +185,12 @@
 			dependencies = (
 			);
 			name = PacketTunnel;
+			packageProductDependencies = (
+				E427B11E2AC1DC1900F2D715 /* NIOHTTP1 */,
+				E427B1202AC1DC1900F2D715 /* NIOTLS */,
+				E427B1222AC1E09B00F2D715 /* NIOCore */,
+				E427B1242AC1E0A200F2D715 /* NIOPosix */,
+			);
 			productName = PacketTunnel;
 			productReference = E425B8E42ABC27E500776F46 /* PacketTunnel.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -194,6 +210,9 @@
 				E425B8EE2ABC27E500776F46 /* PBXTargetDependency */,
 			);
 			name = Mudmouth;
+			packageProductDependencies = (
+				E427B11C2AC1DC1900F2D715 /* NIO */,
+			);
 			productName = Mudmouth;
 			productReference = E42FB9352ABB2D2200670B6C /* Mudmouth.app */;
 			productType = "com.apple.product-type.application";
@@ -225,6 +244,9 @@
 				Base,
 			);
 			mainGroup = E42FB92C2ABB2D2200670B6C;
+			packageReferences = (
+				E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */,
+			);
 			productRefGroup = E42FB9362ABB2D2200670B6C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -569,6 +591,45 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-nio.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E427B11C2AC1DC1900F2D715 /* NIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIO;
+		};
+		E427B11E2AC1DC1900F2D715 /* NIOHTTP1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOHTTP1;
+		};
+		E427B1202AC1DC1900F2D715 /* NIOTLS */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOTLS;
+		};
+		E427B1222AC1E09B00F2D715 /* NIOCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOCore;
+		};
+		E427B1242AC1E0A200F2D715 /* NIOPosix */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOPosix;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		E42FB93C2ABB2D2200670B6C /* Mudmouth.xcdatamodeld */ = {
