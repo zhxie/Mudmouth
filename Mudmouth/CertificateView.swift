@@ -16,14 +16,8 @@ struct CertificateView: View {
     
     init() {
         let (certificate, privateKey) = loadCertificate()
-        if certificate != nil && privateKey != nil {
-            _certificate = State(initialValue: certificate!)
-            _privateKey = State(initialValue: privateKey!)
-        } else {
-            let (certificate, privateKey) = generateCertificate()
-            _certificate = State(initialValue: certificate)
-            _privateKey = State(initialValue: privateKey)
-        }
+        _certificate = State(initialValue: certificate!)
+        _privateKey = State(initialValue: privateKey!)
     }
     
     var body: some View {

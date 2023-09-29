@@ -31,6 +31,10 @@ struct ContentView: View {
     @State private var showNotificationAlert = false
     
     init() {
+        let (certificate, privateKey) = loadCertificate()
+        if certificate == nil || privateKey == nil {
+            let _ = generateCertificate()
+        }
         runCertificateServer()
     }
 
@@ -91,7 +95,9 @@ struct ContentView: View {
                                         showNotificationAlert.toggle()
                                         return
                                     }
-                                    startVpn(manager: manager!, url: selectedProfile!.url!) {
+                                    let (certificate, privateKey) = loadCertificate()
+                                    let serializedCertificate = serializeCertificate(certificate!)
+                                    startVpn(manager: manager!, url: selectedProfile!.url!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
                                         switch selectedProfile!.preActionEnum {
                                         case .none:
                                             break

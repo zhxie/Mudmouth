@@ -35,7 +35,7 @@ func loadVpn(_ completion: @escaping (_ manager: NETunnelProviderManager?) -> Vo
     }
 }
 
-func startVpn(manager: NETunnelProviderManager, url: String, _ completion: @escaping () -> Void) {
+func startVpn(manager: NETunnelProviderManager, url: String, certificate: [UInt8], privateKey: Data, _ completion: @escaping () -> Void) {
     manager.isEnabled = true
     manager.saveToPreferences { error in
         if let error = error {
@@ -43,7 +43,8 @@ func startVpn(manager: NETunnelProviderManager, url: String, _ completion: @esca
         }
         do {
             try manager.connection.startVPNTunnel(options: [
-                NEVPNConnectionStartOptionUsername: url as NSObject
+                NEVPNConnectionStartOptionUsername: url as NSObject,
+                NEVPNConnectionStartOptionPassword: "\(Data(certificate).base64EncodedString()):\(privateKey.base64EncodedString())" as NSObject
             ])
             completion()
         } catch {
