@@ -24,6 +24,13 @@
 		E42FB9422ABB2D2400670B6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42FB9412ABB2D2400670B6C /* Assets.xcassets */; };
 		E42FB9462ABB2D2400670B6C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42FB9452ABB2D2400670B6C /* Preview Assets.xcassets */; };
 		E4662E542AC5C362008B535D /* CertificateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E532AC5C362008B535D /* CertificateView.swift */; };
+		E4662E5A2AC5D568008B535D /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = E4662E592AC5D568008B535D /* X509 */; };
+		E4662E5E2AC6EC13008B535D /* Certificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E5D2AC6EC13008B535D /* Certificate.swift */; };
+		E4662E602AC6EE10008B535D /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E5F2AC6EE10008B535D /* String.swift */; };
+		E4662E622AC71D5C008B535D /* NIOHTTP1 in Frameworks */ = {isa = PBXBuildFile; productRef = E4662E612AC71D5C008B535D /* NIOHTTP1 */; };
+		E4662E642AC71DBA008B535D /* CertificateServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E632AC71DBA008B535D /* CertificateServer.swift */; };
+		E4662E662AC72676008B535D /* VPN.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E652AC72676008B535D /* VPN.swift */; };
+		E4662E682AC7270E008B535D /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E672AC7270E008B535D /* Notification.swift */; };
 		E4C5C83C2ABB4B5F006F8797 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C83B2ABB4B5F006F8797 /* Action.swift */; };
 		E4C5C84A2ABBEA8E006F8797 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C8492ABBEA8E006F8797 /* ProfileView.swift */; };
 		E4C5C84E2ABBEB9C006F8797 /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C84D2ABBEB9C006F8797 /* Binding.swift */; };
@@ -70,6 +77,11 @@
 		E42FB9432ABB2D2400670B6C /* Mudmouth.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mudmouth.entitlements; sourceTree = "<group>"; };
 		E42FB9452ABB2D2400670B6C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E4662E532AC5C362008B535D /* CertificateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateView.swift; sourceTree = "<group>"; };
+		E4662E5D2AC6EC13008B535D /* Certificate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Certificate.swift; sourceTree = "<group>"; };
+		E4662E5F2AC6EE10008B535D /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		E4662E632AC71DBA008B535D /* CertificateServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateServer.swift; sourceTree = "<group>"; };
+		E4662E652AC72676008B535D /* VPN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPN.swift; sourceTree = "<group>"; };
+		E4662E672AC7270E008B535D /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		E4C5C83B2ABB4B5F006F8797 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		E4C5C8492ABBEA8E006F8797 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		E4C5C84D2ABBEB9C006F8797 /* Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Binding.swift; sourceTree = "<group>"; };
@@ -92,6 +104,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4662E622AC71D5C008B535D /* NIOHTTP1 in Frameworks */,
+				E4662E5A2AC5D568008B535D /* X509 in Frameworks */,
 				E427B11D2AC1DC1900F2D715 /* NIO in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				E4C5C83A2ABB4B51006F8797 /* Models */,
+				E4662E5C2AC6EC06008B535D /* Utils */,
 				E42FB9382ABB2D2200670B6C /* MudmouthApp.swift */,
 				E42FB93A2ABB2D2200670B6C /* Persistence.swift */,
 				E42FB93F2ABB2D2200670B6C /* ContentView.swift */,
@@ -161,11 +176,23 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		E4662E5C2AC6EC06008B535D /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				E4C5C84D2ABBEB9C006F8797 /* Binding.swift */,
+				E4662E5D2AC6EC13008B535D /* Certificate.swift */,
+				E4662E632AC71DBA008B535D /* CertificateServer.swift */,
+				E4662E5F2AC6EE10008B535D /* String.swift */,
+				E4662E652AC72676008B535D /* VPN.swift */,
+				E4662E672AC7270E008B535D /* Notification.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		E4C5C83A2ABB4B51006F8797 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				E4C5C83B2ABB4B5F006F8797 /* Action.swift */,
-				E4C5C84D2ABBEB9C006F8797 /* Binding.swift */,
 				E425B8D12ABC035200776F46 /* DataOperation.swift */,
 				E427B1172AC1BD7500F2D715 /* Profile.swift */,
 			);
@@ -215,6 +242,8 @@
 			name = Mudmouth;
 			packageProductDependencies = (
 				E427B11C2AC1DC1900F2D715 /* NIO */,
+				E4662E592AC5D568008B535D /* X509 */,
+				E4662E612AC71D5C008B535D /* NIOHTTP1 */,
 			);
 			productName = Mudmouth;
 			productReference = E42FB9352ABB2D2200670B6C /* Mudmouth.app */;
@@ -249,6 +278,7 @@
 			mainGroup = E42FB92C2ABB2D2200670B6C;
 			packageReferences = (
 				E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */,
+				E4662E582AC5D568008B535D /* XCRemoteSwiftPackageReference "swift-certificates" */,
 			);
 			productRefGroup = E42FB9362ABB2D2200670B6C /* Products */;
 			projectDirPath = "";
@@ -294,11 +324,16 @@
 			files = (
 				E42FB9392ABB2D2200670B6C /* MudmouthApp.swift in Sources */,
 				E42FB93E2ABB2D2200670B6C /* Mudmouth.xcdatamodeld in Sources */,
+				E4662E662AC72676008B535D /* VPN.swift in Sources */,
 				E42FB9402ABB2D2200670B6C /* ContentView.swift in Sources */,
 				E4C5C84E2ABBEB9C006F8797 /* Binding.swift in Sources */,
 				E4662E542AC5C362008B535D /* CertificateView.swift in Sources */,
+				E4662E642AC71DBA008B535D /* CertificateServer.swift in Sources */,
 				E425B8D22ABC035200776F46 /* DataOperation.swift in Sources */,
+				E4662E602AC6EE10008B535D /* String.swift in Sources */,
 				E4C5C83C2ABB4B5F006F8797 /* Action.swift in Sources */,
+				E4662E5E2AC6EC13008B535D /* Certificate.swift in Sources */,
+				E4662E682AC7270E008B535D /* Notification.swift in Sources */,
 				E4C5C84A2ABBEA8E006F8797 /* ProfileView.swift in Sources */,
 				E427B1182AC1BD7500F2D715 /* Profile.swift in Sources */,
 				E42FB93B2ABB2D2200670B6C /* Persistence.swift in Sources */,
@@ -605,6 +640,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		E4662E582AC5D568008B535D /* XCRemoteSwiftPackageReference "swift-certificates" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-certificates";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -632,6 +675,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */;
 			productName = NIOPosix;
+		};
+		E4662E592AC5D568008B535D /* X509 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4662E582AC5D568008B535D /* XCRemoteSwiftPackageReference "swift-certificates" */;
+			productName = X509;
+		};
+		E4662E612AC71D5C008B535D /* NIOHTTP1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E427B11B2AC1DC1800F2D715 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOHTTP1;
 		};
 /* End XCSwiftPackageProductDependency section */
 

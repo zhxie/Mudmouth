@@ -29,6 +29,10 @@ struct ContentView: View {
     @State private var status: NEVPNStatus = .invalid
     
     @State private var showNotificationAlert = false
+    
+    init() {
+        runCertificateServer()
+    }
 
     var body: some View {
         NavigationView {
@@ -73,18 +77,7 @@ struct ContentView: View {
                     }
                     if manager == nil {
                         Button("Install VPN") {
-                            let manager = NETunnelProviderManager()
-                            manager.localizedDescription = "Mudmouth"
-                            let proto = NETunnelProviderProtocol()
-                            proto.providerBundleIdentifier = "name.sketch.Mudmouth.PacketTunnel"
-                            proto.serverAddress = "Mudmouth"
-                            manager.protocolConfiguration = proto
-                            manager.isEnabled = true
-                            manager.saveToPreferences { error in
-                                if let error = error {
-                                    fatalError("Failed to add VPN profile: \(error.localizedDescription)")
-                                }
-                            }
+                            installVpn()
                         }
                     } else {
                         if status == .connected {
@@ -93,26 +86,12 @@ struct ContentView: View {
                             }
                         } else {
                             Button("Capture Request") {
-                                UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, error in
-                                    if let error = error {
-                                        fatalError("Failed to request notification permission: \(error.localizedDescription)")
-                                    }
+                                requestNotification { granted in
                                     if !granted {
                                         showNotificationAlert.toggle()
                                         return
                                     }
-                                    manager!.isEnabled = true
-                                    manager!.saveToPreferences { error in
-                                        if let error = error {
-                                            fatalError("Failed to enable VPN: \(error.localizedDescription)")
-                                        }
-                                        do {
-                                            try manager!.connection.startVPNTunnel(options: [
-                                                NEVPNConnectionStartOptionUsername: selectedProfile!.url! as NSObject
-                                            ])
-                                        } catch {
-                                            fatalError("Failed to start VPN: \(error.localizedDescription)")
-                                        }
+                                    startVpn(manager: manager!, url: selectedProfile!.url!) {
                                         switch selectedProfile!.preActionEnum {
                                         case .none:
                                             break
@@ -137,9 +116,8 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
-                NETunnelProviderManager.loadAllFromPreferences { managers, error in
-                    os_log(.info, "Load %d VPN profile", managers?.count ?? 0)
-                    manager = managers?.first
+                loadVpn { manager in
+                    self.manager = manager
                     if observer != nil {
                         NotificationCenter.default.removeObserver(observer!)
                         observer = nil
@@ -153,9 +131,6 @@ struct ContentView: View {
                         }
                     } else {
                         status = .invalid
-                    }
-                    if let error = error {
-                        fatalError("Failed to load VPN profile: \(error.localizedDescription)")
                     }
                 }
             }
