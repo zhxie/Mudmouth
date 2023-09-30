@@ -36,9 +36,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         setTunnelNetworkSettings(networkSettings) { error in
             os_log(.info, "Match packets against domain %{public}@", url.host!)
             if let error = error {
-                os_log(.error, "Failed to configure tunnel: \(error.localizedDescription)")
-                completionHandler(error)
-                return
+                fatalError("Failed to configure tunnel: \(error.localizedDescription)")
             }
             // Process packets in the tunnel.
             runMitmServer(certificate: certificate, privateKey: privateKey) {

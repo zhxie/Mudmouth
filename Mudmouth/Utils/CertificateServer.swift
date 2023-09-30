@@ -61,10 +61,10 @@ func runCertificateServer() {
         bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: 16836)).whenComplete { result in
             switch result {
             case .success:
-                os_log("Bind certificate server")
+                os_log(.info, "Certificate server binded")
                 break
             case .failure(let failure):
-                fatalError("Failed to bind certificate server \(failure)")
+                fatalError("Failed to bind certificate server: \(failure)")
             }
         }
     }

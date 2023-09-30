@@ -9,6 +9,7 @@ import Foundation
 import NIOCore
 import NIOHTTP1
 import NIOPosix
+import NIOSSL
 import OSLog
 
 class ConnectHandler: ChannelInboundHandler {
@@ -18,19 +19,22 @@ class ConnectHandler: ChannelInboundHandler {
     
     private enum State {
         case idle
-        case awaitingEnd
         case established
     }
     
     private var state: State = .idle
     private var host: String = ""
     private var port: Int = 0
-    private var certificateData: Data
-    private var privateKeyData: Data
+    private var tlsConfiguration: TLSConfiguration
     
     init(certificate: Data, privateKey: Data) {
-        certificateData = certificate
-        privateKeyData = privateKey
+        do {
+            let certificate = try NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
+            let privateKey = try NIOSSLPrivateKey(bytes: [UInt8](privateKey), format: .der)
+            tlsConfiguration = TLSConfiguration.makeServerConfiguration(certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
+        } catch {
+            fatalError("Failed to create TLS configuration: \(error)")
+        }
     }
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -38,7 +42,6 @@ class ConnectHandler: ChannelInboundHandler {
         case .idle:
             let httpData = unwrapInboundIn(data)
             guard case .head(let head) = httpData else {
-                os_log(.error, "Invalid HTTP message: %{public}@", data.description)
                 return
             }
             guard head.method == .CONNECT else {
@@ -50,24 +53,25 @@ class ConnectHandler: ChannelInboundHandler {
             port = components.last.flatMap { n in
                 Int(n, radix: 10)
             } ?? 80
-            os_log(.info, "Target to upstream: %{public}@:%d", host, port)
-            state = .awaitingEnd
-        case .awaitingEnd:
-            let httpData = unwrapInboundIn(data)
-            if case .end = httpData {
-                context.pipeline.context(handlerType: ByteToMessageHandler<HTTPRequestDecoder>.self).whenSuccess { c in
-                    context.pipeline.removeHandler(context: c, promise: nil)
-                    // Send 200 to downstream.
-                    let headers = HTTPHeaders([("Content-Length", "0")])
-                    let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)
-                    context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-                    context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                    context.pipeline.context(handlerType: HTTPResponseEncoder.self).whenSuccess { c in
-                        context.pipeline.removeHandler(context: c, promise: nil)
-                        os_log(.info, "Complete HTTP CONNECT handling")
-                        self.state = .established
-                    }
-                }
+            do {
+                let sslContext = try NIOSSLContext(configuration: self.tlsConfiguration)
+                let sslHandler = NIOSSLServerHandler(context: sslContext)
+                // Send 200 to downstream.
+                let headers = HTTPHeaders([("Content-Length", "0")])
+                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)
+                context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+                context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
+                // Upgrade to TLS server.
+                let _ = context.pipeline.addHandler(sslHandler, position: .first)
+                os_log(.info, "Upgraded to TLS server %{public}@:%d", host, port)
+                self.state = .established
+            } catch {
+                // Send 500 to downstream.
+                let headers = HTTPHeaders([("Content-Length", "0")])
+                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .internalServerError, headers: headers)
+                context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+                context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
+                os_log(.info, "Failed to upgrade to TLS server: %{public}@", error.localizedDescription)
             }
         case .established:
             os_log(.info, "%{public}@", data.description)
@@ -94,9 +98,10 @@ func runMitmServer(certificate: Data, privateKey: Data, _ completion: @escaping 
     bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: 6836)).whenComplete { result in
         switch result {
         case .success:
+            os_log(.info, "MitM proxy binded")
             completion()
         case .failure(let failure):
-            fatalError("Failed to bind MitM proxy \(failure)")
+            fatalError("Failed to bind MitM proxy: \(failure)")
         }
     }
 }

@@ -97,7 +97,7 @@ struct ContentView: View {
                                     }
                                     let (certificate, privateKey) = loadCertificate()
                                     let serializedCertificate = serializeCertificate(certificate!)
-                                    startVpn(manager: manager!, url: selectedProfile!.url!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
+                                    startVpn(manager: manager!, url: selectedProfile!.url!, certificate: serializedCertificate, privateKey: privateKey!.derRepresentation) {
                                         switch selectedProfile!.preActionEnum {
                                         case .none:
                                             break
