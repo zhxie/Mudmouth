@@ -46,23 +46,26 @@ class CertificateHandler: ChannelInboundHandler {
 }
 
 func runCertificateServer() {
-    let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-    let bootstrap = ServerBootstrap(group: group)
-        .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-        .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-        .childChannelInitializer({ channel in
-            channel.pipeline.configureHTTPServerPipeline()
-                .flatMap { _ in
-                    channel.pipeline.addHandler(CertificateHandler())
-                }
-        })
-    bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: 16836)).whenComplete { result in
-        switch result {
-        case .success:
-            os_log("Bind certificate server")
-            break
-        case .failure(let failure):
-            fatalError("Failed to bind certificate server \(failure)")
+    // Run in background thread to avoid performance warning, also see https://github.com/apple/swift-nio/issues/2223.
+    DispatchQueue.global(qos: .background).async {
+        let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        let bootstrap = ServerBootstrap(group: group)
+            .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+            .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+            .childChannelInitializer({ channel in
+                channel.pipeline.configureHTTPServerPipeline()
+                    .flatMap { _ in
+                        channel.pipeline.addHandler(CertificateHandler())
+                    }
+            })
+        bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: 16836)).whenComplete { result in
+            switch result {
+            case .success:
+                os_log("Bind certificate server")
+                break
+            case .failure(let failure):
+                fatalError("Failed to bind certificate server \(failure)")
+            }
         }
     }
 }
