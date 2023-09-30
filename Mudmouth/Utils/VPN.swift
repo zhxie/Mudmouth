@@ -41,6 +41,7 @@ func startVpn(manager: NETunnelProviderManager, url: String, certificate: [UInt8
         if let error = error {
             fatalError("Failed to enable VPN: \(error.localizedDescription)")
         }
+        let (certificate, privateKey) = generateSiteCertificate(url: url, caCertificateData: certificate, caPrivateKeyData: privateKey)
         do {
             try manager.connection.startVPNTunnel(options: [
                 NEVPNConnectionStartOptionUsername: url as NSObject,
