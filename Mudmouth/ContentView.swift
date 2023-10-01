@@ -51,16 +51,12 @@ struct ContentView: View {
                         Text(profile.name!)
                             .swipeActions(allowsFullSwipe: false) {
                                 Button(role: .destructive) {
-                                    viewContext.delete(profile)
-                                    save()
-                                    if profile == selectedProfile {
-                                        selectedProfile = nil
-                                    }
+                                    deleteProfile(profile)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
                                 Button {
-                                    profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
+                                    updateProfile(profile)
                                 } label: {
                                     Label("Edit", systemImage: "square.and.pencil")
                                 }
@@ -68,16 +64,12 @@ struct ContentView: View {
                             }
                             .contextMenu {
                                 Button {
-                                    profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
+                                    updateProfile(profile)
                                 } label: {
                                     Label("Edit", systemImage: "square.and.pencil")
                                 }
                                 Button(role: .destructive) {
-                                    viewContext.delete(profile)
-                                    save()
-                                    if profile == selectedProfile {
-                                        selectedProfile = nil
-                                    }
+                                    deleteProfile(profile)
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -86,12 +78,12 @@ struct ContentView: View {
                     Button("New Profile") {
                         profileOperation = CreateOperation(with: viewContext)
                     }
-                    .sheet(item: $profileOperation, onDismiss: {
-                        save()
-                    }) { operation in
-                        ProfileView(profile: operation.object)
-                            .environment(\.managedObjectContext, operation.context)
-                    }
+                }
+                .sheet(item: $profileOperation, onDismiss: {
+                    save()
+                }) { operation in
+                    ProfileView(profile: operation.object)
+                        .environment(\.managedObjectContext, operation.context)
                 }
                 Section("Tap") {
                     Button("Configure Root Certificate") {
@@ -111,23 +103,7 @@ struct ContentView: View {
                             }
                         } else {
                             Button("Capture Request") {
-                                requestNotification { granted in
-                                    if !granted {
-                                        showNotificationAlert.toggle()
-                                        return
-                                    }
-                                    let (certificate, privateKey) = loadCertificate()
-                                    let serializedCertificate = serializeCertificate(certificate!)
-                                    startVpn(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
-                                        UINotificationFeedbackGenerator().notificationOccurred(.success)
-                                        switch selectedProfile!.preActionEnum {
-                                        case .none:
-                                            break
-                                        case .urlScheme:
-                                            UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
-                                        }
-                                    }
-                                }
+                                captureRequest()
                             }
                             .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
                             .alert(isPresented: $showNotificationAlert) {
@@ -245,6 +221,74 @@ struct ContentView: View {
                 }
             }
         }
+        .onOpenURL { url in
+            os_log(.info, "Open from URL Scheme: %{public}@", url.absoluteString)
+            if url.scheme == "mudmouth" {
+                if let host = url.host {
+                    switch host {
+                    case "add":
+                        let components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+                        if let queries = components.queryItems {
+                            let profile = Profile(context: viewContext)
+                            profile.name = queries.first { item in
+                                item.name == "name"
+                            }?.value
+                            profile.url = queries.first { item in
+                                item.name == "url"
+                            }?.value
+                            profile.directionEnum = Direction(rawValue: Int16(queries.first { item in
+                                item.name == "direction"
+                            }?.value ?? "0") ?? 0) ?? .request
+                            profile.preActionEnum = Action(rawValue: Int16(queries.first { item in
+                                item.name == "preAction"
+                            }?.value ?? "0") ?? 0) ?? .none
+                            profile.preActionUrlScheme = queries.first { item in
+                                item.name == "preActionUrlScheme"
+                            }?.value
+                            profile.postActionEnum = Action(rawValue: Int16(queries.first { item in
+                                item.name == "postAction"
+                            }?.value ?? "0") ?? 0) ?? .none
+                            profile.postActionUrlScheme = queries.first { item in
+                                item.name == "postActionUrlScheme"
+                            }?.value
+                            if profile.isValid {
+                                save()
+                                AlertKitAPI.present(title: "Profile Added", icon: .done, style: .iOS17AppleMusic, haptic: .success)
+                            } else {
+                                viewContext.delete(profile)
+                                save()
+                                AlertKitAPI.present(title: "Invalid Profile", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                            }
+                        }
+                    case "capture":
+                        let components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+                        if let queries = components.queryItems {
+                            if let name = queries.first(where: { item in
+                                item.name == "name"
+                            })?.value {
+                                do {
+                                    let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
+                                    fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+                                    let fetchedResults = try viewContext.fetch(fetchRequest)
+                                    if let profile = fetchedResults.first {
+                                        selectedProfile = profile
+                                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                                            captureRequest()
+                                        }
+                                    } else {
+                                        AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                    }
+                                } catch {
+                                    fatalError("Failed to find profile: \(error.localizedDescription)")
+                                }
+                            }
+                        }
+                    default:
+                        break
+                    }
+                }
+            }
+        }
     }
     
     var bodyString: String? {
@@ -259,6 +303,40 @@ struct ContentView: View {
             try viewContext.save()
         } catch {
             fatalError("Failed to save view context: \(error.localizedDescription)")
+        }
+    }
+    
+    private func deleteProfile(_ profile: Profile) {
+        viewContext.delete(profile)
+        save()
+        if profile == selectedProfile {
+            selectedProfile = nil
+        }
+    }
+    
+    private func updateProfile(_ profile: Profile) {
+        profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
+    }
+    
+    private func captureRequest() {
+        requestNotification { granted in
+            if !granted {
+                showNotificationAlert.toggle()
+                return
+            }
+            let (certificate, privateKey) = loadCertificate()
+            let serializedCertificate = serializeCertificate(certificate!)
+            startVpn(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                switch selectedProfile!.preActionEnum {
+                case .none:
+                    break
+                case .urlScheme:
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                        UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
+                    }
+                }
+            }
         }
     }
 }

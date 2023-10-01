@@ -44,7 +44,7 @@ func startVpn(manager: NETunnelProviderManager, profile: Profile, certificate: [
         let (certificate, privateKey) = generateSiteCertificate(url: profile.url!, caCertificateData: certificate, caPrivateKeyData: privateKey)
         do {
             try manager.connection.startVPNTunnel(options: [
-                NEVPNConnectionStartOptionUsername: "\(profile.direction):\(profile.url!)" as NSObject,
+                NEVPNConnectionStartOptionUsername: "\(profile.directionEnum.rawValue):\(profile.url!)" as NSObject,
                 NEVPNConnectionStartOptionPassword: "\(Data(certificate).base64EncodedString()):\(privateKey.base64EncodedString())" as NSObject
             ])
             completion()
