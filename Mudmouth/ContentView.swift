@@ -371,6 +371,9 @@ struct ContentView: View {
             var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
             let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
             var components = URLComponents(url: scheme, resolvingAgainstBaseURL: true)!
+            if components.queryItems == nil {
+                components.queryItems = []
+            }
             components.queryItems!.append(URLQueryItem(name: "headers", value: encoded))
             if body_ != nil {
                 let encoded = body_!.urlSafeBase64EncodedString()
