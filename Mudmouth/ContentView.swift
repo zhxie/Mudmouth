@@ -33,7 +33,9 @@ struct ContentView: View {
         if certificate == nil || privateKey == nil {
             let _ = generateCertificate()
         }
-        runCertificateServer()
+        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" {
+            runCertificateServer()
+        }
     }
 
     var body: some View {
@@ -167,6 +169,52 @@ struct ContentView: View {
                         }
                     }
                 }
+                Section {
+                    VStack(alignment: .leading) {
+                        Spacer()
+                            .frame(height: 8)
+                        HStack(alignment: .top) {
+                            Image(systemName: "network")
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                                .frame(width: 16)
+                            Text("Trust root certificate and install VPN of Mudmouth to capture requests.")
+                                .font(.system(size: 15, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                            .frame(height: 16)
+                        HStack(alignment: .top) {
+                            Image(systemName: "bell.badge")
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                                .frame(width: 16)
+                            Text("Mudmouth will notify you once the request has been captured.")
+                                .font(.system(size: 15, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                            .frame(height: 16)
+                        HStack(alignment: .top) {
+                            Image(systemName: "shield.lefthalf.filled")
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                                .frame(width: 16)
+                            Text("Your connection is always secure and Mudmouth never collects any information.")
+                                .font(.system(size: 15, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                            .frame(height: 8)
+                    }
+                }
+                .listRowBackground(Color(UIColor.secondarySystemBackground))
             }
             .navigationTitle("Mudmouth")
         }
