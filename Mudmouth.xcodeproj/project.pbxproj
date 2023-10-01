@@ -37,6 +37,7 @@
 		E4662E8B2AC95659008B535D /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E8A2AC95659008B535D /* Direction.swift */; };
 		E4662E8D2AC95A27008B535D /* HttpHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E8C2AC95A27008B535D /* HttpHeaders.swift */; };
 		E4662E922AC9668A008B535D /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E912AC9668A008B535D /* Data.swift */; };
+		E4662E952AC968F1008B535D /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4662E942AC968F1008B535D /* AlertKit */; };
 		E4C5C83C2ABB4B5F006F8797 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C83B2ABB4B5F006F8797 /* Action.swift */; };
 		E4C5C84A2ABBEA8E006F8797 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C8492ABBEA8E006F8797 /* ProfileView.swift */; };
 		E4C5C84E2ABBEB9C006F8797 /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C5C84D2ABBEB9C006F8797 /* Binding.swift */; };
@@ -116,6 +117,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4662E952AC968F1008B535D /* AlertKit in Frameworks */,
 				E4662E622AC71D5C008B535D /* NIOHTTP1 in Frameworks */,
 				E4662E5A2AC5D568008B535D /* X509 in Frameworks */,
 				E427B11D2AC1DC1900F2D715 /* NIO in Frameworks */,
@@ -270,6 +272,7 @@
 				E427B11C2AC1DC1900F2D715 /* NIO */,
 				E4662E592AC5D568008B535D /* X509 */,
 				E4662E612AC71D5C008B535D /* NIOHTTP1 */,
+				E4662E942AC968F1008B535D /* AlertKit */,
 			);
 			productName = Mudmouth;
 			productReference = E42FB9352ABB2D2200670B6C /* Mudmouth.app */;
@@ -307,6 +310,7 @@
 				E4662E582AC5D568008B535D /* XCRemoteSwiftPackageReference "swift-certificates" */,
 				E4662E6C2AC7F762008B535D /* XCRemoteSwiftPackageReference "swift-nio-ssl" */,
 				E4662E852AC8552A008B535D /* XCRemoteSwiftPackageReference "async-http-client" */,
+				E4662E932AC968F1008B535D /* XCRemoteSwiftPackageReference "AlertKit" */,
 			);
 			productRefGroup = E42FB9362ABB2D2200670B6C /* Products */;
 			projectDirPath = "";
@@ -697,6 +701,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		E4662E932AC968F1008B535D /* XCRemoteSwiftPackageReference "AlertKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparrowcode/AlertKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -739,6 +751,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E4662E852AC8552A008B535D /* XCRemoteSwiftPackageReference "async-http-client" */;
 			productName = AsyncHTTPClient;
+		};
+		E4662E942AC968F1008B535D /* AlertKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4662E932AC968F1008B535D /* XCRemoteSwiftPackageReference "AlertKit" */;
+			productName = AlertKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 

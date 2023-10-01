@@ -5,6 +5,7 @@
 //  Created by Xie Zhihao on 2023/9/20.
 //
 
+import AlertKit
 import CoreData
 import NetworkExtension
 import OSLog
@@ -118,6 +119,7 @@ struct ContentView: View {
                                     let (certificate, privateKey) = loadCertificate()
                                     let serializedCertificate = serializeCertificate(certificate!)
                                     startVpn(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
+                                        UINotificationFeedbackGenerator().notificationOccurred(.success)
                                         switch selectedProfile!.preActionEnum {
                                         case .none:
                                             break
@@ -138,23 +140,6 @@ struct ContentView: View {
                 }
                 if !headers.isEmpty {
                     Section("Result") {
-                        if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
-                            Button("Continue \"\(selectedProfile!.name!)\"") {
-                                switch selectedProfile!.postActionEnum {
-                                case .none:
-                                    break
-                                case .urlScheme:
-                                    var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
-                                    let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
-                                    scheme.append(queryItems: [URLQueryItem(name: "headers", value: encoded)])
-                                    if body_ != nil {
-                                        let encoded = body_!.urlSafeBase64EncodedString()
-                                        scheme.append(queryItems: [URLQueryItem(name: "body", value: encoded)])
-                                    }
-                                    UIApplication.shared.open(scheme)
-                                }
-                            }
-                        }
                         VStack(alignment: .leading) {
                             Text("Headers")
                             Spacer()
@@ -194,6 +179,23 @@ struct ContentView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                        if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
+                            Button("Continue \"\(selectedProfile!.name!)\"") {
+                                switch selectedProfile!.postActionEnum {
+                                case .none:
+                                    break
+                                case .urlScheme:
+                                    var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
+                                    let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
+                                    scheme.append(queryItems: [URLQueryItem(name: "headers", value: encoded)])
+                                    if body_ != nil {
+                                        let encoded = body_!.urlSafeBase64EncodedString()
+                                        scheme.append(queryItems: [URLQueryItem(name: "body", value: encoded)])
+                                    }
+                                    UIApplication.shared.open(scheme)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -223,6 +225,22 @@ struct ContentView: View {
                         headers = notification.userInfo!["headers"] as! String
                         body_ = notification.userInfo!["body"] as? Data
                         manager?.connection.stopVPNTunnel()
+                        if selectedProfile != nil {
+                            switch selectedProfile!.postActionEnum {
+                            case .none:
+                                break
+                            case .urlScheme:
+                                var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
+                                let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
+                                scheme.append(queryItems: [URLQueryItem(name: "headers", value: encoded)])
+                                if body_ != nil {
+                                    let encoded = body_!.urlSafeBase64EncodedString()
+                                    scheme.append(queryItems: [URLQueryItem(name: "body", value: encoded)])
+                                }
+                                UIApplication.shared.open(scheme)
+                                AlertKitAPI.present(title: "Post-Action Triggered", icon: .done, style: .iOS17AppleMusic, haptic: .success)
+                            }
+                        }
                     }
                 }
             }
