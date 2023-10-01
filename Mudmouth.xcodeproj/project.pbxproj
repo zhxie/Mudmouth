@@ -189,9 +189,9 @@
 				E4C5C84D2ABBEB9C006F8797 /* Binding.swift */,
 				E4662E5D2AC6EC13008B535D /* Certificate.swift */,
 				E4662E632AC71DBA008B535D /* CertificateServer.swift */,
+				E4662E672AC7270E008B535D /* Notification.swift */,
 				E4662E5F2AC6EE10008B535D /* String.swift */,
 				E4662E652AC72676008B535D /* VPN.swift */,
-				E4662E672AC7270E008B535D /* Notification.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";

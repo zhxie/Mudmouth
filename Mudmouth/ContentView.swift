@@ -24,11 +24,14 @@ struct ContentView: View {
     @State private var showCertificate = false
     
     @State private var manager: NETunnelProviderManager?
-    @State private var observer: AnyObject?
+    @State private var vpnObserver: AnyObject?
     @State private var isEnabled: Bool = false
     @State private var status: NEVPNStatus = .invalid
     
     @State private var showNotificationAlert = false
+    
+    @State private var notificationObserver: AnyObject?
+    @State private var headers = ""
     
     init() {
         let (certificate, privateKey) = loadCertificate()
@@ -116,6 +119,30 @@ struct ContentView: View {
                         }
                     }
                 }
+                if !headers.isEmpty {
+                    Section("Result") {
+                        VStack(alignment: .leading) {
+                            Text("Headers")
+                            Spacer()
+                                .frame(height: 8)
+                            Text(headers)
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                        }
+                        if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
+                            Button("Continue \"\(selectedProfile!.name!)\"") {
+                                switch selectedProfile!.postActionEnum {
+                                case .none:
+                                    break
+                                case .urlScheme:
+                                    var scheme = URL(string: selectedProfile!.preActionUrlScheme!)!
+                                    scheme.append(queryItems: [URLQueryItem(name: "headers", value: headers)])
+                                    UIApplication.shared.open(scheme)
+                                }
+                            }
+                        }
+                    }
+                }
             }
             .navigationTitle("Mudmouth")
         }
@@ -123,19 +150,25 @@ struct ContentView: View {
             if newValue == .active {
                 loadVpn { manager in
                     self.manager = manager
-                    if observer != nil {
-                        NotificationCenter.default.removeObserver(observer!)
-                        observer = nil
+                    if vpnObserver != nil {
+                        NotificationCenter.default.removeObserver(vpnObserver!)
+                        vpnObserver = nil
                     }
                     if manager != nil {
                         status = manager!.connection.status
                         os_log(.info, "VPN connection status %d", status.rawValue)
-                        observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main) { _ in
+                        vpnObserver = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main) { _ in
                             status = manager!.connection.status
                             os_log(.info, "VPN connection status changed to %d", status.rawValue)
                         }
                     } else {
                         status = .invalid
+                    }
+                }
+                if notificationObserver == nil {
+                    notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
+                        headers = notification.userInfo!["headers"] as! String
+                        manager?.connection.stopVPNTunnel()
                     }
                 }
             }

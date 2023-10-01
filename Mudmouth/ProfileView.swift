@@ -55,7 +55,7 @@ struct ProfileView: View {
                     Text("Post-Action")
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
-                        Text("MudMouth will trigger the URL Scheme in the form of <URL_SCHEME>?[HEADER=VALUE] on completion.")
+                        Text("MudMouth will trigger the URL Scheme with an extra query headers=<HEADERS> on completion.")
                     }
                 }
                 Section {
