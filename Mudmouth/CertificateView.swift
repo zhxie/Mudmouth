@@ -68,9 +68,8 @@ struct CertificateView: View {
                         Text(privateKey.publicKey.rawRepresentation.map({ char in
                             String(format: "%02hhX", char)
                         }).joined())
-                            .font(.footnote)
-                            .fontDesign(.monospaced)
-                            .foregroundColor(.secondary)
+                        .font(.system(.footnote, design: .monospaced))
+                        .foregroundColor(.secondary)
                     }
                     .contextMenu {
                         Button {
@@ -88,9 +87,8 @@ struct CertificateView: View {
                         Text(privateKey.rawRepresentation.map({ char in
                             String(format: "%02hhX", char)
                         }).joined())
-                            .font(.footnote)
-                            .fontDesign(.monospaced)
-                            .foregroundColor(.secondary)
+                        .font(.system(.footnote, design: .monospaced))
+                        .foregroundColor(.secondary)
                     }
                     .contextMenu {
                         Button {
