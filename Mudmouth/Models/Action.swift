@@ -24,18 +24,18 @@ enum Action: Int16, CaseIterable {
 extension Profile {
     var preActionEnum: Action {
         get {
-            return Action(rawValue: self.preAction) ?? .none
+            return Action(rawValue: preAction) ?? .none
         }
         set {
-            self.preAction = newValue.rawValue
+            preAction = newValue.rawValue
         }
     }
     var postActionEnum: Action {
         get {
-            return Action(rawValue: self.postAction) ?? .none
+            return Action(rawValue: postAction) ?? .none
         }
         set {
-            self.postAction = newValue.rawValue
+            postAction = newValue.rawValue
         }
     }
 }

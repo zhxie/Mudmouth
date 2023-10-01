@@ -103,7 +103,6 @@ struct ContentView: View {
                                             break
                                         case .urlScheme:
                                             UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
-                                            break
                                         }
                                     }
                                 }

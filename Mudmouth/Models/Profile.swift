@@ -25,7 +25,6 @@ extension Profile {
             if URL(string: preActionUrlScheme ?? "") == nil {
                 return false
             }
-            break
         }
         switch postActionEnum {
         case .none:
@@ -34,7 +33,6 @@ extension Profile {
             if URL(string: postActionUrlScheme ?? "") == nil {
                 return false
             }
-            break
         }
         return true
     }

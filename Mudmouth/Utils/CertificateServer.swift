@@ -27,8 +27,8 @@ class CertificateHandler: ChannelInboundHandler {
             // Send 404 to downstream.
             let headers = HTTPHeaders([("Content-Length", "0")])
             let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .notFound, headers: headers)
-            context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-            context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
+            context.write(wrapOutboundOut(.head(head)), promise: nil)
+            context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
             return
         }
         // Send certificate to downstream.
@@ -37,10 +37,10 @@ class CertificateHandler: ChannelInboundHandler {
         let cer = "-----BEGIN CERTIFICATE-----\n\(base64EncodedCertificate.components(withMaxLength: 64).joined(separator: "\n"))\n-----END CERTIFICATE-----\n"
         let headers = HTTPHeaders([("Content-Length", cer.count.formatted()), ("Content-Type", "application/x-x509-ca-cert")])
         let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)
-        context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+        context.write(wrapOutboundOut(.head(head)), promise: nil)
         let buffer = context.channel.allocator.buffer(string: cer)
         let body = HTTPServerResponsePart.body(.byteBuffer(buffer))
-        context.writeAndFlush(self.wrapOutboundOut(body), promise: nil)
+        context.writeAndFlush(wrapOutboundOut(body), promise: nil)
         os_log(.info, "Send certificate to downstream")
     }
 }
@@ -62,7 +62,6 @@ func runCertificateServer() {
             switch result {
             case .success:
                 os_log(.info, "Certificate server binded")
-                break
             case .failure(let failure):
                 fatalError("Failed to bind certificate server: \(failure)")
             }

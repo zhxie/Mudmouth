@@ -23,8 +23,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         if options![NEVPNConnectionStartOptionPassword] == nil {
             fatalError("No certificate and private key")
         }
-        let domain = options![NEVPNConnectionStartOptionUsername]! as! String
-        let url = URL(string: domain)!
+        let url = URL(string: options![NEVPNConnectionStartOptionUsername]! as! String)!
         proxySettings.matchDomains = [url.host!]
         networkSettings.proxySettings = proxySettings
         let ipv4Settings = NEIPv4Settings(addresses: ["198.18.0.1"], subnetMasks: ["255.255.255.0"])
@@ -39,7 +38,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 fatalError("Failed to configure tunnel: \(error.localizedDescription)")
             }
             // Process packets in the tunnel.
-            runMitmServer(certificate: certificate, privateKey: privateKey) {
+            runMitmServer(url: url, certificate: certificate, privateKey: privateKey) {
                 completionHandler(nil)
             }
         }
