@@ -152,19 +152,7 @@ struct ContentView: View {
                         }
                         if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
                             Button("Continue \"\(selectedProfile!.name!)\"") {
-                                switch selectedProfile!.postActionEnum {
-                                case .none:
-                                    break
-                                case .urlScheme:
-                                    var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
-                                    let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
-                                    scheme.append(queryItems: [URLQueryItem(name: "headers", value: encoded)])
-                                    if body_ != nil {
-                                        let encoded = body_!.urlSafeBase64EncodedString()
-                                        scheme.append(queryItems: [URLQueryItem(name: "body", value: encoded)])
-                                    }
-                                    UIApplication.shared.open(scheme)
-                                }
+                                triggerPostAction {}
                             }
                         }
                     }
@@ -243,18 +231,7 @@ struct ContentView: View {
                         body_ = notification.userInfo!["body"] as? Data
                         stopCapturingRequest()
                         if selectedProfile != nil {
-                            switch selectedProfile!.postActionEnum {
-                            case .none:
-                                break
-                            case .urlScheme:
-                                var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
-                                let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
-                                scheme.append(queryItems: [URLQueryItem(name: "headers", value: encoded)])
-                                if body_ != nil {
-                                    let encoded = body_!.urlSafeBase64EncodedString()
-                                    scheme.append(queryItems: [URLQueryItem(name: "body", value: encoded)])
-                                }
-                                UIApplication.shared.open(scheme)
+                            triggerPostAction {
                                 AlertKitAPI.present(title: "Post-Action Triggered", icon: .done, style: .iOS17AppleMusic, haptic: .success)
                             }
                         }
@@ -384,6 +361,25 @@ struct ContentView: View {
     private func stopCapturingRequest() {
         manager?.connection.stopVPNTunnel()
         UINotificationFeedbackGenerator().notificationOccurred(.warning)
+    }
+    
+    private func triggerPostAction(_ completion: @escaping () -> Void) {
+        switch selectedProfile!.postActionEnum {
+        case .none:
+            break
+        case .urlScheme:
+            var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
+            let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
+            var components = URLComponents(url: scheme, resolvingAgainstBaseURL: true)!
+            components.queryItems!.append(URLQueryItem(name: "headers", value: encoded))
+            if body_ != nil {
+                let encoded = body_!.urlSafeBase64EncodedString()
+                components.queryItems!.append(URLQueryItem(name: "body", value: encoded))
+            }
+            scheme = components.url!
+            UIApplication.shared.open(scheme)
+            completion()
+        }
     }
 }
 
