@@ -99,7 +99,7 @@ struct ContentView: View {
                     } else {
                         if status == .connected {
                             Button("Stop Capturing Request") {
-                                manager!.connection.stopVPNTunnel()
+                                stopCapturingRequest()
                             }
                         } else {
                             Button("Capture Request") {
@@ -200,7 +200,7 @@ struct ContentView: View {
                     notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
                         headers = notification.userInfo!["headers"] as! String
                         body_ = notification.userInfo!["body"] as? Data
-                        manager?.connection.stopVPNTunnel()
+                        stopCapturingRequest()
                         if selectedProfile != nil {
                             switch selectedProfile!.postActionEnum {
                             case .none:
@@ -338,6 +338,11 @@ struct ContentView: View {
                 }
             }
         }
+    }
+    
+    private func stopCapturingRequest() {
+        manager?.connection.stopVPNTunnel()
+        UINotificationFeedbackGenerator().notificationOccurred(.warning)
     }
 }
 
