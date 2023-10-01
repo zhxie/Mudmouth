@@ -30,10 +30,19 @@ struct ProfileView: View {
                 } footer: {
                     Text("Mudmouth only supports tapping on HTTPS requests.")
                 }
+                Section("Match") {
+                    Picker("Direction", selection: $profile.directionEnum) {
+                        ForEach(Direction.allCases, id: \.self) { direction in
+                            Text(direction.name)
+                                .tag(direction)
+                        }
+                    }
+                }
                 Section("Pre-Action") {
                     Picker("Action", selection: $profile.preActionEnum) {
-                        ForEach(Action.allCases, id: \.self) {
-                            Text($0.name).tag($0)
+                        ForEach(Action.allCases, id: \.self) { action in
+                            Text(action.name)
+                                .tag(action)
                         }
                     }
                     .animation(.none, value: profile.preActionEnum)
@@ -43,8 +52,9 @@ struct ProfileView: View {
                 }
                 Section {
                     Picker("Action", selection: $profile.postActionEnum) {
-                        ForEach(Action.allCases, id: \.self) {
-                            Text($0.name).tag($0)
+                        ForEach(Action.allCases, id: \.self) { action in
+                            Text(action.name)
+                                .tag(action)
                         }
                     }
                     .animation(.none, value: profile.postActionEnum)
@@ -55,7 +65,7 @@ struct ProfileView: View {
                     Text("Post-Action")
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
-                        Text("MudMouth will trigger the URL Scheme with an extra query headers=<HEADERS> on completion.")
+                        Text("MudMouth will trigger the URL Scheme with an extra query headers=<HEADERS>&body=<BODY> on completion. Both headers and body will be encoded in the URL-Safe Base64 format.")
                     }
                 }
                 Section {

@@ -87,7 +87,6 @@ struct CertificateView: View {
                         } label: {
                             Label("Copy", systemImage: "doc.on.doc")
                         }
-
                     }
                     VStack(alignment: .leading) {
                         Text("Private Key Data")
@@ -108,7 +107,6 @@ struct CertificateView: View {
                         } label: {
                             Label("Copy", systemImage: "doc.on.doc")
                         }
-
                     }
                 }
                 Section {

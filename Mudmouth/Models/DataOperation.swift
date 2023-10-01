@@ -25,20 +25,15 @@ class CreateOperation<Object: NSManagedObject>: DataOperation<Object> {
         let childContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         childContext.parent = parentContext
         let childObject = Object(context: childContext)
-        
         super.init(context: childContext, object: childObject)
     }
 }
 
 class UpdateOperation<Object: NSManagedObject>: DataOperation<Object> {
-    init(
-        withExistingObject object: Object,
-        in parentContext: NSManagedObjectContext
-    ) {
+    init(withExistingObject object: Object, in parentContext: NSManagedObjectContext) {
         let childContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         childContext.parent = parentContext
         let childObject = childContext.object(with: object.objectID) as! Object
-        
         super.init(context: childContext, object: childObject)
     }
 }

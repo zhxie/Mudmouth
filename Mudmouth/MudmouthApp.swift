@@ -30,8 +30,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let headers = response.notification.request.content.userInfo["headers"] as? String
+        let body = response.notification.request.content.userInfo["body"] as? Data
         if headers != nil {
-            NotificationCenter.default.post(name: Notification.Name("notification"), object: nil, userInfo: ["headers": headers!])
+            NotificationCenter.default.post(name: Notification.Name("notification"), object: nil, userInfo: ["headers": headers!, "body": body as Any])
         }
         completionHandler()
     }

@@ -32,6 +32,7 @@ struct ContentView: View {
     
     @State private var notificationObserver: AnyObject?
     @State private var headers = ""
+    @State private var body_: Data?
     
     init() {
         let (certificate, privateKey) = loadCertificate()
@@ -63,6 +64,22 @@ struct ContentView: View {
                                     Label("Edit", systemImage: "square.and.pencil")
                                 }
                                 .tint(Color(UIColor.systemOrange))
+                            }
+                            .contextMenu {
+                                Button {
+                                    profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
+                                } label: {
+                                    Label("Edit", systemImage: "square.and.pencil")
+                                }
+                                Button(role: .destructive) {
+                                    viewContext.delete(profile)
+                                    save()
+                                    if profile == selectedProfile {
+                                        selectedProfile = nil
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                     }
                     Button("New Profile") {
@@ -100,7 +117,7 @@ struct ContentView: View {
                                     }
                                     let (certificate, privateKey) = loadCertificate()
                                     let serializedCertificate = serializeCertificate(certificate!)
-                                    startVpn(manager: manager!, url: selectedProfile!.url!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
+                                    startVpn(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
                                         switch selectedProfile!.preActionEnum {
                                         case .none:
                                             break
@@ -121,6 +138,23 @@ struct ContentView: View {
                 }
                 if !headers.isEmpty {
                     Section("Result") {
+                        if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
+                            Button("Continue \"\(selectedProfile!.name!)\"") {
+                                switch selectedProfile!.postActionEnum {
+                                case .none:
+                                    break
+                                case .urlScheme:
+                                    var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
+                                    let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
+                                    scheme.append(queryItems: [URLQueryItem(name: "headers", value: encoded)])
+                                    if body_ != nil {
+                                        let encoded = body_!.urlSafeBase64EncodedString()
+                                        scheme.append(queryItems: [URLQueryItem(name: "body", value: encoded)])
+                                    }
+                                    UIApplication.shared.open(scheme)
+                                }
+                            }
+                        }
                         VStack(alignment: .leading) {
                             Text("Headers")
                             Spacer()
@@ -129,16 +163,35 @@ struct ContentView: View {
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                         }
-                        if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
-                            Button("Continue \"\(selectedProfile!.name!)\"") {
-                                switch selectedProfile!.postActionEnum {
-                                case .none:
-                                    break
-                                case .urlScheme:
-                                    var scheme = URL(string: selectedProfile!.preActionUrlScheme!)!
-                                    scheme.append(queryItems: [URLQueryItem(name: "headers", value: headers)])
-                                    UIApplication.shared.open(scheme)
+                        .contextMenu {
+                            Button {
+                                UIPasteboard.general.string = headers
+                            } label: {
+                                Label("Copy", systemImage: "doc.on.doc")
+                            }
+                        }
+                        if bodyString != nil {
+                            VStack(alignment: .leading) {
+                                Text("Body")
+                                Spacer()
+                                    .frame(height: 8)
+                                Text(bodyString!)
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+                            }
+                            .contextMenu {
+                                Button {
+                                    UIPasteboard.general.string = bodyString!
+                                } label: {
+                                    Label("Copy", systemImage: "doc.on.doc")
                                 }
+                            }
+                        } else {
+                            HStack {
+                                Text("Body")
+                                Spacer()
+                                Text("\(body_?.count ?? 0) Byte(s)")
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
@@ -168,11 +221,19 @@ struct ContentView: View {
                 if notificationObserver == nil {
                     notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
                         headers = notification.userInfo!["headers"] as! String
+                        body_ = notification.userInfo!["body"] as? Data
                         manager?.connection.stopVPNTunnel()
                     }
                 }
             }
         }
+    }
+    
+    var bodyString: String? {
+        guard let body = body_ else {
+            return nil
+        }
+        return String(data: body, encoding: .utf8)
     }
     
     private func save() {

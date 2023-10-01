@@ -19,12 +19,14 @@ class ProxyHandler: ChannelInboundHandler {
     
     private var httpClient: HTTPClient?
     private var url: URL
+    private var isResponse: Bool
     
     private var head: HTTPRequestHead?
     private var body: Data?
     
-    init(url: URL) {
+    init(url: URL, isResponse: Bool) {
         self.url = url
+        self.isResponse = isResponse
     }
     
     deinit {
@@ -70,7 +72,11 @@ class ProxyHandler: ChannelInboundHandler {
                         context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
                         os_log(.debug, "[%{public}@] [Down] Write: %{public}@ %{public}@ %{public}@", context.remoteAddress!.description, response.version.description, response.status.description)
                         if self.head!.uri == self.url.path {
-                            scheduleNotification(response.headers.description)
+                            if self.isResponse {
+                                scheduleNotification(headers: response.headers.readable, body: response.body != nil ? Data(buffer: response.body!) : nil)
+                            } else {
+                                scheduleNotification(headers: self.head!.headers.readable, body: self.body)
+                            }
                         }
                     case .failure(let failure):
                         self.httpClient!.shutdown().whenComplete { _ in
@@ -166,7 +172,7 @@ class ConnectHandler: ChannelInboundHandler {
     }
 }
 
-func runMitmServer(url: URL, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void) {
+func runMitmServer(url: URL, isResponse: Bool, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void) {
     var sslContext: NIOSSLContext?
     do {
         let certificate = try NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
@@ -199,7 +205,7 @@ func runMitmServer(url: URL, certificate: Data, privateKey: Data, _ completion: 
                     channel.pipeline.addHandler(HTTPResponseEncoder())
                 }
                 .flatMap { _ in
-                    channel.pipeline.addHandler(ProxyHandler(url: url))
+                    channel.pipeline.addHandler(ProxyHandler(url: url, isResponse: isResponse))
                 }
         }
         .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
