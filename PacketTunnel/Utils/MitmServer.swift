@@ -1,10 +1,3 @@
-//
-//  MitmServer.swift
-//  PacketTunnel
-//
-//  Created by Xie Zhihao on 2023/9/30.
-//
-
 import AsyncHTTPClient
 import Foundation
 import NIOCore

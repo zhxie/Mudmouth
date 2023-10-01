@@ -1,10 +1,3 @@
-//
-//  Persistence.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/20.
-//
-
 import CoreData
 
 struct PersistenceController {

@@ -1,10 +1,3 @@
-//
-//  Profile.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/25.
-//
-
 import Foundation
 
 extension Profile {

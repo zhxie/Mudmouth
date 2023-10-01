@@ -69,6 +69,8 @@
 
 /* Begin PBXFileReference section */
 		E419B8E12AC97267003353A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E419B8E22AC97872003353A5 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		E419B8E32AC978AB003353A5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E425B8D12ABC035200776F46 /* DataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataOperation.swift; sourceTree = "<group>"; };
 		E425B8E42ABC27E500776F46 /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E425B8E62ABC27E500776F46 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
@@ -153,6 +155,8 @@
 				E42FB9372ABB2D2200670B6C /* Mudmouth */,
 				E425B8E82ABC27E500776F46 /* PacketTunnel */,
 				E425B8E52ABC27E500776F46 /* Frameworks */,
+				E419B8E32AC978AB003353A5 /* README.md */,
+				E419B8E22AC97872003353A5 /* LICENSE */,
 				E42FB9362ABB2D2200670B6C /* Products */,
 			);
 			sourceTree = "<group>";

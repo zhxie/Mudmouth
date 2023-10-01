@@ -1,10 +1,3 @@
-//
-//  String.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/29.
-//
-
 import Foundation
 
 extension String {

@@ -1,10 +1,3 @@
-//
-//  Action.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/20.
-//
-
 import Foundation
 
 enum Action: Int16, CaseIterable {

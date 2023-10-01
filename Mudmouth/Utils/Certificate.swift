@@ -1,10 +1,3 @@
-//
-//  Certificate.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/29.
-//
-
 import Crypto
 import Foundation
 import SwiftASN1

@@ -1,10 +1,3 @@
-//
-//  Notification.swift
-//  PacketTunnel
-//
-//  Created by Xie Zhihao on 2023/9/30.
-//
-
 import Foundation
 import UserNotifications
 import OSLog

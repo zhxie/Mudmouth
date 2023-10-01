@@ -1,10 +1,3 @@
-//
-//  HttpHeaders.swift
-//  PacketTunnel
-//
-//  Created by Xie Zhihao on 2023/10/1.
-//
-
 import Foundation
 import NIOHTTP1
 

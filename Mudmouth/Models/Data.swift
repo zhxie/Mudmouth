@@ -1,10 +1,3 @@
-//
-//  Data.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/10/1.
-//
-
 import Foundation
 
 extension Data {

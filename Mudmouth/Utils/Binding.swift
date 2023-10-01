@@ -1,10 +1,3 @@
-//
-//  Binding.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/21.
-//
-
 import SwiftUI
 
 extension Binding {

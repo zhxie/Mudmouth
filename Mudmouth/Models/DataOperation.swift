@@ -1,14 +1,7 @@
-//
-//  DataOperation.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/21.
-//  Referenced from https://github.com/genebogdanovich/ChildContextsForEditing.
-//
-
 import Foundation
 import CoreData
 
+// Referenced from https://github.com/genebogdanovich/ChildContextsForEditing.
 class DataOperation<Object: NSManagedObject>: Identifiable {
     let id = UUID()
     let context: NSManagedObjectContext

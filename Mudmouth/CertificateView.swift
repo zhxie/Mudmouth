@@ -1,10 +1,3 @@
-//
-//  CertificateView.swift
-//  Mudmouth
-//
-//  Created by Xie Zhihao on 2023/9/28.
-//
-
 import Crypto
 import SwiftASN1
 import SwiftUI
