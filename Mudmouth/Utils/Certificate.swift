@@ -22,7 +22,7 @@ func generateCertificate() -> (Certificate, P256.Signing.PrivateKey) {
             KeyUsage(digitalSignature: true, keyCertSign: true)
         )
     }
-    let certificate = try! Certificate(version: .v3, serialNumber: Certificate.SerialNumber(1), publicKey: certificatePrivateKey.publicKey, notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365 * 5), issuer: name, subject: name, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificatePrivateKey)
+    let certificate = try! Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365 * 5), issuer: name, subject: name, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificatePrivateKey)
     var serializer = DER.Serializer()
     try! serializer.serialize(certificate)
     let derEncodedCertificate = serializer.serializedBytes
@@ -88,7 +88,7 @@ func generateSiteCertificate(url: String, caCertificateData: [UInt8], caPrivateK
         }
         let caPriavteKey = try P256.Signing.PrivateKey(rawRepresentation: caPrivateKeyData)
         let certificateCaPrivateKey = Certificate.PrivateKey(caPriavteKey)
-        let certificate = try Certificate(version: .v3, serialNumber: Certificate.SerialNumber(1), publicKey: certificatePrivateKey.publicKey, notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
+        let certificate = try Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
         return (serializeCertificate(certificate), privateKey.derRepresentation)
     } catch {
         fatalError("Failed to generate site certificate: \(error.localizedDescription)")
