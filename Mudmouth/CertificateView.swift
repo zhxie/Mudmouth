@@ -65,17 +65,13 @@ struct CertificateView: View {
                         Text("Public Key Data")
                         Spacer()
                             .frame(height: 8)
-                        Text(privateKey.publicKey.rawRepresentation.map({ char in
-                            String(format: "%02hhX", char)
-                        }).joined())
+                        Text(privateKey.publicKey.rawRepresentation.hex())
                         .font(.system(.footnote, design: .monospaced))
                         .foregroundColor(.secondary)
                     }
                     .contextMenu {
                         Button {
-                            UIPasteboard.general.string = privateKey.publicKey.rawRepresentation.map({ char in
-                                String(format: "%02hhX", char)
-                            }).joined()
+                            UIPasteboard.general.string = privateKey.publicKey.rawRepresentation.hex()
                         } label: {
                             Label("Copy", systemImage: "doc.on.doc")
                         }
@@ -84,40 +80,42 @@ struct CertificateView: View {
                         Text("Private Key Data")
                         Spacer()
                             .frame(height: 8)
-                        Text(privateKey.rawRepresentation.map({ char in
-                            String(format: "%02hhX", char)
-                        }).joined())
+                        Text(privateKey.rawRepresentation.hex())
                         .font(.system(.footnote, design: .monospaced))
                         .foregroundColor(.secondary)
                     }
                     .contextMenu {
                         Button {
-                            UIPasteboard.general.string = privateKey.rawRepresentation.map({ char in
-                                String(format: "%02hhX", char)
-                            }).joined()
+                            UIPasteboard.general.string = privateKey.rawRepresentation.hex()
                         } label: {
                             Label("Copy", systemImage: "doc.on.doc")
                         }
                     }
                 }
                 Section {
-                    Button("Generate a New Certificate") {
-                        showRegenerateCertificateAlert.toggle()
-                    }
+                    Button("Generate a New Certificate", action: requestGeneratingCertificate)
                     .alert(isPresented: $showRegenerateCertificateAlert) {
-                        Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"), primaryButton: .destructive(Text("OK"), action: {
-                            (certificate, privateKey) = generateCertificate()
-                        }), secondaryButton: .cancel())
+                        Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"), primaryButton: .destructive(Text("OK"), action: ContinueGeneratingCertificate), secondaryButton: .cancel())
                     }
-                    Button("Install Certificate") {
-                        UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
-                    }
+                    Button("Install Certificate", action: installCertificate)
                 } footer: {
                     Text("You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings.")
                 }
             }
             .navigationTitle("Root Certificate")
         }
+    }
+    
+    private func requestGeneratingCertificate() {
+        showRegenerateCertificateAlert.toggle()
+    }
+    
+    private func ContinueGeneratingCertificate() {
+        (certificate, privateKey) = generateCertificate()
+    }
+    
+    private func installCertificate() {
+        UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
     }
 }
 

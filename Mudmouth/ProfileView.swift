@@ -18,6 +18,8 @@ struct ProfileView: View {
                 Section {
                     TextField("Name", text: $profile.name.defaultValue(""))
                     TextField("URL", text: $profile.url.defaultValue(""))
+                        .textContentType(.URL)
+                        .keyboardType(.URL)
                 } header: {
                     Text("Profile")
                 } footer: {
@@ -62,12 +64,7 @@ struct ProfileView: View {
                     }
                 }
                 Section {
-                    Button(title.isEmpty ? "Add" : "Save") {
-                        withAnimation {
-                            try? childContext.save()
-                            dismiss()
-                        }
-                    }
+                    Button(title.isEmpty ? "Add" : "Save", action: save)
                     .disabled(!profile.isValid)
                 }
             }
@@ -75,6 +72,11 @@ struct ProfileView: View {
             .animation(Animation.easeInOut, value: profile.postActionEnum)
             .navigationTitle(title.isEmpty ? "New Profile" : title)
         }
+    }
+    
+    private func save() {
+        try? childContext.save()
+        dismiss()
     }
 }
 

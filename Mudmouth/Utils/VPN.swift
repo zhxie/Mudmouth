@@ -2,7 +2,7 @@ import Foundation
 import NetworkExtension
 import OSLog
 
-func installVpn() {
+func installVPN() {
     let manager = NETunnelProviderManager()
     manager.localizedDescription = "Mudmouth"
     let proto = NETunnelProviderProtocol()
@@ -17,7 +17,7 @@ func installVpn() {
     }
 }
 
-func loadVpn(_ completion: @escaping (_ manager: NETunnelProviderManager?) -> Void) {
+func loadVPN(_ completion: @escaping (_ manager: NETunnelProviderManager?) -> Void) {
     NETunnelProviderManager.loadAllFromPreferences { managers, error in
         if let error = error {
             fatalError("Failed to load VPN profile: \(error.localizedDescription)")
@@ -28,7 +28,7 @@ func loadVpn(_ completion: @escaping (_ manager: NETunnelProviderManager?) -> Vo
     }
 }
 
-func startVpn(manager: NETunnelProviderManager, profile: Profile, certificate: [UInt8], privateKey: Data, _ completion: @escaping () -> Void) {
+func startVPN(manager: NETunnelProviderManager, profile: Profile, certificate: [UInt8], privateKey: Data, _ completion: @escaping () -> Void) {
     manager.isEnabled = true
     manager.saveToPreferences { error in
         if let error = error {

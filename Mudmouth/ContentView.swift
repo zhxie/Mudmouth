@@ -70,36 +70,24 @@ struct ContentView: View {
                                 }
                             }
                     }
-                    Button("New Profile") {
-                        profileOperation = CreateOperation(with: viewContext)
-                    }
+                    Button("New Profile", action: createProfile)
                 }
-                .sheet(item: $profileOperation, onDismiss: {
-                    save()
-                }) { operation in
+                .sheet(item: $profileOperation, onDismiss: save) { operation in
                     ProfileView(profile: operation.object)
                         .environment(\.managedObjectContext, operation.context)
                 }
                 Section("Tap") {
-                    Button("Configure Root Certificate") {
-                        showCertificate.toggle()
-                    }
+                    Button("Configure Root Certificate", action: toggleCertificate)
                     .sheet(isPresented: $showCertificate) {
                         CertificateView()
                     }
                     if manager == nil {
-                        Button("Install VPN") {
-                            installVpn()
-                        }
+                        Button("Install VPN", action: installVPN)
                     } else {
                         if status == .connected {
-                            Button("Stop Capturing Request") {
-                                stopCapturingRequest()
-                            }
+                            Button("Stop Capturing Request", action: stopCapturingRequest)
                         } else {
-                            Button("Capture Request") {
-                                captureRequest()
-                            }
+                            Button("Capture Request", action: captureRequest)
                             .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
                             .alert(isPresented: $showNotificationAlert) {
                                 Alert(title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."), dismissButton: .default(Text("OK")) {
@@ -151,16 +139,12 @@ struct ContentView: View {
                             }
                         }
                         if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
-                            Button("Continue \"\(selectedProfile!.name!)\"") {
-                                triggerPostAction {}
-                            }
+                            Button("Continue \"\(selectedProfile!.name!)\"", action: triggerPostAction)
                         }
                     }
                 }
                 Section {
                     VStack(alignment: .leading) {
-                        Spacer()
-                            .frame(height: 8)
                         HStack(alignment: .top) {
                             Image(systemName: "network")
                                 .font(.title)
@@ -198,8 +182,6 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
-                        Spacer()
-                            .frame(height: 8)
                     }
                 }
                 .listRowBackground(Color(UIColor.systemGroupedBackground))
@@ -208,7 +190,8 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
-                loadVpn { manager in
+                // Observes VPN connection status.
+                loadVPN { manager in
                     self.manager = manager
                     if vpnObserver != nil {
                         NotificationCenter.default.removeObserver(vpnObserver!)
@@ -225,15 +208,14 @@ struct ContentView: View {
                         status = .invalid
                     }
                 }
+                // Observes notification callback from app delegate.
                 if notificationObserver == nil {
                     notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
                         headers = notification.userInfo!["headers"] as! String
                         body_ = notification.userInfo!["body"] as? Data
                         stopCapturingRequest()
                         if selectedProfile != nil {
-                            triggerPostAction {
-                                AlertKitAPI.present(title: "Post-Action Triggered", icon: .done, style: .iOS17AppleMusic, haptic: .success)
-                            }
+                            triggerPostAction()
                         }
                     }
                 }
@@ -336,6 +318,14 @@ struct ContentView: View {
         profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
     }
     
+    private func createProfile() {
+        profileOperation = CreateOperation(with: viewContext)
+    }
+    
+    private func toggleCertificate() {
+        showCertificate.toggle()
+    }
+    
     private func captureRequest() {
         requestNotification { granted in
             if !granted {
@@ -344,7 +334,7 @@ struct ContentView: View {
             }
             let (certificate, privateKey) = loadCertificate()
             let serializedCertificate = serializeCertificate(certificate!)
-            startVpn(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
+            startVPN(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
                 UINotificationFeedbackGenerator().notificationOccurred(.success)
                 switch selectedProfile!.preActionEnum {
                 case .none:
@@ -363,7 +353,7 @@ struct ContentView: View {
         UINotificationFeedbackGenerator().notificationOccurred(.warning)
     }
     
-    private func triggerPostAction(_ completion: @escaping () -> Void) {
+    private func triggerPostAction() {
         switch selectedProfile!.postActionEnum {
         case .none:
             break
@@ -381,7 +371,6 @@ struct ContentView: View {
             }
             scheme = components.url!
             UIApplication.shared.open(scheme)
-            completion()
         }
     }
 }
