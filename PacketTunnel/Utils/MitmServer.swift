@@ -22,18 +22,13 @@ class ProxyHandler: ChannelInboundHandler {
         self.isResponse = isResponse
     }
     
-    deinit {
-        if httpClient != nil {
-            try? httpClient!.syncShutdown()
-        }
-    }
-    
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         os_log(.debug, "[%{public}@] [DOWN] Read : %{public}@", context.remoteAddress!.description, data.description)
         let httpData = unwrapInboundIn(data)
         switch httpData {
         case .head(let head):
             self.head = head
+            body = nil
         case .body(let body):
             if self.body == nil {
                 self.body = Data()
@@ -43,27 +38,28 @@ class ProxyHandler: ChannelInboundHandler {
             self.body!.append(data)
         case .end:
             if httpClient == nil {
-                httpClient = HTTPClient(eventLoopGroupProvider: .shared(context.eventLoop))
+                var configuration = HTTPClient.Configuration()
+                configuration.httpVersion = .http1Only
+                httpClient = HTTPClient(eventLoopGroupProvider: .shared(context.eventLoop), configuration: configuration)
             }
             do {
                 // Send request to upstream.
-                var request = try HTTPClient.Request(url: "https://\(url.host!):\(url.port ?? 443)/\(head!.uri)", method: head!.method, headers: head!.headers)
+                var request = try HTTPClient.Request(url: "https://\(url.host!)\(url.port != nil ? ":\(url.port!)" : "")\(head!.uri)", method: head!.method, headers: head!.headers)
                 if body != nil {
                     request.body = .data(body!)
                 }
-                os_log(.debug, "[%{public}@] [ UP ] Write: %{public}@ %{public}@ %{public}@", context.remoteAddress!.description, head!.method.rawValue, head!.uri, head!.version.description)
+                os_log(.debug, "[%{public}@] [ UP ] Write: %{public}@ %{public}@\n%{public}@", context.remoteAddress!.description, request.method.rawValue, request.url.absoluteString, request.headers.readable)
                 httpClient!.execute(request: request).whenComplete { result in
                     switch result {
                     case .success(let response):
                         // Send response back to downstream.
-                        os_log(.debug, "[%{public}@] [ UP ] Read : %{public}@ %{public}@", context.remoteAddress!.description, response.version.description, response.status.description)
+                        os_log(.debug, "[%{public}@] [THRO] Proxy: %{public}@ %{public}@\n%{public}@", context.remoteAddress!.description, response.version.description, response.status.description, response.headers.readable)
                         let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: response.status, headers: response.headers)
                         context.writeAndFlush(self.wrapOutboundOut(.head(head)), promise: nil)
                         if response.body != nil {
                             context.write(self.wrapOutboundOut(.body(.byteBuffer(response.body!))), promise: nil)
                         }
                         context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                        os_log(.debug, "[%{public}@] [Down] Write: %{public}@ %{public}@ %{public}@", context.remoteAddress!.description, response.version.description, response.status.description)
                         if self.head!.uri == self.url.path {
                             if self.isResponse {
                                 scheduleNotification(headers: response.headers.readable, body: response.body != nil ? Data(buffer: response.body!) : nil)
@@ -84,6 +80,7 @@ class ProxyHandler: ChannelInboundHandler {
                 }
             } catch {
                 httpClient!.shutdown().whenComplete { _ in
+                    self.httpClient = nil
                     // Send 500 to downstream.
                     let headers = HTTPHeaders([("Content-Length", "0")])
                     let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .internalServerError, headers: headers)
@@ -93,6 +90,15 @@ class ProxyHandler: ChannelInboundHandler {
                 }
             }
             break
+        }
+    }
+    
+    func channelInactive(context: ChannelHandlerContext) {
+        os_log(.debug, "[%{public}@] [DOWN] Close", context.remoteAddress!.description)
+        if httpClient != nil {
+            httpClient!.shutdown().whenComplete { _ in
+                self.httpClient = nil
+            }
         }
     }
 }
