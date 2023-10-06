@@ -202,7 +202,7 @@ struct ContentView: View {
                             .frame(height: 8)
                     }
                 }
-                .listRowBackground(Color(UIColor.secondarySystemBackground))
+                .listRowBackground(Color(UIColor.systemGroupedBackground))
             }
             .navigationTitle("Mudmouth")
         }
@@ -388,6 +388,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        ContentView()
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
