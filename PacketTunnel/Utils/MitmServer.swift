@@ -1,4 +1,4 @@
-import AsyncHTTPClient
+import DequeModule
 import Foundation
 import NIOCore
 import NIOHTTP1
@@ -6,16 +6,102 @@ import NIOPosix
 import NIOSSL
 import OSLog
 
-class ProxyHandler: ChannelInboundHandler {
+// Referenced from https://github.com/apple/swift-nio-examples.
+class GlueHandler: ChannelDuplexHandler {
+    typealias InboundIn = NIOAny
+    typealias OutboundIn = NIOAny
+    typealias OutboundOut = NIOAny
+    
+    private var partner: GlueHandler?
+    private var context: ChannelHandlerContext?
+    private var pendingRead: Bool = false
+    
+    static func matchedPair() -> (GlueHandler, GlueHandler) {
+        let first = GlueHandler()
+        let second = GlueHandler()
+
+        first.partner = second
+        second.partner = first
+
+        return (first, second)
+    }
+
+    func handlerAdded(context: ChannelHandlerContext) {
+        self.context = context
+    }
+    func handlerRemoved(context: ChannelHandlerContext) {
+        self.context = nil
+        partner = nil
+    }
+
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        partner?.partnerWrite(data)
+    }
+    func channelReadComplete(context: ChannelHandlerContext) {
+        partner?.partnerFlush()
+    }
+    func channelInactive(context: ChannelHandlerContext) {
+        partner?.partnerCloseFull()
+    }
+    func channelWritabilityChanged(context: ChannelHandlerContext) {
+        if context.channel.isWritable {
+            partner?.partnerBecameWritable()
+        }
+    }
+
+    func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
+        if let event = event as? ChannelEvent, case .inputClosed = event {
+            partner?.partnerWriteEOF()
+        }
+    }
+
+    func errorCaught(context: ChannelHandlerContext, error: Error) {
+        partner?.partnerCloseFull()
+    }
+
+    func read(context: ChannelHandlerContext) {
+        if let partner = partner, partner.partnerWritable {
+            context.read()
+        } else {
+            pendingRead = true
+        }
+    }
+    
+    private func partnerWrite(_ data: NIOAny) {
+        context?.write(data, promise: nil)
+    }
+    private func partnerFlush() {
+        context?.flush()
+    }
+    private func partnerWriteEOF() {
+        context?.close(mode: .output, promise: nil)
+    }
+    private func partnerCloseFull() {
+        context?.close(promise: nil)
+    }
+    private func partnerBecameWritable() {
+        if pendingRead {
+            pendingRead = false
+            context?.read()
+        }
+    }
+
+    private var partnerWritable: Bool {
+        context?.channel.isWritable ?? false
+    }
+}
+
+class ProxyHandler: ChannelDuplexHandler {
     typealias InboundIn = HTTPServerRequestPart
+    typealias InboundOut = HTTPClientRequestPart
+    typealias OutboundIn = HTTPClientResponsePart
     typealias OutboundOut = HTTPServerResponsePart
     
-    private var httpClient: HTTPClient?
     private var url: URL
     private var isResponse: Bool
     
-    private var head: HTTPRequestHead?
-    private var body: Data?
+    private var requests: Deque<HTTPRequest> = []
+    private var response: HTTPResponse?
     
     init(url: URL, isResponse: Bool) {
         self.url = url
@@ -23,83 +109,46 @@ class ProxyHandler: ChannelInboundHandler {
     }
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        os_log(.debug, "[%{public}@] [DOWN] Read : %{public}@", context.remoteAddress!.description, data.description)
+        os_log(.debug, "[%{public}@] Read : %{public}@", context.remoteAddress!.description, data.description)
         let httpData = unwrapInboundIn(data)
         switch httpData {
         case .head(let head):
-            self.head = head
-            body = nil
+            requests.append(HTTPRequest(headers: head))
+            context.fireChannelRead(wrapInboundOut(.head(head)))
         case .body(let body):
-            if self.body == nil {
-                self.body = Data()
-            }
-            self.body!.reserveCapacity(body.readableBytes)
-            let data = body.getData(at: body.readerIndex, length: body.readableBytes)!
-            self.body!.append(data)
+            requests.last!.appendBody(body)
+            context.fireChannelRead(wrapInboundOut(.body(.byteBuffer(body))))
         case .end:
-            if httpClient == nil {
-                var configuration = HTTPClient.Configuration()
-                configuration.httpVersion = .http1Only
-                httpClient = HTTPClient(eventLoopGroupProvider: .shared(context.eventLoop), configuration: configuration)
-            }
-            do {
-                // Send request to upstream.
-                var request = try HTTPClient.Request(url: "https://\(url.host!)\(url.port != nil ? ":\(url.port!)" : "")\(head!.uri)", method: head!.method, headers: head!.headers)
-                if body != nil {
-                    request.body = .data(body!)
-                }
-                os_log(.debug, "[%{public}@] [ UP ] Write: %{public}@ %{public}@\n%{public}@", context.remoteAddress!.description, request.method.rawValue, request.url.absoluteString, request.headers.readable)
-                httpClient!.execute(request: request).whenComplete { result in
-                    switch result {
-                    case .success(let response):
-                        // Send response back to downstream.
-                        os_log(.debug, "[%{public}@] [THRO] Proxy: %{public}@ %{public}@\n%{public}@", context.remoteAddress!.description, response.version.description, response.status.description, response.headers.readable)
-                        let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: response.status, headers: response.headers)
-                        context.writeAndFlush(self.wrapOutboundOut(.head(head)), promise: nil)
-                        if response.body != nil {
-                            context.write(self.wrapOutboundOut(.body(.byteBuffer(response.body!))), promise: nil)
-                        }
-                        context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                        if self.head!.uri == self.url.path {
-                            if self.isResponse {
-                                scheduleNotification(headers: response.headers.readable, body: response.body != nil ? Data(buffer: response.body!) : nil)
-                            } else {
-                                scheduleNotification(headers: self.head!.headers.readable, body: self.body)
-                            }
-                        }
-                    case .failure(let failure):
-                        self.httpClient!.shutdown().whenComplete { _ in
-                            // Send 500 to downstream.
-                            let headers = HTTPHeaders([("Content-Length", "0")])
-                            let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .internalServerError, headers: headers)
-                            context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-                            context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                            os_log(.error, "Failed to send request to upstream: %{public}@", failure.localizedDescription)
-                        }
-                    }
-                }
-            } catch {
-                httpClient!.shutdown().whenComplete { _ in
-                    self.httpClient = nil
-                    // Send 500 to downstream.
-                    let headers = HTTPHeaders([("Content-Length", "0")])
-                    let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .internalServerError, headers: headers)
-                    context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-                    context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                    os_log(.error, "Failed to make request to upstream: %{public}@", error.localizedDescription)
+            context.fireChannelRead(wrapInboundOut(.end(nil)))
+        }
+    }
+    
+    func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
+        os_log(.debug, "[%{public}@] Write: %{public}@", context.remoteAddress!.description, data.description)
+        let httpData = unwrapOutboundIn(data)
+        switch httpData {
+        case .head(let head):
+            response = HTTPResponse(headers: head)
+            context.write(wrapOutboundOut(.head(head)), promise: promise)
+        case .body(let body):
+            response!.appendBody(body)
+            context.write(wrapOutboundOut(.body(.byteBuffer(body))), promise: promise)
+        case .end:
+            if requests.first!.headers.uri == url.path {
+                if isResponse {
+                    scheduleNotification(headers: response!.headers.headers.readable, body: response!.body)
+                } else {
+                    scheduleNotification(headers: requests.first!.headers.headers.readable, body: requests.first!.body)
                 }
             }
-            break
+            let _ = requests.popFirst()
+            response = nil
+            context.write(wrapOutboundOut(.end(nil)), promise: promise)
         }
     }
     
     func channelInactive(context: ChannelHandlerContext) {
-        os_log(.debug, "[%{public}@] [DOWN] Close", context.remoteAddress!.description)
-        if httpClient != nil {
-            httpClient!.shutdown().whenComplete { _ in
-                self.httpClient = nil
-            }
-        }
+        os_log(.debug, "[%{public}@] Close", context.remoteAddress!.description)
     }
 }
 
@@ -114,11 +163,13 @@ class ConnectHandler: ChannelInboundHandler {
     }
     
     private var state: State = .idle
+    private var host: String?
+    private var port: Int?
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         switch state {
         case .idle:
-            os_log(.debug, "[%{public}@] [DOWN] Read : %{public}@", context.remoteAddress!.description, data.description)
+            os_log(.debug, "[%{public}@] Read : %{public}@", context.remoteAddress!.description, data.description)
             let httpData = unwrapInboundIn(data)
             guard case .head(let head) = httpData else {
                 return
@@ -128,44 +179,68 @@ class ConnectHandler: ChannelInboundHandler {
                 context.close(promise: nil)
                 return
             }
+            let components = head.uri.split(separator: ":")
+            host = String(components[0])
+            port = Int(components[1])!
             state = .awaitingEnd
         case .awaitingEnd:
-            os_log(.debug, "[%{public}@] [DOWN] Read : %{public}@", context.remoteAddress!.description, data.description)
+            os_log(.debug, "[%{public}@] Read : %{public}@", context.remoteAddress!.description, data.description)
             let httpData = unwrapInboundIn(data)
             if case .end = httpData {
                 // Upgrade to TLS server.
-                context.pipeline.context(handlerType: ByteToMessageHandler<HTTPRequestDecoder>.self).whenComplete { result in
-                    switch result {
-                    case .success(let handler):
-                        context.pipeline.removeHandler(context: handler, promise: nil)
-                        // Send 200 to downstream.
-                        let headers = HTTPHeaders([("Content-Length", "0")])
-                        let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)
-                        context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-                        context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                        context.pipeline.context(handlerType: HTTPResponseEncoder.self).whenComplete { result in
+                context.pipeline.context(handlerType: ByteToMessageHandler<HTTPRequestDecoder>.self).whenSuccess { handler in
+                    context.pipeline.removeHandler(context: handler, promise: nil)
+                    ClientBootstrap(group: context.eventLoop)
+                        .channelInitializer { channel in
+                            let clientConfiguration = TLSConfiguration.makeClientConfiguration()
+                            let sslClientContext = try! NIOSSLContext(configuration: clientConfiguration)
+                            return channel.pipeline.addHandler(try! NIOSSLClientHandler(context: sslClientContext, serverHostname: self.host!))
+                                .flatMap { _ in
+                                    channel.pipeline.addHandler(HTTPRequestEncoder())
+                                }
+                                .flatMap { _ in
+                                    channel.pipeline.addHandler(ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)))
+                                }
+                        }
+                        .connect(host: self.host!, port: self.port!)
+                        .whenComplete { result in
                             switch result {
-                            case .success(let handler):
-                                context.pipeline.removeHandler(context: handler, promise: nil)
-                                os_log(.info, "Upgraded to TLS server")
-                                self.state = .established
+                            case .success(let client):
+                                os_log(.info, "Connected to upstream %{public}@:%d", self.host!, self.port!)
+                                // Send 200 to downstream.
+                                let headers = HTTPHeaders([("Content-Length", "0")])
+                                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)
+                                context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+                                context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
+                                context.pipeline.context(handlerType: HTTPResponseEncoder.self).whenSuccess { handler in
+                                    context.pipeline.removeHandler(context: handler, promise: nil)
+                                    let (localGlue, remoteGlue) = GlueHandler.matchedPair()
+                                    context.pipeline.addHandler(localGlue)
+                                        .and(client.pipeline.addHandler(remoteGlue))
+                                        .whenComplete { result in
+                                            switch result {
+                                            case .success:
+                                                os_log(.info, "Upgraded to TLS server")
+                                                self.state = .established
+                                            case .failure(let failure):
+                                                os_log(.error, "Failed to upgrade to TLS server: %{public}@", failure.localizedDescription)
+                                                context.close(promise: nil)
+                                            }
+                                        }
+                                }
                             case .failure(let failure):
-                                os_log(.error, "Failed to upgrade to TLS server: %{public}@", failure.localizedDescription)
-                                context.close(promise: nil)
+                                // Send 404 to downstream.
+                                let headers = HTTPHeaders([("Content-Length", "0")])
+                                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .notFound, headers: headers)
+                                context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+                                context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
+                                os_log(.error, "Failed to connect to upstream %{public}@:%d@: %{public}@", self.host!, self.port!, failure.localizedDescription)
                             }
                         }
-                    case .failure(let failure):
-                        // Send 500 to downstream.
-                        let headers = HTTPHeaders([("Content-Length", "0")])
-                        let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .internalServerError, headers: headers)
-                        context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-                        context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                        os_log(.error, "Failed to upgrade to TLS server: %{public}@", failure.localizedDescription)
-                    }
                 }
             }
         case .established:
-            // Forward data to next channel.
+            // Forward data to the next channel.
             context.fireChannelRead(data)
         }
     }
@@ -176,14 +251,14 @@ func runMitmServer(url: URL, isResponse: Bool, certificate: Data, privateKey: Da
     do {
         let certificate = try NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
         let privateKey = try NIOSSLPrivateKey(bytes: [UInt8](privateKey), format: .der)
-        let tlsConfiguration = TLSConfiguration.makeServerConfiguration(certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
-        sslContext = try NIOSSLContext(configuration: tlsConfiguration)
+        let configuration = TLSConfiguration.makeServerConfiguration(certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
+        sslContext = try NIOSSLContext(configuration: configuration)
     } catch {
         fatalError("Failed to create TLS context: \(error.localizedDescription)")
     }
     // Process packets in the tunnel.
     let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-    let bootstrap = ServerBootstrap(group: group)
+    ServerBootstrap(group: group)
         .serverChannelOption(ChannelOptions.backlog, value: 256)
         .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
         .childChannelInitializer { channel in
@@ -209,14 +284,15 @@ func runMitmServer(url: URL, isResponse: Bool, certificate: Data, privateKey: Da
         }
         .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
         .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-    bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: 6836)).whenComplete { result in
-        switch result {
-        case .success:
-            NotificationService.notificationSent = false
-            os_log(.info, "MitM proxy binded")
-            completion()
-        case .failure(let failure):
-            fatalError("Failed to bind MitM proxy: \(failure)")
+        .bind(host: "127.0.0.1", port: 6836)
+        .whenComplete { result in
+            switch result {
+            case .success:
+                NotificationService.notificationSent = false
+                os_log(.info, "MitM proxy binded")
+                completion()
+            case .failure(let failure):
+                fatalError("Failed to bind MitM proxy: \(failure.localizedDescription)")
+            }
         }
-    }
 }
