@@ -10,7 +10,7 @@ func scheduleNotification(headers: String, body: Data?) {
     if !NotificationService.notificationSent {
         NotificationService.notificationSent = true
         let content = UNMutableNotificationContent()
-        content.title = "Request Hit"
+        content.title = "Request Captured"
         content.body = "Please press the notification to continue in Mudmouth."
         content.userInfo = [
             "headers": headers,

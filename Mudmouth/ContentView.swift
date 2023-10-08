@@ -22,6 +22,7 @@ struct ContentView: View {
     @State private var isEnabled: Bool = false
     @State private var status: NEVPNStatus = .invalid
     
+    @State private var showVPNAlert = false
     @State private var showNotificationAlert = false
     
     @State private var notificationObserver: AnyObject?
@@ -82,12 +83,16 @@ struct ContentView: View {
                         CertificateView()
                     }
                     if manager == nil {
-                        Button("Install VPN", action: installVPN)
+                        Button("Capture Requests", action: install)
+                            .disabled(selectedProfile == nil || !selectedProfile!.isValid)
+                            .alert(isPresented: $showVPNAlert) {
+                                Alert(title: Text("VPN Configuration Not Installed"), message: Text("Mudmouth requires VPN to capture requests."), dismissButton: .default(Text("OK")))
+                            }
                     } else {
                         if status == .connected {
-                            Button("Stop Capturing Request", action: stopCapturingRequest)
+                            Button("Stop Capturing Requests", action: stopCapturingRequest)
                         } else {
-                            Button("Capture Request", action: captureRequest)
+                            Button("Capture Requests", action: captureRequest)
                             .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
                             .alert(isPresented: $showNotificationAlert) {
                                 Alert(title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."), dismissButton: .default(Text("OK")) {
@@ -151,7 +156,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                                 .frame(width: 16)
-                            Text("Trust root certificate and install VPN of Mudmouth to capture requests.")
+                            Text("Install and trust root certificate of Mudmouth to capture requests.")
                                 .font(.system(size: 15, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -324,6 +329,14 @@ struct ContentView: View {
     
     private func toggleCertificate() {
         showCertificate.toggle()
+    }
+    
+    private func install() {
+        installVPN { error in
+            if error != nil {
+                showVPNAlert.toggle()
+            }
+        }
     }
     
     private func captureRequest() {

@@ -2,7 +2,7 @@ import Foundation
 import NetworkExtension
 import OSLog
 
-func installVPN() {
+func installVPN(_ completion: @escaping (_ error: Error?) -> Void) {
     let manager = NETunnelProviderManager()
     manager.localizedDescription = "Mudmouth"
     let proto = NETunnelProviderProtocol()
@@ -11,9 +11,7 @@ func installVPN() {
     manager.protocolConfiguration = proto
     manager.isEnabled = true
     manager.saveToPreferences { error in
-        if let error = error {
-            fatalError("Failed to add VPN profile: \(error.localizedDescription)")
-        }
+        completion(error)
     }
 }
 
