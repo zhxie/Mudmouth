@@ -111,13 +111,7 @@ struct ContentView: View {
                             Text(headers)
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
-                        }
-                        .contextMenu {
-                            Button {
-                                UIPasteboard.general.string = headers
-                            } label: {
-                                Label("Copy", systemImage: "doc.on.doc")
-                            }
+                                .textSelection(.enabled)
                         }
                         if bodyString != nil {
                             VStack(alignment: .leading) {
@@ -127,19 +121,13 @@ struct ContentView: View {
                                 Text(bodyString!)
                                     .font(.footnote)
                                     .foregroundColor(.secondary)
-                            }
-                            .contextMenu {
-                                Button {
-                                    UIPasteboard.general.string = bodyString!
-                                } label: {
-                                    Label("Copy", systemImage: "doc.on.doc")
-                                }
+                                    .textSelection(.enabled)
                             }
                         } else {
                             HStack {
                                 Text("Body")
                                 Spacer()
-                                Text("\(body_?.count ?? 0) Byte(s)")
+                                Text("\(body_?.count ?? 0) Byte\(body_?.count ?? 0 > 0 ? "s" : "")")
                                     .foregroundColor(.secondary)
                             }
                         }

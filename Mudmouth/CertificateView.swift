@@ -68,13 +68,7 @@ struct CertificateView: View {
                         Text(privateKey.publicKey.rawRepresentation.hex())
                         .font(.system(.footnote, design: .monospaced))
                         .foregroundColor(.secondary)
-                    }
-                    .contextMenu {
-                        Button {
-                            UIPasteboard.general.string = privateKey.publicKey.rawRepresentation.hex()
-                        } label: {
-                            Label("Copy", systemImage: "doc.on.doc")
-                        }
+                        .textSelection(.enabled)
                     }
                     VStack(alignment: .leading) {
                         Text("Private Key Data")
@@ -83,13 +77,7 @@ struct CertificateView: View {
                         Text(privateKey.rawRepresentation.hex())
                         .font(.system(.footnote, design: .monospaced))
                         .foregroundColor(.secondary)
-                    }
-                    .contextMenu {
-                        Button {
-                            UIPasteboard.general.string = privateKey.rawRepresentation.hex()
-                        } label: {
-                            Label("Copy", systemImage: "doc.on.doc")
-                        }
+                        .textSelection(.enabled)
                     }
                 }
                 Section {
