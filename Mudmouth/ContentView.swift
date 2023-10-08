@@ -12,7 +12,7 @@ struct ContentView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Profile.name, ascending: true)],
         animation: .default)
     private var profiles: FetchedResults<Profile>
-    @State private var selectedProfile: Profile? = nil
+    @State private var selectedProfile: Profile?
     @State private var profileOperation: DataOperation<Profile>?
     
     @State private var showCertificate = false
@@ -41,35 +41,35 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            List(selection: $selectedProfile) {
+            List {
                 Section("Profile") {
                     ForEach(profiles, id: \.self) { profile in
-                        Text(profile.name!)
-                            .swipeActions(allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    deleteProfile(profile)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                Button {
-                                    updateProfile(profile)
-                                } label: {
-                                    Label("Edit", systemImage: "square.and.pencil")
-                                }
-                                .tint(Color(UIColor.systemOrange))
-                            }
-                            .contextMenu {
-                                Button {
-                                    updateProfile(profile)
-                                } label: {
-                                    Label("Edit", systemImage: "square.and.pencil")
-                                }
-                                Button(role: .destructive) {
-                                    deleteProfile(profile)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
+                        Button {
+                            selectedProfile = profile
+                        } label: {
+                            HStack {
+                                Text(profile.name!)
+                                    .foregroundColor(Color.primary)
+                                Spacer()
+                                if selectedProfile == profile {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(Color.accentColor)
                                 }
                             }
+                        }
+                        .swipeActions(allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                deleteProfile(profile)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            Button {
+                                updateProfile(profile)
+                            } label: {
+                                Label("Edit", systemImage: "square.and.pencil")
+                            }
+                            .tint(Color(UIColor.systemOrange))
+                        }
                     }
                     Button("New Profile", action: createProfile)
                 }
