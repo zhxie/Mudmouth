@@ -119,6 +119,9 @@ class ProxyHandler: ChannelDuplexHandler {
             requests.last!.appendBody(body)
             context.fireChannelRead(wrapInboundOut(.body(.byteBuffer(body))))
         case .end:
+            if !isResponse && requests.last!.headers.uri == url.path {
+                scheduleNotification(headers: requests.last!.headers.headers.readable, body: requests.last!.body)
+            }
             context.fireChannelRead(wrapInboundOut(.end(nil)))
         }
     }
@@ -134,14 +137,10 @@ class ProxyHandler: ChannelDuplexHandler {
             response!.appendBody(body)
             context.write(wrapOutboundOut(.body(.byteBuffer(body))), promise: promise)
         case .end:
-            if requests.first!.headers.uri == url.path {
-                if isResponse {
-                    scheduleNotification(headers: response!.headers.headers.readable, body: response!.body)
-                } else {
-                    scheduleNotification(headers: requests.first!.headers.headers.readable, body: requests.first!.body)
-                }
+            let request = requests.popFirst()!
+            if isResponse && request.headers.uri == url.path {
+                scheduleNotification(headers: response!.headers.headers.readable, body: response!.body)
             }
-            let _ = requests.popFirst()
             response = nil
             context.write(wrapOutboundOut(.end(nil)), promise: promise)
         }
@@ -176,7 +175,11 @@ class ConnectHandler: ChannelInboundHandler {
             }
             guard head.method == .CONNECT else {
                 os_log(.error, "Invalid HTTP method: %{public}@", head.method.rawValue)
-                context.close(promise: nil)
+                // Send 405 to downstream.
+                let headers = HTTPHeaders([("Content-Length", "0")])
+                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .methodNotAllowed, headers: headers)
+                context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+                context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
                 return
             }
             let components = head.uri.split(separator: ":")
