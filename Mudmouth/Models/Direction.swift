@@ -2,14 +2,14 @@ import Foundation
 
 enum Direction: Int16, CaseIterable {
     case request = 0
-    case response = 1
+    case requestAndResponse = 1
     
     var name: String {
         switch self {
         case .request:
             return "Request"
-        case .response:
-            return "Response"
+        case .requestAndResponse:
+            return "Request & Response"
         }
     }
 }

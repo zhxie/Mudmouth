@@ -98,14 +98,14 @@ class ProxyHandler: ChannelDuplexHandler {
     typealias OutboundOut = HTTPServerResponsePart
     
     private var url: URL
-    private var isResponse: Bool
+    private var isRequestAndResponse: Bool
     
     private var requests: Deque<HTTPRequest> = []
     private var response: HTTPResponse?
     
-    init(url: URL, isResponse: Bool) {
+    init(url: URL, isRequestAndResponse: Bool) {
         self.url = url
-        self.isResponse = isResponse
+        self.isRequestAndResponse = isRequestAndResponse
     }
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -119,8 +119,8 @@ class ProxyHandler: ChannelDuplexHandler {
             requests.last!.appendBody(body)
             context.fireChannelRead(wrapInboundOut(.body(.byteBuffer(body))))
         case .end:
-            if !isResponse && requests.last!.headers.uri == url.path {
-                scheduleNotification(headers: requests.last!.headers.headers.readable, body: requests.last!.body)
+            if !isRequestAndResponse && requests.last!.headers.uri == url.path {
+                scheduleNotification(requestHeaders: requests.last!.headers.headers.readable, requestBody: requests.last!.body, responseHeaders: nil, responseBody: nil)
             }
             context.fireChannelRead(wrapInboundOut(.end(nil)))
         }
@@ -138,8 +138,8 @@ class ProxyHandler: ChannelDuplexHandler {
             context.write(wrapOutboundOut(.body(.byteBuffer(body))), promise: promise)
         case .end:
             let request = requests.popFirst()!
-            if isResponse && request.headers.uri == url.path {
-                scheduleNotification(headers: response!.headers.headers.readable, body: response!.body)
+            if isRequestAndResponse && request.headers.uri == url.path {
+                scheduleNotification(requestHeaders: request.headers.headers.readable, requestBody: request.body, responseHeaders: response!.headers.headers.readable, responseBody: response!.body)
             }
             response = nil
             context.write(wrapOutboundOut(.end(nil)), promise: promise)
@@ -249,7 +249,7 @@ class ConnectHandler: ChannelInboundHandler {
     }
 }
 
-func runMitmServer(url: URL, isResponse: Bool, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void) {
+func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void) {
     var sslContext: NIOSSLContext?
     do {
         let certificate = try NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
@@ -282,7 +282,7 @@ func runMitmServer(url: URL, isResponse: Bool, certificate: Data, privateKey: Da
                     channel.pipeline.addHandler(HTTPResponseEncoder())
                 }
                 .flatMap { _ in
-                    channel.pipeline.addHandler(ProxyHandler(url: url, isResponse: isResponse))
+                    channel.pipeline.addHandler(ProxyHandler(url: url, isRequestAndResponse: isRequestAndResponse))
                 }
         }
         .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)

@@ -60,7 +60,12 @@ struct ProfileView: View {
                     Text("Post-Action")
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
-                        Text("MudMouth will trigger the URL Scheme with an extra query headers=<HEADERS>&body=<BODY> on completion. Both headers and body will be encoded in the URL-Safe Base64 format.")
+                        switch profile.directionEnum {
+                        case .request:
+                            Text("MudMouth will trigger the URL Scheme with an extra query requestHeaders=<REQUEST_HEADERS>&requestBody=<REQUEST_BODY> on completion. Both headers and body will be encoded in the URL-Safe Base64 format.")
+                        case .requestAndResponse:
+                            Text("MudMouth will trigger the URL Scheme with an extra query requestHeaders=<REQUEST_HEADERS>&requestBody=<REQUEST_BODY>&responseHeaders=<RESPONSE_HEADERS>&responseBody=<RESPONSE_BODY> on completion. Both headers and body will be encoded in the URL-Safe Base64 format.")
+                        }
                     }
                 }
                 Section {

@@ -26,8 +26,10 @@ struct ContentView: View {
     @State private var showNotificationAlert = false
     
     @State private var notificationObserver: AnyObject?
-    @State private var headers = ""
-    @State private var body_: Data?
+    @State private var requestHeaders = ""
+    @State private var requestBody: Data?
+    @State private var responseHeaders: String?
+    @State private var responseBody: Data?
     
     init() {
         let (certificate, privateKey) = loadCertificate()
@@ -102,33 +104,62 @@ struct ContentView: View {
                         }
                     }
                 }
-                if !headers.isEmpty {
+                if !requestHeaders.isEmpty {
                     Section("Result") {
                         VStack(alignment: .leading) {
-                            Text("Headers")
+                            Text("Request Headers")
                             Spacer()
                                 .frame(height: 8)
-                            Text(headers)
+                            Text(requestHeaders)
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .textSelection(.enabled)
                         }
-                        if bodyString != nil {
+                        if requestBody != nil, let requestBody = String(data: requestBody!, encoding: .utf8) {
                             VStack(alignment: .leading) {
-                                Text("Body")
+                                Text("Request Body")
                                 Spacer()
                                     .frame(height: 8)
-                                Text(bodyString!)
+                                Text(requestBody)
                                     .font(.footnote)
                                     .foregroundColor(.secondary)
                                     .textSelection(.enabled)
                             }
                         } else {
                             HStack {
-                                Text("Body")
+                                Text("Request Body")
                                 Spacer()
-                                Text("\(body_?.count ?? 0) Byte\(body_?.count ?? 0 > 0 ? "s" : "")")
+                                Text("\(requestBody?.count ?? 0) Byte\(requestBody?.count ?? 0 > 0 ? "s" : "")")
                                     .foregroundColor(.secondary)
+                            }
+                        }
+                        if let responseHeaders = responseHeaders {
+                            VStack(alignment: .leading) {
+                                Text("Response Headers")
+                                Spacer()
+                                    .frame(height: 8)
+                                Text(responseHeaders)
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+                                    .textSelection(.enabled)
+                            }
+                            if responseBody != nil, let responseBody = String(data: responseBody!, encoding: .utf8) {
+                                VStack(alignment: .leading) {
+                                    Text("Response Body")
+                                    Spacer()
+                                        .frame(height: 8)
+                                    Text(responseBody)
+                                        .font(.footnote)
+                                        .foregroundColor(.secondary)
+                                        .textSelection(.enabled)
+                                }
+                            } else {
+                                HStack {
+                                    Text("Response Body")
+                                    Spacer()
+                                    Text("\(responseBody?.count ?? 0) Byte\(responseBody?.count ?? 0 > 0 ? "s" : "")")
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                         if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
@@ -204,8 +235,10 @@ struct ContentView: View {
                 // Observes notification callback from app delegate.
                 if notificationObserver == nil {
                     notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
-                        headers = notification.userInfo!["headers"] as! String
-                        body_ = notification.userInfo!["body"] as? Data
+                        requestHeaders = notification.userInfo!["requestHeaders"] as! String
+                        requestBody = notification.userInfo!["requestBody"] as? Data
+                        responseHeaders = notification.userInfo!["responseHeaders"] as? String
+                        responseBody = notification.userInfo!["responseBody"] as? Data
                         stopCapturingRequest()
                         if selectedProfile != nil {
                             triggerPostAction()
@@ -284,13 +317,6 @@ struct ContentView: View {
         }
     }
     
-    var bodyString: String? {
-        guard let body = body_ else {
-            return nil
-        }
-        return String(data: body, encoding: .utf8)
-    }
-    
     private func save() {
         do {
             try viewContext.save()
@@ -360,15 +386,22 @@ struct ContentView: View {
             break
         case .urlScheme:
             var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
-            let encoded = headers.data(using: .utf8)!.urlSafeBase64EncodedString()
+            let encoded = requestHeaders.data(using: .utf8)!.urlSafeBase64EncodedString()
             var components = URLComponents(url: scheme, resolvingAgainstBaseURL: true)!
             if components.queryItems == nil {
                 components.queryItems = []
             }
-            components.queryItems!.append(URLQueryItem(name: "headers", value: encoded))
-            if body_ != nil {
-                let encoded = body_!.urlSafeBase64EncodedString()
-                components.queryItems!.append(URLQueryItem(name: "body", value: encoded))
+            components.queryItems!.append(URLQueryItem(name: "requestHeaders", value: encoded))
+            if requestBody != nil {
+                let encoded = requestBody!.urlSafeBase64EncodedString()
+                components.queryItems!.append(URLQueryItem(name: "requestBody", value: encoded))
+            }
+            if responseHeaders != nil {
+                components.queryItems!.append(URLQueryItem(name: "responseHeaders", value: encoded))
+            }
+            if responseBody != nil {
+                let encoded = responseBody!.urlSafeBase64EncodedString()
+                components.queryItems!.append(URLQueryItem(name: "responseBody", value: encoded))
             }
             scheme = components.url!
             UIApplication.shared.open(scheme)
