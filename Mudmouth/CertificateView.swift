@@ -1,3 +1,4 @@
+import AlertKit
 import Crypto
 import SwiftASN1
 import SwiftUI
@@ -6,12 +7,20 @@ import X509
 struct CertificateView: View {
     @State var certificate: Certificate
     @State var privateKey: P256.Signing.PrivateKey
-    @State var showRegenerateCertificateAlert: Bool = false
+    
+    @State var showRegenerateCertificateAlert = false
+    @State var showImportCertificateAlert = false
+    @State var showImporter = false
+    @State var showExporter = false
     
     init() {
         let (certificate, privateKey) = loadCertificate()
         _certificate = State(initialValue: certificate!)
         _privateKey = State(initialValue: privateKey!)
+    }
+    init(certificate: Certificate, privateKey: P256.Signing.PrivateKey) {
+        _certificate = State(initialValue: certificate)
+        _privateKey = State(initialValue: privateKey)
     }
     
     var body: some View {
@@ -21,18 +30,14 @@ struct CertificateView: View {
                     HStack {
                         Text("Organization")
                         Spacer()
-                        Text(certificate.issuer.first(where: { name in
-                            name.description.starts(with: "O=")
-                        })?.description.replacingOccurrences(of: "O=", with: "") ?? "")
+                        Text(certificate.orgnization)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
                     HStack {
                         Text("Common Name")
                         Spacer()
-                        Text(certificate.subject.first(where: { name in
-                            name.description.starts(with: "CN=")
-                        })?.description.replacingOccurrences(of: "CN=", with: "") ?? "")
+                        Text(certificate.commonName)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
@@ -82,12 +87,35 @@ struct CertificateView: View {
                 }
                 Section {
                     Button("Generate a New Certificate", action: requestGeneratingCertificate)
-                    .alert(isPresented: $showRegenerateCertificateAlert) {
-                        Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"), primaryButton: .destructive(Text("OK"), action: ContinueGeneratingCertificate), secondaryButton: .cancel())
-                    }
+                        .alert(isPresented: $showRegenerateCertificateAlert) {
+                            Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"), primaryButton: .destructive(Text("OK"), action: continueGeneratingCertificate), secondaryButton: .cancel())
+                        }
+                    Button("Import Certificate", action: importCertificate)
+                        .alert(isPresented: $showImportCertificateAlert) {
+                            Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to import certificate?"), primaryButton: .destructive(Text("OK"), action: continueImportingCertificate), secondaryButton: .cancel())
+                        }
+                        .fileImporter(isPresented: $showImporter, allowedContentTypes: [.x509Certificate]) { result in
+                            switch result {
+                            case .success(let url):
+                                let (certificate, privateKey) = Mudmouth.importCertificate(url: url)
+                                if let certificate = certificate, let privateKey = privateKey {
+                                    self.certificate = certificate
+                                    self.privateKey = privateKey
+                                } else {
+                                    AlertKitAPI.present(title: "Invalid Certificate", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                }
+                                break
+                            case .failure:
+                                AlertKitAPI.present(title: "Failed to Import", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                            }
+                        }
                     Button("Install Certificate", action: installCertificate)
                 } footer: {
                     Text("You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings.")
+                }
+                Section {
+                    Button("Export Certificate", action: exportCertificate)
+                        .fileExporter(isPresented: $showExporter, document: PEMFile(certificate: certificate, privateKey: privateKey), contentType: .x509Certificate, defaultFilename: certificate.commonName) { _ in }
                 }
             }
             .navigationTitle("Root Certificate")
@@ -98,17 +126,30 @@ struct CertificateView: View {
         showRegenerateCertificateAlert.toggle()
     }
     
-    private func ContinueGeneratingCertificate() {
+    private func continueGeneratingCertificate() {
         (certificate, privateKey) = generateCertificate()
+    }
+    
+    private func importCertificate() {
+        showImportCertificateAlert.toggle()
+    }
+    
+    private func continueImportingCertificate() {
+        showImporter.toggle()
     }
     
     private func installCertificate() {
         UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
     }
+    
+    private func exportCertificate() {
+        showExporter.toggle()
+    }
 }
 
 struct CertificateView_Previews: PreviewProvider {
     static var previews: some View {
-        CertificateView()
+        let (certificate, privateKey) = generateCertificate()
+        CertificateView(certificate: certificate, privateKey: privateKey)
     }
 }

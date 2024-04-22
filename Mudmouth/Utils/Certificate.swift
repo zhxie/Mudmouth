@@ -1,7 +1,23 @@
 import Crypto
 import Foundation
 import SwiftASN1
+import SwiftUI
+import UniformTypeIdentifiers
 import X509
+
+extension Certificate {
+    var orgnization: String {
+        self.issuer.first(where: { name in
+            name.description.starts(with: "O=")
+        })?.description.replacingOccurrences(of: "O=", with: "") ?? ""
+    }
+    
+    var commonName: String {
+        self.subject.first(where: { name in
+            name.description.starts(with: "CN=")
+        })?.description.replacingOccurrences(of: "CN=", with: "") ?? ""
+    }
+}
 
 func generateCertificate() -> (Certificate, P256.Signing.PrivateKey) {
     let privateKey = P256.Signing.PrivateKey()
@@ -92,5 +108,71 @@ func generateSiteCertificate(url: String, caCertificateData: [UInt8], caPrivateK
         return (serializeCertificate(certificate), privateKey.derRepresentation)
     } catch {
         fatalError("Failed to generate site certificate: \(error.localizedDescription)")
+    }
+}
+
+enum PEMFileError: Error {
+    case invalidPEMFile
+}
+
+// Referenced from https://www.hackingwithswift.com/quick-start/swiftui/how-to-export-files-using-fileexporter.
+struct PEMFile: FileDocument {
+    static var readableContentTypes = [UTType.x509Certificate]
+
+    var certificate: Certificate
+    var privateKey: P256.Signing.PrivateKey
+
+    init(certificate: Certificate, privateKey: P256.Signing.PrivateKey) {
+        self.certificate = certificate
+        self.privateKey = privateKey
+    }
+    
+    init(data: Data) throws {
+        let text = String(decoding: data, as: UTF8.self)
+        if let index = text.index(of: "\n\n") {
+            let certificatePEM = text[..<index]
+            certificate = try Certificate(pemEncoded: String(certificatePEM))
+            let privateKeyIndex = text.index(index, offsetBy: 2)
+            let privateKeyPEM = text[privateKeyIndex...]
+            privateKey = try P256.Signing.PrivateKey(pemRepresentation: String(privateKeyPEM))
+        } else {
+            throw PEMFileError.invalidPEMFile
+        }
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        if let data = configuration.file.regularFileContents {
+            try self.init(data: data)
+        } else {
+            throw PEMFileError.invalidPEMFile
+        }
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let data = Data(readable.utf8)
+        return FileWrapper(regularFileWithContents: data)
+    }
+    
+    var readable: String {
+        String(format: "%@\n\n%@", try! certificate.serializeAsPEM().pemString, privateKey.pemRepresentation)
+    }
+}
+
+func importCertificate(url: URL) -> (Certificate?, P256.Signing.PrivateKey?) {
+    do {
+        if url.startAccessingSecurityScopedResource() {
+            let data = try Data(contentsOf: url)
+            let pemFile = try PEMFile(data: data)
+            var serializer = DER.Serializer()
+            try! serializer.serialize(pemFile.certificate)
+            let derEncodedCertificate = serializer.serializedBytes
+            UserDefaults.standard.set(pemFile.privateKey.rawRepresentation, forKey: "privateKey")
+            UserDefaults.standard.set(derEncodedCertificate, forKey: "certificate")
+            return (pemFile.certificate, pemFile.privateKey)
+        } else {
+            return (nil, nil)
+        }
+    } catch {
+        return (nil, nil)
     }
 }
