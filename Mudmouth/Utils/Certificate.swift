@@ -100,7 +100,7 @@ func generateSiteCertificate(url: String, caCertificateData: [UInt8], caPrivateK
             )
             try! ExtendedKeyUsage([ExtendedKeyUsage.Usage.serverAuth, ExtendedKeyUsage.Usage.ocspSigning])
             SubjectKeyIdentifier(hash: certificatePrivateKey.publicKey)
-            SubjectAlternativeNames([.dnsName(url.host!)])
+            SubjectAlternativeNames([url.ipv4 == nil ? .dnsName(url.host!) : .ipAddress(url.ipv4!)])
         }
         let caPriavteKey = try P256.Signing.PrivateKey(rawRepresentation: caPrivateKeyData)
         let certificateCaPrivateKey = Certificate.PrivateKey(caPriavteKey)

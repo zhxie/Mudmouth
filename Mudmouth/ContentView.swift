@@ -24,6 +24,7 @@ struct ContentView: View {
     
     @State private var showVPNAlert = false
     @State private var showNotificationAlert = false
+    @State private var showRootCertificateAlert = false
     
     @State private var notificationObserver: AnyObject?
     @State private var requestHeaders = ""
@@ -99,6 +100,11 @@ struct ContentView: View {
                             .alert(isPresented: $showNotificationAlert) {
                                 Alert(title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."), dismissButton: .default(Text("OK")) {
                                     UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                                })
+                            }
+                            .alert(isPresented: $showRootCertificateAlert) {
+                                Alert(title: Text("Root Certificate Not Trusted"), message: Text("Mudmouth requires root certificate to inject requests."), dismissButton: .default(Text("OK")) {
+                                    UIApplication.shared.open(URL(string: "App-prefs:")!)
                                 })
                             }
                         }
@@ -360,15 +366,21 @@ struct ContentView: View {
                 return
             }
             let (certificate, privateKey) = loadCertificate()
-            let serializedCertificate = serializeCertificate(certificate!)
-            startVPN(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
-                switch selectedProfile!.preActionEnum {
-                case .none:
-                    break
-                case .urlScheme:
-                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
-                        UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
+            verifyCertificateTrust(certificate: certificate!, privateKey: privateKey!) { success in
+                if !success {
+                    showRootCertificateAlert.toggle()
+                    return
+                }
+                let serializedCertificate = serializeCertificate(certificate!)
+                startVPN(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    switch selectedProfile!.preActionEnum {
+                    case .none:
+                        break
+                    case .urlScheme:
+                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                            UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
+                        }
                     }
                 }
             }
