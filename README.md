@@ -23,10 +23,10 @@ mudmouth://capture?name=<NAME>
 
 ### Parameters
 
-| Parameter | Options                   |
-| --------- | ------------------------- |
-| ACTION    | 0: None<br>1: URL Scheme  |
-| DIRECTION | 0: Request<br>1: Response |
+| Parameter | Options                             |
+| --------- | ----------------------------------- |
+| ACTION    | 0: None<br>1: URL Scheme            |
+| DIRECTION | 0: Request<br>1: Request & Response |
 
 ## License
 
