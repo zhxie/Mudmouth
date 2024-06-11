@@ -23,12 +23,11 @@ class VerificationHandler: ChannelInboundHandler {
 }
 
 func verifyCertificateTrust(certificate: Certificate, privateKey: P256.Signing.PrivateKey, _ completion: @escaping (_ success: Bool) -> Void) {
-    let serializedCertificate = serializeCertificate(certificate)
-    let (certificate, privateKey) = generateSiteCertificate(url: "https://127.0.0.1:26386", caCertificateData: serializedCertificate, caPrivateKeyData: privateKey.rawRepresentation)
+    let (certificate, privateKey) = generateSiteCertificate(url: "https://127.0.0.1:26386", caCertificate: certificate, caPrivateKey: privateKey)
     var sslContext: NIOSSLContext?
     do {
-        let certificate = try NIOSSLCertificate(bytes: certificate, format: .der)
-        let privateKey = try NIOSSLPrivateKey(bytes: [UInt8](privateKey), format: .der)
+        let certificate = try NIOSSLCertificate(bytes: serializeCertificate(certificate), format: .der)
+        let privateKey = try NIOSSLPrivateKey(bytes: [UInt8](privateKey.derRepresentation), format: .der)
         let configuration = TLSConfiguration.makeServerConfiguration(certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
         sslContext = try NIOSSLContext(configuration: configuration)
     } catch {

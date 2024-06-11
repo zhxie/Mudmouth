@@ -77,7 +77,7 @@ func serializeCertificate(_ certificate: Certificate) -> [UInt8] {
     }
 }
 
-func generateSiteCertificate(url: String, caCertificateData: [UInt8], caPrivateKeyData: Data) -> ([UInt8], Data) {
+func generateSiteCertificate(url: String, caCertificate: Certificate, caPrivateKey: P256.Signing.PrivateKey) -> (Certificate, P256.Signing.PrivateKey) {
     let privateKey = P256.Signing.PrivateKey()
     let certificatePrivateKey = Certificate.PrivateKey(privateKey)
     let now = Date()
@@ -85,7 +85,6 @@ func generateSiteCertificate(url: String, caCertificateData: [UInt8], caPrivateK
         String(format: "%02hhX", char)
     }).joined()
     do {
-        let caCertificate = try Certificate(derEncoded: caCertificateData)
         let subject = try DistinguishedName {
             CommonName("Mudmouth Signed \(publicKeyString.prefix(8))")
             OrganizationName("Mudmouth")
@@ -102,10 +101,9 @@ func generateSiteCertificate(url: String, caCertificateData: [UInt8], caPrivateK
             SubjectKeyIdentifier(hash: certificatePrivateKey.publicKey)
             SubjectAlternativeNames([url.ipv4 == nil ? .dnsName(url.host!) : .ipAddress(url.ipv4!)])
         }
-        let caPriavteKey = try P256.Signing.PrivateKey(rawRepresentation: caPrivateKeyData)
-        let certificateCaPrivateKey = Certificate.PrivateKey(caPriavteKey)
+        let certificateCaPrivateKey = Certificate.PrivateKey(caPrivateKey)
         let certificate = try Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
-        return (serializeCertificate(certificate), privateKey.derRepresentation)
+        return (certificate, privateKey)
     } catch {
         fatalError("Failed to generate site certificate: \(error.localizedDescription)")
     }

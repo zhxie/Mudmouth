@@ -287,6 +287,7 @@ func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, priv
         }
         .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
         .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+        // 6836 represents M-U-D-M.
         .bind(host: "127.0.0.1", port: 6836)
         .whenComplete { result in
             switch result {

@@ -371,8 +371,7 @@ struct ContentView: View {
                     showRootCertificateAlert.toggle()
                     return
                 }
-                let serializedCertificate = serializeCertificate(certificate!)
-                startVPN(manager: manager!, profile: selectedProfile!, certificate: serializedCertificate, privateKey: privateKey!.rawRepresentation) {
+                startVPN(manager: manager!, profile: selectedProfile!, certificate: certificate!, privateKey: privateKey!) {
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
                     switch selectedProfile!.preActionEnum {
                     case .none:

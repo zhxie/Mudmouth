@@ -1,6 +1,8 @@
+import Crypto
 import Foundation
 import NetworkExtension
 import OSLog
+import X509
 
 func installVPN(_ completion: @escaping (_ error: Error?) -> Void) {
     let manager = NETunnelProviderManager()
@@ -26,17 +28,17 @@ func loadVPN(_ completion: @escaping (_ manager: NETunnelProviderManager?) -> Vo
     }
 }
 
-func startVPN(manager: NETunnelProviderManager, profile: Profile, certificate: [UInt8], privateKey: Data, _ completion: @escaping () -> Void) {
+func startVPN(manager: NETunnelProviderManager, profile: Profile, certificate: Certificate, privateKey: P256.Signing.PrivateKey, _ completion: @escaping () -> Void) {
     manager.isEnabled = true
     manager.saveToPreferences { error in
         if let error = error {
             fatalError("Failed to enable VPN: \(error.localizedDescription)")
         }
-        let (certificate, privateKey) = generateSiteCertificate(url: profile.url!, caCertificateData: certificate, caPrivateKeyData: privateKey)
+        let (certificate, privateKey) = generateSiteCertificate(url: profile.url!, caCertificate: certificate, caPrivateKey: privateKey)
         do {
             try manager.connection.startVPNTunnel(options: [
                 NEVPNConnectionStartOptionUsername: "\(profile.directionEnum.rawValue):\(profile.url!)" as NSObject,
-                NEVPNConnectionStartOptionPassword: "\(Data(certificate).base64EncodedString()):\(privateKey.base64EncodedString())" as NSObject
+                NEVPNConnectionStartOptionPassword: "\(Data(serializeCertificate(certificate)).base64EncodedString()):\(privateKey.derRepresentation.base64EncodedString())" as NSObject
             ])
             completion()
         } catch {
