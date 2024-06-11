@@ -1,5 +1,6 @@
-import SwiftUI
+import CoreData
 import OSLog
+import SwiftUI
 
 @main
 struct MudmouthApp: App {
@@ -11,6 +12,30 @@ struct MudmouthApp: App {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .onAppear {
+                    UserDefaults.standard.register(defaults: ["version": 0])
+                    let version = UserDefaults.standard.integer(forKey: "version")
+                    if version < 1 {
+                        let context = PersistenceController.shared.container.viewContext
+                        let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
+                        fetchRequest.predicate = NSPredicate(value: true)
+                        do {
+                            let count = try context.count(for: fetchRequest)
+                            if count == 0 {
+                                let profile = Profile(context: context)
+                                profile.name = "httpbin.org"
+                                profile.url = "http://httpbin.org/get"
+                                profile.directionEnum = .requestAndResponse
+                                profile.preActionEnum = .urlScheme
+                                profile.preActionUrlScheme = "http://httpbin.org/get"
+                                try context.save()
+                            }
+                            UserDefaults.standard.set(1, forKey: "version")
+                        } catch {
+                            os_log(.error, "Failed to initialize default profile: %{public}@", error.localizedDescription)
+                        }
+                    }
+                }
         }
     }
 }
