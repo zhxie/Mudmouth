@@ -26,8 +26,6 @@ struct MudmouthApp: App {
                                 profile.name = "httpbin.org"
                                 profile.url = "http://httpbin.org/get"
                                 profile.directionEnum = .requestAndResponse
-                                profile.preActionEnum = .urlScheme
-                                profile.preActionUrlScheme = "http://httpbin.org/get"
                                 try context.save()
                             }
                             UserDefaults.standard.set(1, forKey: "version")
