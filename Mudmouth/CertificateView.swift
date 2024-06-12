@@ -26,7 +26,7 @@ struct CertificateView: View {
     var body: some View {
         NavigationView {
             List {
-                Section("Basics") {
+                Section("Certificate") {
                     HStack {
                         Text("Organization")
                         Spacer()
@@ -41,8 +41,6 @@ struct CertificateView: View {
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
-                }
-                Section("Validity Period") {
                     HStack {
                         Text("Not Valid Before")
                         Spacer()
@@ -109,13 +107,14 @@ struct CertificateView: View {
                                 AlertKitAPI.present(title: "Failed to Import", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                             }
                         }
+                    Button("Export Certificate", action: exportCertificate)
+                        .fileExporter(isPresented: $showExporter, document: PEMFile(certificate: certificate, privateKey: privateKey), contentType: .x509Certificate, defaultFilename: certificate.commonName) { _ in }
+                    
+                }
+                Section {
                     Button("Install Certificate", action: installCertificate)
                 } footer: {
                     Text("You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings.")
-                }
-                Section {
-                    Button("Export Certificate", action: exportCertificate)
-                        .fileExporter(isPresented: $showExporter, document: PEMFile(certificate: certificate, privateKey: privateKey), contentType: .x509Certificate, defaultFilename: certificate.commonName) { _ in }
                 }
             }
             .navigationTitle("Root Certificate")
@@ -138,12 +137,12 @@ struct CertificateView: View {
         showImporter.toggle()
     }
     
-    private func installCertificate() {
-        UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
-    }
-    
     private func exportCertificate() {
         showExporter.toggle()
+    }
+    
+    private func installCertificate() {
+        UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
     }
 }
 

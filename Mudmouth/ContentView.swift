@@ -50,7 +50,9 @@ struct ContentView: View {
                 Section("Profile") {
                     ForEach(profiles, id: \.self) { profile in
                         Button {
-                            selectedProfile = profile
+                            withAnimation {
+                                selectedProfile = profile
+                            }
                         } label: {
                             HStack {
                                 Text(profile.name!)
@@ -82,11 +84,15 @@ struct ContentView: View {
                     ProfileView(profile: operation.object)
                         .environment(\.managedObjectContext, operation.context)
                 }
-                Section("Tap") {
-                    Button("Configure Root Certificate", action: toggleCertificate)
-                    .sheet(isPresented: $showCertificate) {
-                        CertificateView()
+                if isHTTPS {
+                    Section("MitM") {
+                        Button("Configure Root Certificate", action: toggleCertificate)
+                        .sheet(isPresented: $showCertificate) {
+                            CertificateView()
+                        }
                     }
+                }
+                Section("Tap") {
                     if manager == nil {
                         Button("Capture Requests", action: install)
                             .disabled(selectedProfile == nil || !selectedProfile!.isValid)
@@ -183,7 +189,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                                 .frame(width: 16)
-                            Text("Install and trust root certificate of Mudmouth to capture requests.")
+                            Text("Install the configuration profile of Mudmouth to capture requests.")
                                 .font(.system(size: 15, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -323,6 +329,15 @@ struct ContentView: View {
                 }
             }
         }
+    }
+    
+    var isHTTPS: Bool {
+        if let url = selectedProfile?.url {
+            if let url = URL(string: url) {
+                return url.scheme == "https"
+            }
+        }
+        return false
     }
     
     private func save() {
