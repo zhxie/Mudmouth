@@ -103,12 +103,16 @@ struct ContentView: View {
                             .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
                             .alert(isPresented: $showNotificationAlert) {
                                 Alert(title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."), dismissButton: .default(Text("OK")) {
-                                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                                    if #available(iOS 16, *) {
+                                        UIApplication.shared.open(URL(string: UIApplication.openNotificationSettingsURLString)!)
+                                    } else {
+                                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                                    }
                                 })
                             }
                             .alert(isPresented: $showRootCertificateAlert) {
-                                Alert(title: Text("Root Certificate Not Trusted"), message: Text("Mudmouth requires root certificate to inject requests."), dismissButton: .default(Text("OK")) {
-                                    UIApplication.shared.open(URL(string: "App-prefs:")!)
+                                Alert(title: Text("Root Certificate Not Installed or Trusted"), message: Text("Mudmouth requires root certificate to inject requests."), dismissButton: .default(Text("OK")) {
+                                    toggleCertificate()
                                 })
                             }
                         }

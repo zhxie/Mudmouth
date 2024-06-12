@@ -1,5 +1,6 @@
 import AlertKit
 import Crypto
+import Security
 import SwiftASN1
 import SwiftUI
 import X509
@@ -109,16 +110,35 @@ struct CertificateView: View {
                         }
                     Button("Export Certificate", action: exportCertificate)
                         .fileExporter(isPresented: $showExporter, document: PEMFile(certificate: certificate, privateKey: privateKey), contentType: .x509Certificate, defaultFilename: certificate.commonName) { _ in }
-                    
                 }
                 Section {
                     Button("Install Certificate", action: installCertificate)
                 } footer: {
-                    Text("You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings.")
+                    Text(isCertificateInstalled ? "You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings." : "You should install the certificate manually after downloading in Settings > General > VPN & Device Management > Downloaded Profile.")
                 }
             }
             .navigationTitle("Root Certificate")
         }
+    }
+    
+    var isCertificateInstalled: Bool {
+        let der = certificate.derRepresentation
+        let data = der.withUnsafeBufferPointer { bufferPointer in
+            CFDataCreate(nil, bufferPointer.baseAddress, der.count)
+        }!
+        let certificate = SecCertificateCreateWithData(nil, data)!
+        let policy = SecPolicyCreateBasicX509()
+        var trust: SecTrust?
+        let status = SecTrustCreateWithCertificates(certificate, policy, &trust)
+        guard status == errSecSuccess, let trust = trust else {
+            return false
+        }
+        var error: CFError?
+        let evalStatus = SecTrustEvaluateWithError(trust, &error)
+        guard evalStatus else {
+            return false
+        }
+        return error == nil
     }
     
     private func requestGeneratingCertificate() {
