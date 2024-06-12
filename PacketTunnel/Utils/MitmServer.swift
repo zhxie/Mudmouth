@@ -109,7 +109,7 @@ class ProxyHandler: ChannelDuplexHandler {
     }
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        os_log(.debug, "[%{public}@] Read : %{public}@", context.remoteAddress!.description, data.description)
+        os_log(.debug, "[%{public}@] Read: %{public}@", context.remoteAddress!.description, data.description)
         let httpData = unwrapInboundIn(data)
         switch httpData {
         case .head(let head):
@@ -138,7 +138,8 @@ class ProxyHandler: ChannelDuplexHandler {
             context.write(wrapOutboundOut(.body(.byteBuffer(body))), promise: promise)
         case .end:
             let request = requests.popFirst()!
-            if isRequestAndResponse && request.headers.uri == url.path {
+            let prefix = "\(url.scheme!)://\(url.host!)"
+            if isRequestAndResponse && (request.headers.uri == url.path || request.headers.uri.hasPrefix(prefix) && String(request.headers.uri.dropFirst(prefix.count)) == url.path) {
                 scheduleNotification(requestHeaders: request.headers.headers.readable, requestBody: request.body, responseHeaders: response!.headers.headers.readable, responseBody: response!.body)
             }
             response = nil
@@ -151,7 +152,7 @@ class ProxyHandler: ChannelDuplexHandler {
     }
 }
 
-class ConnectHandler: ChannelInboundHandler {
+class HTTPSConnectHandler: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias OutboundOut = HTTPServerResponsePart
     
@@ -168,7 +169,7 @@ class ConnectHandler: ChannelInboundHandler {
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         switch state {
         case .idle:
-            os_log(.debug, "[%{public}@] Read : %{public}@", context.remoteAddress!.description, data.description)
+            os_log(.debug, "[%{public}@] Read: %{public}@", context.remoteAddress!.description, data.description)
             let httpData = unwrapInboundIn(data)
             guard case .head(let head) = httpData else {
                 return
@@ -187,7 +188,7 @@ class ConnectHandler: ChannelInboundHandler {
             port = Int(components[1])!
             state = .awaitingEnd
         case .awaitingEnd:
-            os_log(.debug, "[%{public}@] Read : %{public}@", context.remoteAddress!.description, data.description)
+            os_log(.debug, "[%{public}@] Read: %{public}@", context.remoteAddress!.description, data.description)
             let httpData = unwrapInboundIn(data)
             if case .end = httpData {
                 // Upgrade to TLS server.
@@ -223,10 +224,10 @@ class ConnectHandler: ChannelInboundHandler {
                                         .whenComplete { result in
                                             switch result {
                                             case .success:
-                                                os_log(.info, "Upgraded to TLS server")
+                                                os_log(.info, "Upgraded to HTTPS proxy server")
                                                 self.state = .established
                                             case .failure(let failure):
-                                                os_log(.error, "Failed to upgrade to TLS server: %{public}@", failure.localizedDescription)
+                                                os_log(.error, "Failed to upgrade to HTTPS proxy server: %{public}@", failure.localizedDescription)
                                                 context.close(promise: nil)
                                             }
                                         }
@@ -246,6 +247,71 @@ class ConnectHandler: ChannelInboundHandler {
             // Forward data to the next channel.
             context.fireChannelRead(data)
         }
+    }
+}
+
+class HTTPHandler: ChannelInboundHandler {
+    typealias InboundIn = ByteBuffer
+    typealias InboundOut = ByteBuffer
+    typealias OutboundIn = ByteBuffer
+    typealias OutboundOut = ByteBuffer
+
+    private var connected: Bool = false
+    private var buffer = ByteBuffer()
+    private var host: String
+    private var port: Int
+    
+    init(url: URL) {
+        self.host = url.host!
+        self.port = url.port ?? 80
+    }
+    
+    func channelRegistered(context: ChannelHandlerContext) {
+        ClientBootstrap(group: context.eventLoop)
+            .channelInitializer { channel in
+                return channel.pipeline.addHandler(HTTPRequestEncoder())
+                    .flatMap { _ in
+                        channel.pipeline.addHandler(ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)))
+                    }
+            }
+            .connect(host: host, port: port)
+            .whenComplete { result in
+                switch result {
+                case .success(let client):
+                    os_log(.info, "Connected to upstream %{public}@:%d", self.host, self.port)
+                    let (localGlue, remoteGlue) = GlueHandler.matchedPair()
+                    context.pipeline.addHandler(localGlue)
+                        .and(client.pipeline.addHandler(remoteGlue))
+                        .whenComplete { result in
+                            switch result {
+                            case .success:
+                                self.connected = true
+                                os_log(.info, "Upgraded to HTTP proxy server")
+                                if self.buffer.readableBytes > 0 {
+                                    os_log(.debug, "[%{public}@] Write: %{public}@", context.remoteAddress!.description, self.buffer.description)
+                                    context.pipeline.fireChannelRead(self.wrapInboundOut(self.buffer))
+                                    context.pipeline.fireChannelReadComplete()
+                                }
+                            case .failure(let failure):
+                                os_log(.error, "Failed to upgrade to HTTP proxy server: %{public}@", failure.localizedDescription)
+                                context.close(promise: nil)
+                            }
+                        }
+                case .failure(let failure):
+                    os_log(.error, "Failed to connect to upstream %{public}@:%d@: %{public}@", self.host, self.port, failure.localizedDescription)
+                    context.close(promise: nil)
+                }
+            }
+    }
+    
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        if connected {
+            context.fireChannelRead(data)
+            return
+        }
+        os_log(.debug, "[%{public}@] Read: %{public}@", context.remoteAddress!.description, data.description)
+        var data = unwrapInboundIn(data)
+        buffer.writeBuffer(&data)
     }
 }
 
@@ -270,7 +336,7 @@ func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, priv
                     channel.pipeline.addHandler(HTTPResponseEncoder())
                 }
                 .flatMap { _ in
-                    channel.pipeline.addHandler(ConnectHandler())
+                    channel.pipeline.addHandler(HTTPSConnectHandler())
                 }
                 .flatMap { _ in
                     channel.pipeline.addHandler(NIOSSLServerHandler(context: sslContext!))
@@ -297,6 +363,40 @@ func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, priv
                 completion()
             case .failure(let failure):
                 fatalError("Failed to bind MitM proxy: \(failure.localizedDescription)")
+            }
+        }
+}
+
+func runServer(url: URL, isRequestAndResponse: Bool, _ completion: @escaping () -> Void) {
+    // Process packets in the tunnel.
+    let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    ServerBootstrap(group: group)
+        .serverChannelOption(ChannelOptions.backlog, value: 256)
+        .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+        .childChannelInitializer { channel in
+            channel.pipeline.addHandler(HTTPHandler(url: url))
+                .flatMap { _ in
+                    channel.pipeline.addHandler(ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)))
+                }
+                .flatMap { _ in
+                    channel.pipeline.addHandler(HTTPResponseEncoder())
+                }
+                .flatMap { _ in
+                    channel.pipeline.addHandler(ProxyHandler(url: url, isRequestAndResponse: isRequestAndResponse))
+                }
+        }
+        .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
+        .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+        // 6836 represents M-U-D-M.
+        .bind(host: "127.0.0.1", port: 6836)
+        .whenComplete { result in
+            switch result {
+            case .success:
+                NotificationService.notificationSent = false
+                os_log(.info, "Proxy binded")
+                completion()
+            case .failure(let failure):
+                fatalError("Failed to bind proxy: \(failure.localizedDescription)")
             }
         }
 }

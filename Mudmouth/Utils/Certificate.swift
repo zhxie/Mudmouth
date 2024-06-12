@@ -17,6 +17,17 @@ extension Certificate {
             name.description.starts(with: "CN=")
         })?.description.replacingOccurrences(of: "CN=", with: "") ?? ""
     }
+    
+    var derRepresentation: [UInt8] {
+        var serializer = DER.Serializer()
+        do {
+            try serializer.serialize(self)
+            let derEncodedCertificate = serializer.serializedBytes
+            return derEncodedCertificate
+        } catch {
+            fatalError("Failed to install certificate: \(error.localizedDescription)")
+        }
+    }
 }
 
 func generateCertificate() -> (Certificate, P256.Signing.PrivateKey) {
@@ -66,18 +77,10 @@ func loadCertificate() -> (Certificate?, P256.Signing.PrivateKey?) {
     }
 }
 
-func serializeCertificate(_ certificate: Certificate) -> [UInt8] {
-    var serializer = DER.Serializer()
-    do {
-        try serializer.serialize(certificate)
-        let derEncodedCertificate = serializer.serializedBytes
-        return derEncodedCertificate
-    } catch {
-        fatalError("Failed to install certificate: \(error.localizedDescription)")
+func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivateKey: P256.Signing.PrivateKey?) -> (Certificate?, P256.Signing.PrivateKey?) {
+    guard let caCertificate = caCertificate, let caPrivateKey = caPrivateKey else {
+        return (nil, nil)
     }
-}
-
-func generateSiteCertificate(url: String, caCertificate: Certificate, caPrivateKey: P256.Signing.PrivateKey) -> (Certificate, P256.Signing.PrivateKey) {
     let privateKey = P256.Signing.PrivateKey()
     let certificatePrivateKey = Certificate.PrivateKey(privateKey)
     let now = Date()

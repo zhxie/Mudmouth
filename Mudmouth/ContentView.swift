@@ -1,8 +1,10 @@
 import AlertKit
 import CoreData
+import Crypto
 import NetworkExtension
 import OSLog
 import SwiftUI
+import X509
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -365,13 +367,23 @@ struct ContentView: View {
                 showNotificationAlert.toggle()
                 return
             }
-            let (certificate, privateKey) = loadCertificate()
-            verifyCertificateTrust(certificate: certificate!, privateKey: privateKey!) { success in
+            var certificate: Certificate? = nil
+            var privateKey: P256.Signing.PrivateKey? = nil
+            let url = URL(string: selectedProfile!.url!)!
+            switch url.scheme! {
+            case "http":
+                break
+            case "https":
+                (certificate, privateKey) = loadCertificate()
+            default:
+                fatalError("Unexpected scheme: \(url.scheme!)")
+            }
+            verifyCertificateTrust(certificate: certificate, privateKey: privateKey) { success in
                 if !success {
                     showRootCertificateAlert.toggle()
                     return
                 }
-                startVPN(manager: manager!, profile: selectedProfile!, certificate: certificate!, privateKey: privateKey!) {
+                startVPN(manager: manager!, profile: selectedProfile!, certificate: certificate, privateKey: privateKey) {
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
                     switch selectedProfile!.preActionEnum {
                     case .none:

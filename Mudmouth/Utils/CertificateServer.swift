@@ -25,8 +25,7 @@ class CertificateHandler: ChannelInboundHandler {
             return
         }
         // Send certificate to downstream.
-        let serializedCertificate = serializeCertificate(certificate)
-        let base64EncodedCertificate = Data(serializedCertificate).base64EncodedString()
+        let base64EncodedCertificate = Data(certificate.derRepresentation).base64EncodedString()
         let cer = "-----BEGIN CERTIFICATE-----\n\(base64EncodedCertificate.components(withMaxLength: 64).joined(separator: "\n"))\n-----END CERTIFICATE-----\n"
         let headers = HTTPHeaders([("Content-Length", cer.count.formatted()), ("Content-Type", "application/x-x509-ca-cert")])
         let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)

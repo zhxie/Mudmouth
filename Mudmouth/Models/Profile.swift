@@ -8,7 +8,7 @@ extension Profile {
         guard let url = URL(string: url ?? "") else {
             return false
         }
-        if url.scheme == nil || url.scheme! != "https" {
+        if url.scheme == nil || (url.scheme! != "http" && url.scheme! != "https") {
             return false
         }
         switch preActionEnum {

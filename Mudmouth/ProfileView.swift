@@ -23,7 +23,7 @@ struct ProfileView: View {
                 } header: {
                     Text("Profile")
                 } footer: {
-                    Text("Mudmouth only supports tapping on HTTPS requests.")
+                    Text("Mudmouth only supports tapping on HTTP and HTTPS requests.")
                 }
                 Section("Match") {
                     Picker("Direction", selection: $profile.directionEnum) {
