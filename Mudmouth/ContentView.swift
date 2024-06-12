@@ -80,10 +80,6 @@ struct ContentView: View {
                     }
                     Button("New Profile", action: createProfile)
                 }
-                .sheet(item: $profileOperation, onDismiss: save) { operation in
-                    ProfileView(profile: operation.object)
-                        .environment(\.managedObjectContext, operation.context)
-                }
                 if isHTTPS {
                     Section("MitM") {
                         Button("Configure Root Certificate", action: toggleCertificate)
@@ -223,6 +219,10 @@ struct ContentView: View {
                     }
                 }
                 .listRowBackground(Color(UIColor.systemGroupedBackground))
+            }
+            .sheet(item: $profileOperation, onDismiss: save) { operation in
+                ProfileView(profile: operation.object)
+                    .environment(\.managedObjectContext, operation.context)
             }
             .navigationTitle("Mudmouth")
         }
