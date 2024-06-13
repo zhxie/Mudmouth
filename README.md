@@ -1,9 +1,10 @@
 # Mudmouth
 
-Mudmouth is a network diagnostic tool for capturing secure requests on iOS.
+Mudmouth is a network diagnostic tool for capturing requests securely on iOS.
 
 ## Usage
 
+- Capturing HTTP requests
 - Capturing HTTPS requests with MitM
 - Triggering workflows before and after capturing
 
@@ -12,7 +13,7 @@ Mudmouth is a network diagnostic tool for capturing secure requests on iOS.
 ### Add a Profile
 
 ```
-mudmouth://add?name=<NAME>&url=<URL>&direction=<DIRECTION>&preAction=<ACTION>&preActionUrlScheme=<URL>&postAction=<ACTION>&postActionUrlScheme=<URL>
+mudmouth://add?name=<NAME>&url=<URL>[&direction=<DIRECTION>][&preAction=<ACTION>][&preActionUrlScheme=<URL>][&postAction=<ACTION>][&postActionUrlScheme=<URL>]
 ```
 
 ### Capture Requests
@@ -23,10 +24,10 @@ mudmouth://capture?name=<NAME>
 
 ### Parameters
 
-| Parameter | Options                             |
-| --------- | ----------------------------------- |
-| ACTION    | 0: None<br>1: URL Scheme            |
-| DIRECTION | 0: Request<br>1: Request & Response |
+| Parameter | Options                                       |
+|-----------|-----------------------------------------------|
+| ACTION    | 0: None (Default)<br>1: URL Scheme            |
+| DIRECTION | 0: Request<br>1: Request & Response (Default) |
 
 ## License
 
