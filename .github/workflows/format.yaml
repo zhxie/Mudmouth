@@ -1,0 +1,23 @@
+name: Format
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  format:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install swift-format
+        run: "brew install swift-format"
+
+      - name: Format
+        run: "swift-format lint -r -s ."
