@@ -31,11 +31,11 @@ struct PersistenceController {
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        container.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Failed to load persistent stores: \(error.localizedDescription)")
             }
-        })
+        }
         container.viewContext.automaticallyMergesChangesFromParent = true
     }
 }

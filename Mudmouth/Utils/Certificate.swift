@@ -30,9 +30,9 @@ func generateCertificate() -> (Certificate, P256.Signing.PrivateKey) {
     let privateKey = P256.Signing.PrivateKey()
     let certificatePrivateKey = Certificate.PrivateKey(privateKey)
     let now = Date()
-    let publicKeyString = privateKey.publicKey.rawRepresentation.map({ char in
+    let publicKeyString = privateKey.publicKey.rawRepresentation.map { char in
         String(format: "%02hhX", char)
-    }).joined()
+    }.joined()
     let name = try! DistinguishedName {
         CommonName("Mudmouth Generated \(publicKeyString.prefix(8))")
         OrganizationName("Mudmouth")
@@ -76,9 +76,9 @@ func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivate
     let privateKey = P256.Signing.PrivateKey()
     let certificatePrivateKey = Certificate.PrivateKey(privateKey)
     let now = Date()
-    let publicKeyString = privateKey.publicKey.rawRepresentation.map({ char in
+    let publicKeyString = privateKey.publicKey.rawRepresentation.map { char in
         String(format: "%02hhX", char)
-    }).joined()
+    }.joined()
     let subject = try! DistinguishedName {
         CommonName("Mudmouth Signed \(publicKeyString.prefix(8))")
         OrganizationName("Mudmouth")

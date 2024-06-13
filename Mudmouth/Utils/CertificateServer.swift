@@ -44,12 +44,12 @@ func runCertificateServer() {
         let bootstrap = ServerBootstrap(group: group)
             .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
             .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-            .childChannelInitializer({ channel in
+            .childChannelInitializer { channel in
                 channel.pipeline.configureHTTPServerPipeline()
                     .flatMap { _ in
                         channel.pipeline.addHandler(CertificateHandler())
                     }
-            })
+            }
         // 16836 represents 1-M-U-D-M.
         bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: 16836)).whenComplete { result in
             switch result {

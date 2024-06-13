@@ -6,8 +6,8 @@ extension Data {
     }
     
     public func hex() -> String {
-        self.map({ char in
+        self.map { char in
             String(format: "%02hhX", char)
-        }).joined()
+        }.joined()
     }
 }
