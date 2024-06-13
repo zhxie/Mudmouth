@@ -282,7 +282,7 @@ struct ContentView: View {
                             }?.value
                             profile.directionEnum = Direction(rawValue: Int16(queries.first { item in
                                 item.name == "direction"
-                            }?.value ?? "0") ?? 0) ?? .request
+                            }?.value ?? "1") ?? 1) ?? .requestAndResponse
                             profile.preActionEnum = Action(rawValue: Int16(queries.first { item in
                                 item.name == "preAction"
                             }?.value ?? "0") ?? 0) ?? .none

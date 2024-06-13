@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1500"
+   LastUpgradeVersion = "1540"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
@@ -56,8 +56,12 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "0"
+         BundleIdentifier = "name.sketch.Mudmouth"
+         RemotePath = "/var/containers/Bundle/Application/5BEACF20-7793-4F77-A630-C995354D04D5/Mudmouth.app">
+      </RemoteRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E42FB9342ABB2D2200670B6C"
@@ -65,7 +69,7 @@
             BlueprintName = "Mudmouth"
             ReferencedContainer = "container:Mudmouth.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
