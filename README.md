@@ -22,6 +22,12 @@ mudmouth://add?name=<NAME>&url=<URL>[&direction=<DIRECTION>][&preAction=<ACTION>
 mudmouth://capture?name=<NAME>
 ```
 
+### On Completion
+
+```
+<URL>?requestHeaders=<REQUEST_HEADERS>&requestBody=<REQUEST_BODY>&responseHeaders=<RESPONSE_HEADERS>&responseBody=<RESPONSE_BODY>
+```
+
 ### Parameters
 
 | Parameter | Options                                       |

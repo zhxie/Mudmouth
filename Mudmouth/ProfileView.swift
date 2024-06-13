@@ -20,6 +20,7 @@ struct ProfileView: View {
                     TextField("URL", text: $profile.url.defaultValue(""))
                         .textContentType(.URL)
                         .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
                 } header: {
                     Text("Profile")
                 } footer: {
@@ -43,6 +44,9 @@ struct ProfileView: View {
                     .animation(.none, value: profile.preActionEnum)
                     if profile.preActionEnum == .urlScheme {
                         TextField("URL Scheme", text: $profile.preActionUrlScheme.defaultValue(""))
+                            .textContentType(.URL)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
                     }
                 }
                 Section {
@@ -55,17 +59,15 @@ struct ProfileView: View {
                     .animation(.none, value: profile.postActionEnum)
                     if profile.postActionEnum == .urlScheme {
                         TextField("URL Scheme", text: $profile.postActionUrlScheme.defaultValue(""))
+                            .textContentType(.URL)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
                     }
                 } header: {
                     Text("Post-Action")
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
-                        switch profile.directionEnum {
-                        case .request:
-                            Text("MudMouth will trigger the URL Scheme with an extra query requestHeaders=<REQUEST_HEADERS>&requestBody=<REQUEST_BODY> on completion. Both headers and body will be encoded in the URL-Safe Base64 format.")
-                        case .requestAndResponse:
-                            Text("MudMouth will trigger the URL Scheme with an extra query requestHeaders=<REQUEST_HEADERS>&requestBody=<REQUEST_BODY>&responseHeaders=<RESPONSE_HEADERS>&responseBody=<RESPONSE_BODY> on completion. Both headers and body will be encoded in the URL-Safe Base64 format.")
-                        }
+                        Text("MudMouth will trigger the URL Scheme with additional parameters on completion. Both headers and body will be encoded in the URL-safe Base64 format.")
                     }
                 }
                 Section {
