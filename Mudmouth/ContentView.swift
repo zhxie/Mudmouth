@@ -90,8 +90,7 @@ struct ContentView: View {
                 }
                 Section("Tap") {
                     if manager == nil {
-                        Button("Capture Requests", action: install)
-                            .disabled(selectedProfile == nil || !selectedProfile!.isValid)
+                        Button("Install VPN", action: install)
                             .alert(isPresented: $showVPNAlert) {
                                 Alert(title: Text("VPN Configuration Not Installed"), message: Text("Mudmouth requires VPN to capture requests."), dismissButton: .default(Text("OK")))
                             }
@@ -189,7 +188,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                                 .frame(width: 16)
-                            Text("Install the configuration profile of Mudmouth to capture requests.")
+                            Text("Install the VPN of Mudmouth to capture requests.")
                                 .font(.system(size: 15, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -215,7 +214,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                                 .frame(width: 16)
-                            Text("Your connection is always secure and Mudmouth never collects any information.")
+                            Text("Your connection is always secure, and Mudmouth never collects any information.")
                                 .font(.system(size: 15, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
