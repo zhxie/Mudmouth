@@ -393,24 +393,26 @@ struct ContentView: View {
             case "http":
                 break
             case "https":
-                (certificate, privateKey) = loadCertificate()
+                let (caCertificate, caPrivateKey) = loadCertificate()
+                (certificate, privateKey) = generateSiteCertificate(url: selectedProfile!.url!, caCertificate: caCertificate, caPrivateKey: caPrivateKey)
             default:
                 fatalError("Unexpected scheme: \(url.scheme!)")
             }
-            verifyCertificateTrust(certificate: certificate, privateKey: privateKey) { success in
-                if !success {
+            if let certificate = certificate {
+                let url = URL(string: selectedProfile!.url!)!
+                if !verifyCertificateForTLS(certificate: certificate, url: url.host!) {
                     showRootCertificateAlert.toggle()
                     return
                 }
-                startVPN(manager: manager!, profile: selectedProfile!, certificate: certificate, privateKey: privateKey) {
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    switch selectedProfile!.preActionEnum {
-                    case .none:
-                        break
-                    case .urlScheme:
-                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
-                            UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
-                        }
+            }
+            startVPN(manager: manager!, profile: selectedProfile!, certificate: certificate, privateKey: privateKey) {
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                switch selectedProfile!.preActionEnum {
+                case .none:
+                    break
+                case .urlScheme:
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                        UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
                     }
                 }
             }
