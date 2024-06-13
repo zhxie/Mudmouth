@@ -311,15 +311,18 @@ struct ContentView: View {
                             })?.value {
                                 let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
                                 fetchRequest.predicate = NSPredicate(format: "name == %@", name)
-                                fetchRequest.fetchLimit = 1
                                 let fetchedResults = try? viewContext.fetch(fetchRequest)
-                                if let profile = fetchedResults?.first {
-                                    selectedProfile = profile
-                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
-                                        captureRequest()
+                                if let profiles = fetchedResults {
+                                    if profiles.count > 1 {
+                                        AlertKitAPI.present(title: "Multiple Profiles Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                    } else if let profile = profiles.first {
+                                        selectedProfile = profile
+                                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                                            captureRequest()
+                                        }
+                                    } else {
+                                        AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                     }
-                                } else {
-                                    AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                 }
                             }
                         }

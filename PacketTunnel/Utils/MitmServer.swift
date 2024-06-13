@@ -307,11 +307,11 @@ class HTTPHandler: ChannelInboundHandler {
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         if connected {
             context.fireChannelRead(data)
-            return
+        } else {
+            os_log(.debug, "[%{public}@] Read: %{public}@", context.remoteAddress!.description, data.description)
+            var data = unwrapInboundIn(data)
+            buffer.writeBuffer(&data)
         }
-        os_log(.debug, "[%{public}@] Read: %{public}@", context.remoteAddress!.description, data.description)
-        var data = unwrapInboundIn(data)
-        buffer.writeBuffer(&data)
     }
 }
 
