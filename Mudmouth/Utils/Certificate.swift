@@ -102,7 +102,7 @@ func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivate
             )
             try! ExtendedKeyUsage([ExtendedKeyUsage.Usage.serverAuth, ExtendedKeyUsage.Usage.ocspSigning])
             SubjectKeyIdentifier(hash: certificatePrivateKey.publicKey)
-            SubjectAlternativeNames([url.ipv4 == nil ? .dnsName(url.host!) : .ipAddress(url.ipv4!)])
+            SubjectAlternativeNames([.dnsName(url.host!)])
         }
         let certificateCaPrivateKey = Certificate.PrivateKey(caPrivateKey)
         let certificate = try Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now.addingTimeInterval(-60), notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
