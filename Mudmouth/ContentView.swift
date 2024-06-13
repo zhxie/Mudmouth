@@ -309,20 +309,17 @@ struct ContentView: View {
                             if let name = queries.first(where: { item in
                                 item.name == "name"
                             })?.value {
-                                do {
-                                    let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
-                                    fetchRequest.predicate = NSPredicate(format: "name == %@", name)
-                                    let fetchedResults = try viewContext.fetch(fetchRequest)
-                                    if let profile = fetchedResults.first {
-                                        selectedProfile = profile
-                                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
-                                            captureRequest()
-                                        }
-                                    } else {
-                                        AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
+                                fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+                                fetchRequest.fetchLimit = 1
+                                let fetchedResults = try? viewContext.fetch(fetchRequest)
+                                if let profile = fetchedResults?.first {
+                                    selectedProfile = profile
+                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                                        captureRequest()
                                     }
-                                } catch {
-                                    fatalError("Failed to find profile: \(error.localizedDescription)")
+                                } else {
+                                    AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                 }
                             }
                         }
@@ -344,11 +341,7 @@ struct ContentView: View {
     }
     
     private func save() {
-        do {
-            try viewContext.save()
-        } catch {
-            fatalError("Failed to save view context: \(error.localizedDescription)")
-        }
+        try! viewContext.save()
     }
     
     private func deleteProfile(_ profile: Profile) {

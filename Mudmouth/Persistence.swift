@@ -20,11 +20,7 @@ struct PersistenceController {
         duckDuckGoProfile.url = "https://www.duckduckgo.com"
         duckDuckGoProfile.preAction = Action.urlScheme.rawValue
         duckDuckGoProfile.preActionUrlScheme = "https://www.duckduckgo.com"
-        do {
-            try viewContext.save()
-        } catch {
-            fatalError("Failed to save view context: \(error.localizedDescription)")
-        }
+        try! viewContext.save()
         return result
     }()
 

@@ -317,14 +317,10 @@ class HTTPHandler: ChannelInboundHandler {
 
 func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void) {
     var sslContext: NIOSSLContext?
-    do {
-        let certificate = try NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
-        let privateKey = try NIOSSLPrivateKey(bytes: [UInt8](privateKey), format: .der)
-        let configuration = TLSConfiguration.makeServerConfiguration(certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
-        sslContext = try NIOSSLContext(configuration: configuration)
-    } catch {
-        fatalError("Failed to create TLS context: \(error.localizedDescription)")
-    }
+    let certificate = try! NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
+    let privateKey = try! NIOSSLPrivateKey(bytes: [UInt8](privateKey), format: .der)
+    let configuration = TLSConfiguration.makeServerConfiguration(certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
+    sslContext = try! NIOSSLContext(configuration: configuration)
     // Process packets in the tunnel.
     let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
     ServerBootstrap(group: group)

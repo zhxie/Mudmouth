@@ -20,13 +20,9 @@ extension Certificate {
     
     var derRepresentation: [UInt8] {
         var serializer = DER.Serializer()
-        do {
-            try serializer.serialize(self)
-            let derEncodedCertificate = serializer.serializedBytes
-            return derEncodedCertificate
-        } catch {
-            fatalError("Failed to install certificate: \(error.localizedDescription)")
-        }
+        try! serializer.serialize(self)
+        let derEncodedCertificate = serializer.serializedBytes
+        return derEncodedCertificate
     }
 }
 
@@ -67,14 +63,10 @@ func loadCertificate() -> (Certificate?, P256.Signing.PrivateKey?) {
     guard let certificateData = certificateData else {
         return (nil, nil)
     }
-    do {
-        let privateKey = try P256.Signing.PrivateKey(rawRepresentation: privateKeyData)
-        let der = try DER.parse(certificateData as! [UInt8])
-        let certificate = try Certificate(derEncoded: der)
-        return (certificate, privateKey)
-    } catch {
-        fatalError("Failed to load certificate: \(error.localizedDescription)")
-    }
+    let privateKey = try! P256.Signing.PrivateKey(rawRepresentation: privateKeyData)
+    let der = try! DER.parse(certificateData as! [UInt8])
+    let certificate = try! Certificate(derEncoded: der)
+    return (certificate, privateKey)
 }
 
 func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivateKey: P256.Signing.PrivateKey?) -> (Certificate?, P256.Signing.PrivateKey?) {
@@ -87,29 +79,25 @@ func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivate
     let publicKeyString = privateKey.publicKey.rawRepresentation.map({ char in
         String(format: "%02hhX", char)
     }).joined()
-    do {
-        let subject = try DistinguishedName {
-            CommonName("Mudmouth Signed \(publicKeyString.prefix(8))")
-            OrganizationName("Mudmouth")
-        }
-        let url = URL(string: url)!
-        let extensions = try Certificate.Extensions {
-            Critical(
-                BasicConstraints.notCertificateAuthority
-            )
-            Critical(
-                KeyUsage(digitalSignature: true)
-            )
-            try! ExtendedKeyUsage([ExtendedKeyUsage.Usage.serverAuth, ExtendedKeyUsage.Usage.ocspSigning])
-            SubjectKeyIdentifier(hash: certificatePrivateKey.publicKey)
-            SubjectAlternativeNames([.dnsName(url.host!)])
-        }
-        let certificateCaPrivateKey = Certificate.PrivateKey(caPrivateKey)
-        let certificate = try Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now.addingTimeInterval(-60), notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
-        return (certificate, privateKey)
-    } catch {
-        fatalError("Failed to generate site certificate: \(error.localizedDescription)")
+    let subject = try! DistinguishedName {
+        CommonName("Mudmouth Signed \(publicKeyString.prefix(8))")
+        OrganizationName("Mudmouth")
     }
+    let url = URL(string: url)!
+    let extensions = try! Certificate.Extensions {
+        Critical(
+            BasicConstraints.notCertificateAuthority
+        )
+        Critical(
+            KeyUsage(digitalSignature: true)
+        )
+        try! ExtendedKeyUsage([ExtendedKeyUsage.Usage.serverAuth, ExtendedKeyUsage.Usage.ocspSigning])
+        SubjectKeyIdentifier(hash: certificatePrivateKey.publicKey)
+        SubjectAlternativeNames([.dnsName(url.host!)])
+    }
+    let certificateCaPrivateKey = Certificate.PrivateKey(caPrivateKey)
+    let certificate = try! Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now.addingTimeInterval(-60), notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
+    return (certificate, privateKey)
 }
 
 enum PEMFileError: Error {
@@ -162,7 +150,7 @@ func importCertificate(url: URL) -> (Certificate?, P256.Signing.PrivateKey?) {
             let data = try Data(contentsOf: url)
             let pemFile = try PEMFile(data: data)
             var serializer = DER.Serializer()
-            try! serializer.serialize(pemFile.certificate)
+            try serializer.serialize(pemFile.certificate)
             let derEncodedCertificate = serializer.serializedBytes
             UserDefaults.standard.set(pemFile.privateKey.rawRepresentation, forKey: "privateKey")
             UserDefaults.standard.set(derEncodedCertificate, forKey: "certificate")
