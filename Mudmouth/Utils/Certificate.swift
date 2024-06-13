@@ -130,15 +130,12 @@ struct PEMFile: FileDocument {
     
     init(data: Data) throws {
         let text = String(decoding: data, as: UTF8.self)
-        if let index = text.index(of: "\n\n") {
-            let certificatePEM = text[..<index]
-            certificate = try Certificate(pemEncoded: String(certificatePEM))
-            let privateKeyIndex = text.index(index, offsetBy: 2)
-            let privateKeyPEM = text[privateKeyIndex...]
-            privateKey = try P256.Signing.PrivateKey(pemRepresentation: String(privateKeyPEM))
-        } else {
-            throw PEMFileError.invalidPEMFile
-        }
+        let certificateBegin = text.ranges(of: "-----BEGIN CERTIFICATE-----").first!.lowerBound
+        let certificateEnd = text.ranges(of: "-----END CERTIFICATE-----").first!.upperBound
+        certificate = try Certificate(pemEncoded: String(text[certificateBegin..<certificateEnd]))
+        let privateKeyBegin = text.ranges(of: "-----BEGIN PRIVATE KEY-----").first!.lowerBound
+        let privateKeyEnd = text.ranges(of: "-----END PRIVATE KEY-----").first!.upperBound
+        privateKey = try P256.Signing.PrivateKey(pemRepresentation: String(text[privateKeyBegin..<privateKeyEnd]))
     }
 
     init(configuration: ReadConfiguration) throws {
