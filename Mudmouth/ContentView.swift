@@ -16,24 +16,24 @@ struct ContentView: View {
     private var profiles: FetchedResults<Profile>
     @State private var selectedProfile: Profile?
     @State private var profileOperation: DataOperation<Profile>?
-    
+
     @State private var showCertificate = false
-    
+
     @State private var manager: NETunnelProviderManager?
     @State private var vpnObserver: AnyObject?
     @State private var isEnabled: Bool = false
     @State private var status: NEVPNStatus = .invalid
-    
+
     @State private var showVPNAlert = false
     @State private var showNotificationAlert = false
     @State private var showRootCertificateAlert = false
-    
+
     @State private var notificationObserver: AnyObject?
     @State private var requestHeaders = ""
     @State private var requestBody: Data?
     @State private var responseHeaders: String?
     @State private var responseBody: Data?
-    
+
     init() {
         let (certificate, privateKey) = loadCertificate()
         if certificate == nil || privateKey == nil {
@@ -83,37 +83,52 @@ struct ContentView: View {
                 if isHTTPS {
                     Section("MitM") {
                         Button("Configure Root Certificate", action: toggleCertificate)
-                        .sheet(isPresented: $showCertificate) {
-                            CertificateView()
-                        }
+                            .sheet(isPresented: $showCertificate) {
+                                CertificateView()
+                            }
                     }
                 }
                 Section("Tap") {
                     if manager == nil {
                         Button("Install VPN", action: install)
                             .alert(isPresented: $showVPNAlert) {
-                                Alert(title: Text("VPN Configuration Not Installed"), message: Text("Mudmouth requires VPN to capture requests."), dismissButton: .default(Text("OK")))
+                                Alert(
+                                    title: Text("VPN Configuration Not Installed"),
+                                    message: Text("Mudmouth requires VPN to capture requests."),
+                                    dismissButton: .default(Text("OK")))
                             }
                     } else {
                         if status == .connected {
                             Button("Stop Capturing Requests", action: stopCapturingRequest)
                         } else {
                             Button("Capture Requests", action: captureRequest)
-                            .disabled(selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected)
-                            .alert(isPresented: $showNotificationAlert) {
-                                Alert(title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."), dismissButton: .default(Text("OK")) {
-                                    if #available(iOS 16, *) {
-                                        UIApplication.shared.open(URL(string: UIApplication.openNotificationSettingsURLString)!)
-                                    } else {
-                                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-                                    }
-                                })
-                            }
-                            .alert(isPresented: $showRootCertificateAlert) {
-                                Alert(title: Text("Root Certificate Not Installed or Trusted"), message: Text("Mudmouth requires root certificate to inject requests."), dismissButton: .default(Text("OK")) {
-                                    toggleCertificate()
-                                })
-                            }
+                                .disabled(
+                                    selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected
+                                )
+                                .alert(isPresented: $showNotificationAlert) {
+                                    Alert(
+                                        title: Text("Notification Permission Not Granted"),
+                                        message: Text(
+                                            "Mudmouth requires notification permission to notify completion and perform post-action."
+                                        ),
+                                        dismissButton: .default(Text("OK")) {
+                                            if #available(iOS 16, *) {
+                                                UIApplication.shared.open(
+                                                    URL(string: UIApplication.openNotificationSettingsURLString)!)
+                                            } else {
+                                                UIApplication.shared.open(
+                                                    URL(string: UIApplication.openSettingsURLString)!)
+                                            }
+                                        })
+                                }
+                                .alert(isPresented: $showRootCertificateAlert) {
+                                    Alert(
+                                        title: Text("Root Certificate Not Installed or Trusted"),
+                                        message: Text("Mudmouth requires root certificate to inject requests."),
+                                        dismissButton: .default(Text("OK")) {
+                                            toggleCertificate()
+                                        })
+                                }
                         }
                     }
                 }
@@ -241,7 +256,9 @@ struct ContentView: View {
                     if manager != nil {
                         status = manager!.connection.status
                         os_log(.info, "VPN connection status %d", status.rawValue)
-                        vpnObserver = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main) { _ in
+                        vpnObserver = NotificationCenter.default.addObserver(
+                            forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main
+                        ) { _ in
                             status = manager!.connection.status
                             os_log(.info, "VPN connection status changed to %d", status.rawValue)
                         }
@@ -251,7 +268,9 @@ struct ContentView: View {
                 }
                 // Observes notification callback from app delegate.
                 if notificationObserver == nil {
-                    notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
+                    notificationObserver = NotificationCenter.default.addObserver(
+                        forName: Notification.Name("notification"), object: nil, queue: .main
+                    ) { notification in
                         requestHeaders = notification.userInfo!["requestHeaders"] as! String
                         requestBody = notification.userInfo!["requestBody"] as? Data
                         responseHeaders = notification.userInfo!["responseHeaders"] as? String
@@ -273,34 +292,49 @@ struct ContentView: View {
                         let components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
                         if let queries = components.queryItems {
                             let profile = Profile(context: viewContext)
-                            profile.name = queries.first { item in
-                                item.name == "name"
-                            }?.value
-                            profile.url = queries.first { item in
-                                item.name == "url"
-                            }?.value
-                            profile.directionEnum = Direction(rawValue: Int16(queries.first { item in
-                                item.name == "direction"
-                            }?.value ?? "1") ?? 1) ?? .requestAndResponse
-                            profile.preActionEnum = Action(rawValue: Int16(queries.first { item in
-                                item.name == "preAction"
-                            }?.value ?? "0") ?? 0) ?? .none
-                            profile.preActionUrlScheme = queries.first { item in
-                                item.name == "preActionUrlScheme"
-                            }?.value
-                            profile.postActionEnum = Action(rawValue: Int16(queries.first { item in
-                                item.name == "postAction"
-                            }?.value ?? "0") ?? 0) ?? .none
-                            profile.postActionUrlScheme = queries.first { item in
-                                item.name == "postActionUrlScheme"
-                            }?.value
+                            profile.name =
+                                queries.first { item in
+                                    item.name == "name"
+                                }?.value
+                            profile.url =
+                                queries.first { item in
+                                    item.name == "url"
+                                }?.value
+                            profile.directionEnum =
+                                Direction(
+                                    rawValue: Int16(
+                                        queries.first { item in
+                                            item.name == "direction"
+                                        }?.value ?? "1") ?? 1) ?? .requestAndResponse
+                            profile.preActionEnum =
+                                Action(
+                                    rawValue: Int16(
+                                        queries.first { item in
+                                            item.name == "preAction"
+                                        }?.value ?? "0") ?? 0) ?? .none
+                            profile.preActionUrlScheme =
+                                queries.first { item in
+                                    item.name == "preActionUrlScheme"
+                                }?.value
+                            profile.postActionEnum =
+                                Action(
+                                    rawValue: Int16(
+                                        queries.first { item in
+                                            item.name == "postAction"
+                                        }?.value ?? "0") ?? 0) ?? .none
+                            profile.postActionUrlScheme =
+                                queries.first { item in
+                                    item.name == "postActionUrlScheme"
+                                }?.value
                             if profile.isValid {
                                 save()
-                                AlertKitAPI.present(title: "Profile Added", icon: .done, style: .iOS17AppleMusic, haptic: .success)
+                                AlertKitAPI.present(
+                                    title: "Profile Added", icon: .done, style: .iOS17AppleMusic, haptic: .success)
                             } else {
                                 viewContext.delete(profile)
                                 save()
-                                AlertKitAPI.present(title: "Invalid Profile", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                AlertKitAPI.present(
+                                    title: "Invalid Profile", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                             }
                         }
                     case "capture":
@@ -314,14 +348,20 @@ struct ContentView: View {
                                 let fetchedResults = try? viewContext.fetch(fetchRequest)
                                 if let profiles = fetchedResults {
                                     if profiles.count > 1 {
-                                        AlertKitAPI.present(title: "Multiple Profiles Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                        AlertKitAPI.present(
+                                            title: "Multiple Profiles Found", icon: .error, style: .iOS17AppleMusic,
+                                            haptic: .error)
                                     } else if let profile = profiles.first {
                                         selectedProfile = profile
-                                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                                        DispatchQueue.main.asyncAfter(
+                                            deadline: DispatchTime.now().advanced(by: .seconds(1))
+                                        ) {
                                             captureRequest()
                                         }
                                     } else {
-                                        AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                        AlertKitAPI.present(
+                                            title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic,
+                                            haptic: .error)
                                     }
                                 }
                             }
@@ -333,7 +373,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     var isHTTPS: Bool {
         if let url = selectedProfile?.url {
             if let url = URL(string: url) {
@@ -342,11 +382,11 @@ struct ContentView: View {
         }
         return false
     }
-    
+
     private func save() {
         try! viewContext.save()
     }
-    
+
     private func deleteProfile(_ profile: Profile) {
         viewContext.delete(profile)
         save()
@@ -354,19 +394,19 @@ struct ContentView: View {
             selectedProfile = nil
         }
     }
-    
+
     private func updateProfile(_ profile: Profile) {
         profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
     }
-    
+
     private func createProfile() {
         profileOperation = CreateOperation(with: viewContext)
     }
-    
+
     private func toggleCertificate() {
         showCertificate.toggle()
     }
-    
+
     private func install() {
         installVPN { error in
             if error != nil {
@@ -374,7 +414,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private func captureRequest() {
         requestNotification { granted in
             if !granted {
@@ -389,7 +429,8 @@ struct ContentView: View {
                 break
             case "https":
                 let (caCertificate, caPrivateKey) = loadCertificate()
-                (certificate, privateKey) = generateSiteCertificate(url: selectedProfile!.url!, caCertificate: caCertificate, caPrivateKey: caPrivateKey)
+                (certificate, privateKey) = generateSiteCertificate(
+                    url: selectedProfile!.url!, caCertificate: caCertificate, caPrivateKey: caPrivateKey)
             default:
                 fatalError("Unexpected scheme: \(url.scheme!)")
             }
@@ -413,12 +454,12 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private func stopCapturingRequest() {
         manager?.connection.stopVPNTunnel()
         UINotificationFeedbackGenerator().notificationOccurred(.warning)
     }
-    
+
     private func triggerPostAction() {
         switch selectedProfile!.postActionEnum {
         case .none:

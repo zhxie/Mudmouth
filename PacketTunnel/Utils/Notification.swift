@@ -1,6 +1,6 @@
 import Foundation
-import UserNotifications
 import OSLog
+import UserNotifications
 
 class NotificationService {
     static var notificationSent = false

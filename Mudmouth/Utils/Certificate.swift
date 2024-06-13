@@ -11,13 +11,13 @@ extension Certificate {
             name.description.starts(with: "O=")
         })?.description.replacingOccurrences(of: "O=", with: "") ?? ""
     }
-    
+
     var commonName: String {
         self.subject.first(where: { name in
             name.description.starts(with: "CN=")
         })?.description.replacingOccurrences(of: "CN=", with: "") ?? ""
     }
-    
+
     var derRepresentation: [UInt8] {
         var serializer = DER.Serializer()
         try! serializer.serialize(self)
@@ -45,7 +45,10 @@ func generateCertificate() -> (Certificate, P256.Signing.PrivateKey) {
             KeyUsage(digitalSignature: true, keyCertSign: true)
         )
     }
-    let certificate = try! Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365 * 5), issuer: name, subject: name, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificatePrivateKey)
+    let certificate = try! Certificate(
+        version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey,
+        notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365 * 5), issuer: name, subject: name,
+        signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificatePrivateKey)
     var serializer = DER.Serializer()
     try! serializer.serialize(certificate)
     let derEncodedCertificate = serializer.serializedBytes
@@ -69,7 +72,9 @@ func loadCertificate() -> (Certificate?, P256.Signing.PrivateKey?) {
     return (certificate, privateKey)
 }
 
-func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivateKey: P256.Signing.PrivateKey?) -> (Certificate?, P256.Signing.PrivateKey?) {
+func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivateKey: P256.Signing.PrivateKey?) -> (
+    Certificate?, P256.Signing.PrivateKey?
+) {
     guard let caCertificate = caCertificate, let caPrivateKey = caPrivateKey else {
         return (nil, nil)
     }
@@ -96,7 +101,11 @@ func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivate
         SubjectAlternativeNames([.dnsName(url.host!)])
     }
     let certificateCaPrivateKey = Certificate.PrivateKey(caPrivateKey)
-    let certificate = try! Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now.addingTimeInterval(-60), notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
+    let certificate = try! Certificate(
+        version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey,
+        notValidBefore: now.addingTimeInterval(-60), notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365),
+        issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions,
+        issuerPrivateKey: certificateCaPrivateKey)
     return (certificate, privateKey)
 }
 
@@ -115,7 +124,7 @@ struct PEMFile: FileDocument {
         self.certificate = certificate
         self.privateKey = privateKey
     }
-    
+
     init(data: Data) throws {
         let text = String(decoding: data, as: UTF8.self)
         let certificateBegin = text.ranges(of: "-----BEGIN CERTIFICATE-----").first!.lowerBound
@@ -138,7 +147,7 @@ struct PEMFile: FileDocument {
         let data = Data(readable.utf8)
         return FileWrapper(regularFileWithContents: data)
     }
-    
+
     var readable: String {
         String(format: "%@\n\n%@", try! certificate.serializeAsPEM().pemString, privateKey.pemRepresentation)
     }

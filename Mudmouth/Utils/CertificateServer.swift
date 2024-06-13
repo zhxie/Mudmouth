@@ -2,14 +2,14 @@ import Crypto
 import Foundation
 import NIO
 import NIOHTTP1
+import OSLog
 import SwiftASN1
 import X509
-import OSLog
 
 class CertificateHandler: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias OutboundOut = HTTPServerResponsePart
-    
+
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let httpData = unwrapInboundIn(data)
         guard case .head = httpData else {
@@ -26,8 +26,11 @@ class CertificateHandler: ChannelInboundHandler {
         }
         // Send certificate to downstream.
         let base64EncodedCertificate = Data(certificate.derRepresentation).base64EncodedString()
-        let cer = "-----BEGIN CERTIFICATE-----\n\(base64EncodedCertificate.components(withMaxLength: 64).joined(separator: "\n"))\n-----END CERTIFICATE-----\n"
-        let headers = HTTPHeaders([("Content-Length", cer.count.formatted()), ("Content-Type", "application/x-x509-ca-cert")])
+        let cer =
+            "-----BEGIN CERTIFICATE-----\n\(base64EncodedCertificate.components(withMaxLength: 64).joined(separator: "\n"))\n-----END CERTIFICATE-----\n"
+        let headers = HTTPHeaders([
+            ("Content-Length", cer.count.formatted()), ("Content-Type", "application/x-x509-ca-cert"),
+        ])
         let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)
         context.write(wrapOutboundOut(.head(head)), promise: nil)
         let buffer = context.channel.allocator.buffer(string: cer)

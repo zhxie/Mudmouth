@@ -3,7 +3,7 @@ import Foundation
 enum Direction: Int16, CaseIterable {
     case request = 0
     case requestAndResponse = 1
-    
+
     var name: String {
         switch self {
         case .request:

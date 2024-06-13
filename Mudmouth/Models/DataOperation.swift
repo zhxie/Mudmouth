@@ -1,12 +1,12 @@
-import Foundation
 import CoreData
+import Foundation
 
 // Referenced from https://github.com/genebogdanovich/ChildContextsForEditing.
 class DataOperation<Object: NSManagedObject>: Identifiable {
     let id = UUID()
     let context: NSManagedObjectContext
     let object: Object
-    
+
     init(context: NSManagedObjectContext, object: Object) {
         self.context = context
         self.object = object

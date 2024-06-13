@@ -11,11 +11,11 @@ class GlueHandler: ChannelDuplexHandler {
     typealias InboundIn = NIOAny
     typealias OutboundIn = NIOAny
     typealias OutboundOut = NIOAny
-    
+
     private var partner: GlueHandler?
     private var context: ChannelHandlerContext?
     private var pendingRead: Bool = false
-    
+
     static func matchedPair() -> (GlueHandler, GlueHandler) {
         let first = GlueHandler()
         let second = GlueHandler()
@@ -66,7 +66,7 @@ class GlueHandler: ChannelDuplexHandler {
             pendingRead = true
         }
     }
-    
+
     private func partnerWrite(_ data: NIOAny) {
         context?.write(data, promise: nil)
     }
@@ -96,18 +96,18 @@ class ProxyHandler: ChannelDuplexHandler {
     typealias InboundOut = HTTPClientRequestPart
     typealias OutboundIn = HTTPClientResponsePart
     typealias OutboundOut = HTTPServerResponsePart
-    
+
     private var url: URL
     private var isRequestAndResponse: Bool
-    
+
     private var requests: Deque<HTTPRequest> = []
     private var response: HTTPResponse?
-    
+
     init(url: URL, isRequestAndResponse: Bool) {
         self.url = url
         self.isRequestAndResponse = isRequestAndResponse
     }
-    
+
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         os_log(.debug, "[%{public}@] Read: %{public}@", context.remoteAddress!.description, data.description)
         let httpData = unwrapInboundIn(data)
@@ -120,12 +120,14 @@ class ProxyHandler: ChannelDuplexHandler {
             context.fireChannelRead(wrapInboundOut(.body(.byteBuffer(body))))
         case .end:
             if !isRequestAndResponse && requests.last!.headers.uri == url.path {
-                scheduleNotification(requestHeaders: requests.last!.headers.headers.readable, requestBody: requests.last!.body, responseHeaders: nil, responseBody: nil)
+                scheduleNotification(
+                    requestHeaders: requests.last!.headers.headers.readable, requestBody: requests.last!.body,
+                    responseHeaders: nil, responseBody: nil)
             }
             context.fireChannelRead(wrapInboundOut(.end(nil)))
         }
     }
-    
+
     func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
         os_log(.debug, "[%{public}@] Write: %{public}@", context.remoteAddress!.description, data.description)
         let httpData = unwrapOutboundIn(data)
@@ -139,14 +141,20 @@ class ProxyHandler: ChannelDuplexHandler {
         case .end:
             let request = requests.popFirst()!
             let prefix = "\(url.scheme!)://\(url.host!)"
-            if isRequestAndResponse && (request.headers.uri == url.path || request.headers.uri.hasPrefix(prefix) && String(request.headers.uri.dropFirst(prefix.count)) == url.path) {
-                scheduleNotification(requestHeaders: request.headers.headers.readable, requestBody: request.body, responseHeaders: response!.headers.headers.readable, responseBody: response!.body)
+            if isRequestAndResponse
+                && (request.headers.uri == url.path
+                    || request.headers.uri.hasPrefix(prefix)
+                        && String(request.headers.uri.dropFirst(prefix.count)) == url.path)
+            {
+                scheduleNotification(
+                    requestHeaders: request.headers.headers.readable, requestBody: request.body,
+                    responseHeaders: response!.headers.headers.readable, responseBody: response!.body)
             }
             response = nil
             context.write(wrapOutboundOut(.end(nil)), promise: promise)
         }
     }
-    
+
     func channelInactive(context: ChannelHandlerContext) {
         os_log(.debug, "[%{public}@] Close", context.remoteAddress!.description)
     }
@@ -155,17 +163,17 @@ class ProxyHandler: ChannelDuplexHandler {
 class HTTPSConnectHandler: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias OutboundOut = HTTPServerResponsePart
-    
+
     private enum State {
         case idle
         case awaitingEnd
         case established
     }
-    
+
     private var state: State = .idle
     private var host: String?
     private var port: Int?
-    
+
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         switch state {
         case .idle:
@@ -178,7 +186,8 @@ class HTTPSConnectHandler: ChannelInboundHandler {
                 os_log(.error, "Invalid HTTP method: %{public}@", head.method.rawValue)
                 // Send 405 to downstream.
                 let headers = HTTPHeaders([("Content-Length", "0")])
-                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .methodNotAllowed, headers: headers)
+                let head = HTTPResponseHead(
+                    version: .init(major: 1, minor: 1), status: .methodNotAllowed, headers: headers)
                 context.write(self.wrapOutboundOut(.head(head)), promise: nil)
                 context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
                 return
@@ -192,19 +201,23 @@ class HTTPSConnectHandler: ChannelInboundHandler {
             let httpData = unwrapInboundIn(data)
             if case .end = httpData {
                 // Upgrade to TLS server.
-                context.pipeline.context(handlerType: ByteToMessageHandler<HTTPRequestDecoder>.self).whenSuccess { handler in
+                context.pipeline.context(handlerType: ByteToMessageHandler<HTTPRequestDecoder>.self).whenSuccess {
+                    handler in
                     context.pipeline.removeHandler(context: handler, promise: nil)
                     ClientBootstrap(group: context.eventLoop)
                         .channelInitializer { channel in
                             let clientConfiguration = TLSConfiguration.makeClientConfiguration()
                             let sslClientContext = try! NIOSSLContext(configuration: clientConfiguration)
-                            return channel.pipeline.addHandler(try! NIOSSLClientHandler(context: sslClientContext, serverHostname: self.host!))
-                                .flatMap { _ in
-                                    channel.pipeline.addHandler(HTTPRequestEncoder())
-                                }
-                                .flatMap { _ in
-                                    channel.pipeline.addHandler(ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)))
-                                }
+                            return channel.pipeline.addHandler(
+                                try! NIOSSLClientHandler(context: sslClientContext, serverHostname: self.host!)
+                            )
+                            .flatMap { _ in
+                                channel.pipeline.addHandler(HTTPRequestEncoder())
+                            }
+                            .flatMap { _ in
+                                channel.pipeline.addHandler(
+                                    ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)))
+                            }
                         }
                         .connect(host: self.host!, port: self.port!)
                         .whenComplete { result in
@@ -213,7 +226,8 @@ class HTTPSConnectHandler: ChannelInboundHandler {
                                 os_log(.info, "Connected to upstream %{public}@:%d", self.host!, self.port!)
                                 // Send 200 to downstream.
                                 let headers = HTTPHeaders([("Content-Length", "0")])
-                                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .ok, headers: headers)
+                                let head = HTTPResponseHead(
+                                    version: .init(major: 1, minor: 1), status: .ok, headers: headers)
                                 context.write(self.wrapOutboundOut(.head(head)), promise: nil)
                                 context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
                                 context.pipeline.context(handlerType: HTTPResponseEncoder.self).whenSuccess { handler in
@@ -227,7 +241,9 @@ class HTTPSConnectHandler: ChannelInboundHandler {
                                                 os_log(.info, "Upgraded to HTTPS proxy server")
                                                 self.state = .established
                                             case .failure(let failure):
-                                                os_log(.error, "Failed to upgrade to HTTPS proxy server: %{public}@", failure.localizedDescription)
+                                                os_log(
+                                                    .error, "Failed to upgrade to HTTPS proxy server: %{public}@",
+                                                    failure.localizedDescription)
                                                 context.close(promise: nil)
                                             }
                                         }
@@ -235,10 +251,13 @@ class HTTPSConnectHandler: ChannelInboundHandler {
                             case .failure(let failure):
                                 // Send 404 to downstream.
                                 let headers = HTTPHeaders([("Content-Length", "0")])
-                                let head = HTTPResponseHead(version: .init(major: 1, minor: 1), status: .notFound, headers: headers)
+                                let head = HTTPResponseHead(
+                                    version: .init(major: 1, minor: 1), status: .notFound, headers: headers)
                                 context.write(self.wrapOutboundOut(.head(head)), promise: nil)
                                 context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                                os_log(.error, "Failed to connect to upstream %{public}@:%d@: %{public}@", self.host!, self.port!, failure.localizedDescription)
+                                os_log(
+                                    .error, "Failed to connect to upstream %{public}@:%d@: %{public}@", self.host!,
+                                    self.port!, failure.localizedDescription)
                             }
                         }
                 }
@@ -260,18 +279,19 @@ class HTTPHandler: ChannelInboundHandler {
     private var buffer = ByteBuffer()
     private var host: String
     private var port: Int
-    
+
     init(url: URL) {
         self.host = url.host!
         self.port = url.port ?? 80
     }
-    
+
     func channelRegistered(context: ChannelHandlerContext) {
         ClientBootstrap(group: context.eventLoop)
             .channelInitializer { channel in
                 return channel.pipeline.addHandler(HTTPRequestEncoder())
                     .flatMap { _ in
-                        channel.pipeline.addHandler(ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)))
+                        channel.pipeline.addHandler(
+                            ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)))
                     }
             }
             .connect(host: host, port: port)
@@ -288,22 +308,28 @@ class HTTPHandler: ChannelInboundHandler {
                                 self.connected = true
                                 os_log(.info, "Upgraded to HTTP proxy server")
                                 if self.buffer.readableBytes > 0 {
-                                    os_log(.debug, "[%{public}@] Write: %{public}@", context.remoteAddress!.description, self.buffer.description)
+                                    os_log(
+                                        .debug, "[%{public}@] Write: %{public}@", context.remoteAddress!.description,
+                                        self.buffer.description)
                                     context.pipeline.fireChannelRead(self.wrapInboundOut(self.buffer))
                                     context.pipeline.fireChannelReadComplete()
                                 }
                             case .failure(let failure):
-                                os_log(.error, "Failed to upgrade to HTTP proxy server: %{public}@", failure.localizedDescription)
+                                os_log(
+                                    .error, "Failed to upgrade to HTTP proxy server: %{public}@",
+                                    failure.localizedDescription)
                                 context.close(promise: nil)
                             }
                         }
                 case .failure(let failure):
-                    os_log(.error, "Failed to connect to upstream %{public}@:%d@: %{public}@", self.host, self.port, failure.localizedDescription)
+                    os_log(
+                        .error, "Failed to connect to upstream %{public}@:%d@: %{public}@", self.host, self.port,
+                        failure.localizedDescription)
                     context.close(promise: nil)
                 }
             }
     }
-    
+
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         if connected {
             context.fireChannelRead(data)
@@ -315,11 +341,14 @@ class HTTPHandler: ChannelInboundHandler {
     }
 }
 
-func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void) {
+func runMitmServer(
+    url: URL, isRequestAndResponse: Bool, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void
+) {
     var sslContext: NIOSSLContext?
     let certificate = try! NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
     let privateKey = try! NIOSSLPrivateKey(bytes: [UInt8](privateKey), format: .der)
-    let configuration = TLSConfiguration.makeServerConfiguration(certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
+    let configuration = TLSConfiguration.makeServerConfiguration(
+        certificateChain: [.certificate(certificate)], privateKey: .privateKey(privateKey))
     sslContext = try! NIOSSLContext(configuration: configuration)
     // Process packets in the tunnel.
     let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
@@ -338,7 +367,8 @@ func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, priv
                     channel.pipeline.addHandler(NIOSSLServerHandler(context: sslContext!))
                 }
                 .flatMap { _ in
-                    channel.pipeline.addHandler(ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)))
+                    channel.pipeline.addHandler(
+                        ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)))
                 }
                 .flatMap { _ in
                     channel.pipeline.addHandler(HTTPResponseEncoder())
@@ -372,7 +402,8 @@ func runServer(url: URL, isRequestAndResponse: Bool, _ completion: @escaping () 
         .childChannelInitializer { channel in
             channel.pipeline.addHandler(HTTPHandler(url: url))
                 .flatMap { _ in
-                    channel.pipeline.addHandler(ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)))
+                    channel.pipeline.addHandler(
+                        ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)))
                 }
                 .flatMap { _ in
                     channel.pipeline.addHandler(HTTPResponseEncoder())

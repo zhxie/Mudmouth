@@ -3,7 +3,7 @@ import Foundation
 enum Action: Int16, CaseIterable {
     case none = 0
     case urlScheme = 1
-    
+
     var name: String {
         switch self {
         case .none:

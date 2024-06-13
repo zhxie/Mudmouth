@@ -7,12 +7,12 @@ import X509
 struct CertificateView: View {
     @State var certificate: Certificate
     @State var privateKey: P256.Signing.PrivateKey
-    
+
     @State var showRegenerateCertificateAlert = false
     @State var showImportCertificateAlert = false
     @State var showImporter = false
     @State var showExporter = false
-    
+
     init() {
         let (certificate, privateKey) = loadCertificate()
         _certificate = State(initialValue: certificate!)
@@ -22,7 +22,7 @@ struct CertificateView: View {
         _certificate = State(initialValue: certificate)
         _privateKey = State(initialValue: privateKey)
     }
-    
+
     var body: some View {
         NavigationView {
             List {
@@ -69,28 +69,36 @@ struct CertificateView: View {
                         Spacer()
                             .frame(height: 8)
                         Text(privateKey.publicKey.rawRepresentation.hex())
-                        .font(.system(.footnote, design: .monospaced))
-                        .foregroundColor(.secondary)
-                        .textSelection(.enabled)
+                            .font(.system(.footnote, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .textSelection(.enabled)
                     }
                     VStack(alignment: .leading) {
                         Text("Private Key Data")
                         Spacer()
                             .frame(height: 8)
                         Text(privateKey.rawRepresentation.hex())
-                        .font(.system(.footnote, design: .monospaced))
-                        .foregroundColor(.secondary)
-                        .textSelection(.enabled)
+                            .font(.system(.footnote, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .textSelection(.enabled)
                     }
                 }
                 Section {
                     Button("Generate a New Certificate", action: requestGeneratingCertificate)
                         .alert(isPresented: $showRegenerateCertificateAlert) {
-                            Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"), primaryButton: .destructive(Text("OK"), action: continueGeneratingCertificate), secondaryButton: .cancel())
+                            Alert(
+                                title: Text(
+                                    "Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"
+                                ), primaryButton: .destructive(Text("OK"), action: continueGeneratingCertificate),
+                                secondaryButton: .cancel())
                         }
                     Button("Import Certificate", action: importCertificate)
                         .alert(isPresented: $showImportCertificateAlert) {
-                            Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to import certificate?"), primaryButton: .destructive(Text("OK"), action: continueImportingCertificate), secondaryButton: .cancel())
+                            Alert(
+                                title: Text(
+                                    "Your current certificate will become invalid in Mudmouth, do you want to import certificate?"
+                                ), primaryButton: .destructive(Text("OK"), action: continueImportingCertificate),
+                                secondaryButton: .cancel())
                         }
                         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.x509Certificate]) { result in
                             switch result {
@@ -100,64 +108,80 @@ struct CertificateView: View {
                                     self.certificate = certificate
                                     self.privateKey = privateKey
                                 } else {
-                                    AlertKitAPI.present(title: "Invalid Certificate", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                    AlertKitAPI.present(
+                                        title: "Invalid Certificate", icon: .error, style: .iOS17AppleMusic,
+                                        haptic: .error)
                                 }
                                 break
                             case .failure:
-                                AlertKitAPI.present(title: "Failed to Import", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                AlertKitAPI.present(
+                                    title: "Failed to Import", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                             }
                         }
                     Button("Export Certificate", action: exportCertificate)
-                        .fileExporter(isPresented: $showExporter, document: PEMFile(certificate: certificate, privateKey: privateKey), contentType: .x509Certificate, defaultFilename: certificate.commonName) { _ in }
+                        .fileExporter(
+                            isPresented: $showExporter,
+                            document: PEMFile(certificate: certificate, privateKey: privateKey),
+                            contentType: .x509Certificate, defaultFilename: certificate.commonName
+                        ) { _ in }
                 }
                 Section {
                     Button("Install Certificate", action: installCertificate)
                 } footer: {
-                    Text(isCertificateInstalled ? "You have installed the certificate." : "You should install the certificate manually after downloading in Settings > General > VPN & Device Management > Downloaded Profile.")
+                    Text(
+                        isCertificateInstalled
+                            ? "You have installed the certificate."
+                            : "You should install the certificate manually after downloading in Settings > General > VPN & Device Management > Downloaded Profile."
+                    )
                 }
                 Section {
                     Button("Trust Certificate", action: trustCertificate)
                 } footer: {
-                    Text(isCertificateTrusted ? "You have trusted the certificate." : "You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings > Enable Full Trust For Root Certificates.")
+                    Text(
+                        isCertificateTrusted
+                            ? "You have trusted the certificate."
+                            : "You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings > Enable Full Trust For Root Certificates."
+                    )
                 }
             }
             .navigationTitle("Root Certificate")
         }
     }
-    
+
     var isCertificateInstalled: Bool {
         verifyCertificate(certificate: certificate)
     }
-    
+
     var isCertificateTrusted: Bool {
-        let (certificate, _) = generateSiteCertificate(url: "https://mudmouth.local", caCertificate: certificate, caPrivateKey: privateKey)
+        let (certificate, _) = generateSiteCertificate(
+            url: "https://mudmouth.local", caCertificate: certificate, caPrivateKey: privateKey)
         return verifyCertificateForTLS(certificate: certificate, url: "mudmouth.local")
     }
-    
+
     private func requestGeneratingCertificate() {
         showRegenerateCertificateAlert.toggle()
     }
-    
+
     private func continueGeneratingCertificate() {
         (certificate, privateKey) = generateCertificate()
     }
-    
+
     private func importCertificate() {
         showImportCertificateAlert.toggle()
     }
-    
+
     private func continueImportingCertificate() {
         showImporter.toggle()
     }
-    
+
     private func exportCertificate() {
         showExporter.toggle()
     }
-    
+
     private func installCertificate() {
         UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
     }
-    
+
     private func trustCertificate() {
         UIApplication.shared.open(URL(string: "App-prefs:General&path=About/CERT_TRUST_SETTINGS")!)
     }

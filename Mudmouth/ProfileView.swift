@@ -6,12 +6,12 @@ struct ProfileView: View {
 
     @ObservedObject var profile: Profile
     var title: String
-    
+
     init(profile: Profile) {
         self.profile = profile
         title = profile.name ?? ""
     }
-    
+
     var body: some View {
         NavigationView {
             List {
@@ -67,12 +67,14 @@ struct ProfileView: View {
                     Text("Post-Action")
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
-                        Text("MudMouth will trigger the URL Scheme with additional parameters on completion. Both headers and body will be encoded in the URL-safe Base64 format.")
+                        Text(
+                            "MudMouth will trigger the URL Scheme with additional parameters on completion. Both headers and body will be encoded in the URL-safe Base64 format."
+                        )
                     }
                 }
                 Section {
                     Button(title.isEmpty ? "Add" : "Save", action: save)
-                    .disabled(!profile.isValid)
+                        .disabled(!profile.isValid)
                 }
             }
             .animation(Animation.easeInOut, value: profile.preActionEnum)
@@ -80,7 +82,7 @@ struct ProfileView: View {
             .navigationTitle(title.isEmpty ? "New Profile" : title)
         }
     }
-    
+
     private func save() {
         try? childContext.save()
         dismiss()
