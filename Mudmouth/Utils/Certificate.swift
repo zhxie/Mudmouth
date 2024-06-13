@@ -105,7 +105,7 @@ func generateSiteCertificate(url: String, caCertificate: Certificate?, caPrivate
             SubjectAlternativeNames([url.ipv4 == nil ? .dnsName(url.host!) : .ipAddress(url.ipv4!)])
         }
         let certificateCaPrivateKey = Certificate.PrivateKey(caPrivateKey)
-        let certificate = try Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now, notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
+        let certificate = try Certificate(version: .v3, serialNumber: Certificate.SerialNumber(), publicKey: certificatePrivateKey.publicKey, notValidBefore: now.addingTimeInterval(-60), notValidAfter: now.addingTimeInterval(60 * 60 * 24 * 365), issuer: caCertificate.issuer, subject: subject, signatureAlgorithm: .ecdsaWithSHA256, extensions: extensions, issuerPrivateKey: certificateCaPrivateKey)
         return (certificate, privateKey)
     } catch {
         fatalError("Failed to generate site certificate: \(error.localizedDescription)")
@@ -176,4 +176,42 @@ func importCertificate(url: URL) -> (Certificate?, P256.Signing.PrivateKey?) {
     } catch {
         return (nil, nil)
     }
+}
+
+func verifyCertificate(certificate: Certificate?) -> Bool {
+    guard let certificate = certificate else {
+        return false
+    }
+    let der = certificate.derRepresentation
+    let data = der.withUnsafeBufferPointer { bufferPointer in
+        CFDataCreate(nil, bufferPointer.baseAddress, der.count)
+    }!
+    let secCertificate = SecCertificateCreateWithData(nil, data)!
+    let policy = SecPolicyCreateBasicX509()
+    var trust: SecTrust?
+    let status = SecTrustCreateWithCertificates(secCertificate, policy, &trust)
+    guard status == errSecSuccess, let trust = trust else {
+        return false
+    }
+    var error: CFError?
+    return SecTrustEvaluateWithError(trust, &error)
+}
+
+func verifyCertificateForTLS(certificate: Certificate?, url: String) -> Bool {
+    guard let certificate = certificate else {
+        return false
+    }
+    let der = certificate.derRepresentation
+    let data = der.withUnsafeBufferPointer { bufferPointer in
+        CFDataCreate(nil, bufferPointer.baseAddress, der.count)
+    }!
+    let secCertificate = SecCertificateCreateWithData(nil, data)!
+    let policy = SecPolicyCreateSSL(true, url as NSString)
+    var trust: SecTrust?
+    let status = SecTrustCreateWithCertificates(secCertificate, policy, &trust)
+    guard status == errSecSuccess, let trust = trust else {
+        return false
+    }
+    var error: CFError?
+    return SecTrustEvaluateWithError(trust, &error)
 }

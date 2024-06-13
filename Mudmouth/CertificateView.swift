@@ -1,6 +1,5 @@
 import AlertKit
 import Crypto
-import Security
 import SwiftASN1
 import SwiftUI
 import X509
@@ -114,7 +113,12 @@ struct CertificateView: View {
                 Section {
                     Button("Install Certificate", action: installCertificate)
                 } footer: {
-                    Text(isCertificateInstalled ? "You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings." : "You should install the certificate manually after downloading in Settings > General > VPN & Device Management > Downloaded Profile.")
+                    Text(isCertificateInstalled ? "You have installed the certificate." : "You should install the certificate manually after downloading in Settings > General > VPN & Device Management > Downloaded Profile.")
+                }
+                Section {
+                    Button("Trust Certificate", action: trustCertificate)
+                } footer: {
+                    Text(isCertificateTrusted ? "You have trusted the certificate." : "You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings > Enable Full Trust For Root Certificates.")
                 }
             }
             .navigationTitle("Root Certificate")
@@ -122,23 +126,12 @@ struct CertificateView: View {
     }
     
     var isCertificateInstalled: Bool {
-        let der = certificate.derRepresentation
-        let data = der.withUnsafeBufferPointer { bufferPointer in
-            CFDataCreate(nil, bufferPointer.baseAddress, der.count)
-        }!
-        let certificate = SecCertificateCreateWithData(nil, data)!
-        let policy = SecPolicyCreateBasicX509()
-        var trust: SecTrust?
-        let status = SecTrustCreateWithCertificates(certificate, policy, &trust)
-        guard status == errSecSuccess, let trust = trust else {
-            return false
-        }
-        var error: CFError?
-        let evalStatus = SecTrustEvaluateWithError(trust, &error)
-        guard evalStatus else {
-            return false
-        }
-        return error == nil
+        verifyCertificate(certificate: certificate)
+    }
+    
+    var isCertificateTrusted: Bool {
+        let (certificate, _) = generateSiteCertificate(url: "https://mudmouth.local", caCertificate: certificate, caPrivateKey: privateKey)
+        return verifyCertificateForTLS(certificate: certificate, url: "mudmouth.local")
     }
     
     private func requestGeneratingCertificate() {
@@ -163,6 +156,10 @@ struct CertificateView: View {
     
     private func installCertificate() {
         UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
+    }
+    
+    private func trustCertificate() {
+        UIApplication.shared.open(URL(string: "App-prefs:General&path=About/CERT_TRUST_SETTINGS")!)
     }
 }
 
