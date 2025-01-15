@@ -40,18 +40,12 @@ struct MudmouthApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-    func application(
-        _ application: UIApplication,
-        willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
         return true
     }
 
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
-        withCompletionHandler completionHandler: @escaping () -> Void
-    ) {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let requestHeaders = response.notification.request.content.userInfo["requestHeaders"] as? String
         let requestBody = response.notification.request.content.userInfo["requestBody"] as? Data
         let responseHeaders = response.notification.request.content.userInfo["responseHeaders"] as? String

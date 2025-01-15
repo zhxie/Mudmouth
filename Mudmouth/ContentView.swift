@@ -10,9 +10,7 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.scenePhase) private var scenePhase
 
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Profile.name, ascending: true)],
-        animation: .default)
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \Profile.name, ascending: true)], animation: .default)
     private var profiles: FetchedResults<Profile>
     @State private var selectedProfile: Profile?
     @State private var profileOperation: DataOperation<Profile>?
@@ -93,10 +91,7 @@ struct ContentView: View {
                     if manager == nil {
                         Button("Install VPN", action: install)
                             .alert(isPresented: $showVPNAlert) {
-                                Alert(
-                                    title: Text("VPN Configuration Not Installed"),
-                                    message: Text("Mudmouth requires VPN to capture requests."),
-                                    dismissButton: .default(Text("OK")))
+                                Alert(title: Text("VPN Configuration Not Installed"), message: Text("Mudmouth requires VPN to capture requests."), dismissButton: .default(Text("OK")))
                             }
                     } else {
                         if status == .connected {
@@ -108,24 +103,18 @@ struct ContentView: View {
                                 )
                                 .alert(isPresented: $showNotificationAlert) {
                                     Alert(
-                                        title: Text("Notification Permission Not Granted"),
-                                        message: Text(
-                                            "Mudmouth requires notification permission to notify completion and perform post-action."
-                                        ),
+                                        title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."),
                                         dismissButton: .default(Text("OK")) {
                                             if #available(iOS 16, *) {
-                                                UIApplication.shared.open(
-                                                    URL(string: UIApplication.openNotificationSettingsURLString)!)
+                                                UIApplication.shared.open(URL(string: UIApplication.openNotificationSettingsURLString)!)
                                             } else {
-                                                UIApplication.shared.open(
-                                                    URL(string: UIApplication.openSettingsURLString)!)
+                                                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
                                             }
                                         })
                                 }
                                 .alert(isPresented: $showRootCertificateAlert) {
                                     Alert(
-                                        title: Text("Root Certificate Not Installed or Trusted"),
-                                        message: Text("Mudmouth requires root certificate to inject requests."),
+                                        title: Text("Root Certificate Not Installed or Trusted"), message: Text("Mudmouth requires root certificate to inject requests."),
                                         dismissButton: .default(Text("OK")) {
                                             toggleCertificate()
                                         })
@@ -261,9 +250,7 @@ struct ContentView: View {
                     if manager != nil {
                         status = manager!.connection.status
                         os_log(.info, "VPN connection status %d", status.rawValue)
-                        vpnObserver = NotificationCenter.default.addObserver(
-                            forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main
-                        ) { _ in
+                        vpnObserver = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main) { _ in
                             status = manager!.connection.status
                             os_log(.info, "VPN connection status changed to %d", status.rawValue)
                         }
@@ -273,9 +260,7 @@ struct ContentView: View {
                 }
                 // Observes notification callback from app delegate.
                 if notificationObserver == nil {
-                    notificationObserver = NotificationCenter.default.addObserver(
-                        forName: Notification.Name("notification"), object: nil, queue: .main
-                    ) { notification in
+                    notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
                         requestHeaders = notification.userInfo!["requestHeaders"] as! String
                         requestBody = notification.userInfo!["requestBody"] as? Data
                         responseHeaders = notification.userInfo!["responseHeaders"] as? String
@@ -333,13 +318,11 @@ struct ContentView: View {
                                 }?.value
                             if profile.isValid {
                                 save()
-                                AlertKitAPI.present(
-                                    title: "Profile Added", icon: .done, style: .iOS17AppleMusic, haptic: .success)
+                                AlertKitAPI.present(title: "Profile Added", icon: .done, style: .iOS17AppleMusic, haptic: .success)
                             } else {
                                 viewContext.delete(profile)
                                 save()
-                                AlertKitAPI.present(
-                                    title: "Invalid Profile", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                AlertKitAPI.present(title: "Invalid Profile", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                             }
                         }
                     case "capture":
@@ -353,20 +336,14 @@ struct ContentView: View {
                                 let fetchedResults = try? viewContext.fetch(fetchRequest)
                                 if let profiles = fetchedResults {
                                     if profiles.count > 1 {
-                                        AlertKitAPI.present(
-                                            title: "Multiple Profiles Found", icon: .error, style: .iOS17AppleMusic,
-                                            haptic: .error)
+                                        AlertKitAPI.present(title: "Multiple Profiles Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                     } else if let profile = profiles.first {
                                         selectedProfile = profile
-                                        DispatchQueue.main.asyncAfter(
-                                            deadline: DispatchTime.now().advanced(by: .seconds(1))
-                                        ) {
+                                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
                                             captureRequest()
                                         }
                                     } else {
-                                        AlertKitAPI.present(
-                                            title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic,
-                                            haptic: .error)
+                                        AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                     }
                                 }
                             }
@@ -399,11 +376,9 @@ struct ContentView: View {
             selectedProfile = nil
         }
     }
-
     private func updateProfile(_ profile: Profile) {
         profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
     }
-
     private func createProfile() {
         profileOperation = CreateOperation(with: viewContext)
     }
@@ -434,8 +409,7 @@ struct ContentView: View {
                 break
             case "https":
                 let (caCertificate, caPrivateKey) = loadCertificate()
-                (certificate, privateKey) = generateSiteCertificate(
-                    url: selectedProfile!.url!, caCertificate: caCertificate, caPrivateKey: caPrivateKey)
+                (certificate, privateKey) = generateSiteCertificate(url: selectedProfile!.url!, caCertificate: caCertificate, caPrivateKey: caPrivateKey)
             default:
                 fatalError("Unexpected scheme: \(url.scheme!)")
             }
@@ -459,7 +433,6 @@ struct ContentView: View {
             }
         }
     }
-
     private func stopCapturingRequest() {
         manager?.connection.stopVPNTunnel()
         UINotificationFeedbackGenerator().notificationOccurred(.warning)

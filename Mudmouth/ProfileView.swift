@@ -67,9 +67,7 @@ struct ProfileView: View {
                     Text("Post-Action")
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
-                        Text(
-                            "MudMouth will trigger the URL Scheme with additional parameters on completion. Both headers and body will be encoded in the URL-safe Base64 format."
-                        )
+                        Text("MudMouth will trigger the URL Scheme with additional parameters on completion. Both headers and body will be encoded in the URL-safe Base64 format.")
                     }
                 }
                 Section {

@@ -1,5 +1,5 @@
 {
-  "lineLength": 120,
+  "lineLength": 10000,
   "indentation": {
     "spaces": 4
   }
