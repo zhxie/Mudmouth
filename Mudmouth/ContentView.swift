@@ -28,9 +28,7 @@ struct ContentView: View {
 
     @State private var notificationObserver: AnyObject?
     @State private var requestHeaders = ""
-    @State private var requestBody: Data?
     @State private var responseHeaders: String?
-    @State private var responseBody: Data?
 
     init() {
         let (certificate, privateKey) = loadCertificate()
@@ -133,26 +131,6 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                                 .textSelection(.enabled)
                         }
-                        if let requestBody = requestBody {
-                            if let requestBody = String(data: requestBody, encoding: .utf8) {
-                                VStack(alignment: .leading) {
-                                    Text("Request Body")
-                                    Spacer()
-                                        .frame(height: 8)
-                                    Text(requestBody)
-                                        .font(.footnote)
-                                        .foregroundColor(.secondary)
-                                        .textSelection(.enabled)
-                                }
-                            } else {
-                                HStack {
-                                    Text("Request Body")
-                                    Spacer()
-                                    Text("\(requestBody.count) Byte\(requestBody.count > 0 ? "s" : "")")
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
                         if let responseHeaders = responseHeaders {
                             VStack(alignment: .leading) {
                                 Text("Response Headers")
@@ -162,26 +140,6 @@ struct ContentView: View {
                                     .font(.footnote)
                                     .foregroundColor(.secondary)
                                     .textSelection(.enabled)
-                            }
-                            if let responseBody = responseBody {
-                                if let responseBody = String(data: responseBody, encoding: .utf8) {
-                                    VStack(alignment: .leading) {
-                                        Text("Response Body")
-                                        Spacer()
-                                            .frame(height: 8)
-                                        Text(responseBody)
-                                            .font(.footnote)
-                                            .foregroundColor(.secondary)
-                                            .textSelection(.enabled)
-                                    }
-                                } else {
-                                    HStack {
-                                        Text("Response Body")
-                                        Spacer()
-                                        Text("\(responseBody.count) Byte\(responseBody.count > 0 ? "s" : "")")
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
                             }
                         }
                         if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
@@ -262,9 +220,7 @@ struct ContentView: View {
                 if notificationObserver == nil {
                     notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
                         requestHeaders = notification.userInfo!["requestHeaders"] as! String
-                        requestBody = notification.userInfo!["requestBody"] as? Data
                         responseHeaders = notification.userInfo!["responseHeaders"] as? String
-                        responseBody = notification.userInfo!["responseBody"] as? Data
                         stopCapturingRequest()
                         if selectedProfile != nil {
                             triggerPostAction()
@@ -450,16 +406,8 @@ struct ContentView: View {
                 components.queryItems = []
             }
             components.queryItems!.append(URLQueryItem(name: "requestHeaders", value: encoded))
-            if requestBody != nil {
-                let encoded = requestBody!.urlSafeBase64EncodedString()
-                components.queryItems!.append(URLQueryItem(name: "requestBody", value: encoded))
-            }
             if responseHeaders != nil {
                 components.queryItems!.append(URLQueryItem(name: "responseHeaders", value: encoded))
-            }
-            if responseBody != nil {
-                let encoded = responseBody!.urlSafeBase64EncodedString()
-                components.queryItems!.append(URLQueryItem(name: "responseBody", value: encoded))
             }
             scheme = components.url!
             UIApplication.shared.open(scheme)

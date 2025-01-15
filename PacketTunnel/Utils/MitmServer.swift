@@ -120,7 +120,7 @@ class ProxyHandler: ChannelDuplexHandler {
             context.fireChannelRead(wrapInboundOut(.body(.byteBuffer(body))))
         case .end:
             if !isRequestAndResponse && requests.last!.headers.uri == url.path {
-                scheduleNotification(requestHeaders: requests.last!.headers.headers.readable, requestBody: requests.last!.body, responseHeaders: nil, responseBody: nil)
+                scheduleNotification(requestHeaders: requests.last!.headers.headers.readable, responseHeaders: nil)
             }
             context.fireChannelRead(wrapInboundOut(.end(nil)))
         }
@@ -140,7 +140,7 @@ class ProxyHandler: ChannelDuplexHandler {
             let request = requests.popFirst()!
             let prefix = "\(url.scheme!)://\(url.host!)"
             if isRequestAndResponse && (request.headers.uri == url.path || request.headers.uri.hasPrefix(prefix) && String(request.headers.uri.dropFirst(prefix.count)) == url.path) {
-                scheduleNotification(requestHeaders: request.headers.headers.readable, requestBody: request.body, responseHeaders: response!.headers.headers.readable, responseBody: response!.body)
+                scheduleNotification(requestHeaders: request.headers.headers.readable, responseHeaders: response!.headers.headers.readable)
             }
             response = nil
             context.write(wrapOutboundOut(.end(nil)), promise: promise)

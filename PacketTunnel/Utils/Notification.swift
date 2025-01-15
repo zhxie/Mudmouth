@@ -6,7 +6,7 @@ class NotificationService {
     static var notificationSent = false
 }
 
-func scheduleNotification(requestHeaders: String, requestBody: Data?, responseHeaders: String?, responseBody: Data?) {
+func scheduleNotification(requestHeaders: String, responseHeaders: String?) {
     if !NotificationService.notificationSent {
         NotificationService.notificationSent = true
         let content = UNMutableNotificationContent()
@@ -14,9 +14,7 @@ func scheduleNotification(requestHeaders: String, requestBody: Data?, responseHe
         content.body = "Tap to continue in Mudmouth."
         content.userInfo = [
             "requestHeaders": requestHeaders,
-            "requestBody": requestBody as Any,
             "responseHeaders": responseHeaders as Any,
-            "responseBody": responseBody as Any,
         ]
         content.interruptionLevel = .timeSensitive
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)

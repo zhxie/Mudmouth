@@ -25,7 +25,7 @@ mudmouth://capture?name=<NAME>
 ### On Completion
 
 ```
-<URL>?requestHeaders=<REQUEST_HEADERS>&requestBody=<REQUEST_BODY>&responseHeaders=<RESPONSE_HEADERS>&responseBody=<RESPONSE_BODY>
+<URL>?requestHeaders=<REQUEST_HEADERS>&responseHeaders=<RESPONSE_HEADERS>
 ```
 
 ### Parameters
