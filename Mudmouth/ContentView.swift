@@ -39,6 +39,7 @@ struct ContentView: View {
         if certificate == nil || privateKey == nil {
             let _ = generateCertificate()
         }
+        // HACK: Stop running certificate server in previews to prevent crash.
         if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" {
             runCertificateServer()
         }
@@ -133,7 +134,7 @@ struct ContentView: View {
                     }
                 }
                 if !requestHeaders.isEmpty {
-                    Section("Result") {
+                    Section("Captured") {
                         VStack(alignment: .leading) {
                             Text("Request Headers")
                             Spacer()
@@ -143,22 +144,24 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                                 .textSelection(.enabled)
                         }
-                        if requestBody != nil, let requestBody = String(data: requestBody!, encoding: .utf8) {
-                            VStack(alignment: .leading) {
-                                Text("Request Body")
-                                Spacer()
-                                    .frame(height: 8)
-                                Text(requestBody)
-                                    .font(.footnote)
-                                    .foregroundColor(.secondary)
-                                    .textSelection(.enabled)
-                            }
-                        } else {
-                            HStack {
-                                Text("Request Body")
-                                Spacer()
-                                Text("\(requestBody?.count ?? 0) Byte\(requestBody?.count ?? 0 > 0 ? "s" : "")")
-                                    .foregroundColor(.secondary)
+                        if let requestBody = requestBody {
+                            if let requestBody = String(data: requestBody, encoding: .utf8) {
+                                VStack(alignment: .leading) {
+                                    Text("Request Body")
+                                    Spacer()
+                                        .frame(height: 8)
+                                    Text(requestBody)
+                                        .font(.footnote)
+                                        .foregroundColor(.secondary)
+                                        .textSelection(.enabled)
+                                }
+                            } else {
+                                HStack {
+                                    Text("Request Body")
+                                    Spacer()
+                                    Text("\(requestBody.count) Byte\(requestBody.count > 0 ? "s" : "")")
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                         if let responseHeaders = responseHeaders {
@@ -171,22 +174,24 @@ struct ContentView: View {
                                     .foregroundColor(.secondary)
                                     .textSelection(.enabled)
                             }
-                            if responseBody != nil, let responseBody = String(data: responseBody!, encoding: .utf8) {
-                                VStack(alignment: .leading) {
-                                    Text("Response Body")
-                                    Spacer()
-                                        .frame(height: 8)
-                                    Text(responseBody)
-                                        .font(.footnote)
-                                        .foregroundColor(.secondary)
-                                        .textSelection(.enabled)
-                                }
-                            } else {
-                                HStack {
-                                    Text("Response Body")
-                                    Spacer()
-                                    Text("\(responseBody?.count ?? 0) Byte\(responseBody?.count ?? 0 > 0 ? "s" : "")")
-                                        .foregroundColor(.secondary)
+                            if let responseBody = responseBody {
+                                if let responseBody = String(data: responseBody, encoding: .utf8) {
+                                    VStack(alignment: .leading) {
+                                        Text("Response Body")
+                                        Spacer()
+                                            .frame(height: 8)
+                                        Text(responseBody)
+                                            .font(.footnote)
+                                            .foregroundColor(.secondary)
+                                            .textSelection(.enabled)
+                                    }
+                                } else {
+                                    HStack {
+                                        Text("Response Body")
+                                        Spacer()
+                                        Text("\(responseBody.count) Byte\(responseBody.count > 0 ? "s" : "")")
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                             }
                         }

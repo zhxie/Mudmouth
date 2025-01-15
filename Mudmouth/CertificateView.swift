@@ -84,12 +84,12 @@ struct CertificateView: View {
                     }
                 }
                 Section {
-                    Button("Generate a New Certificate", action: requestGeneratingCertificate)
+                    Button("Generate a New Certificate", action: regenerateCertificate)
                         .alert(isPresented: $showRegenerateCertificateAlert) {
                             Alert(
                                 title: Text(
                                     "Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"
-                                ), primaryButton: .destructive(Text("OK"), action: continueGeneratingCertificate),
+                                ), primaryButton: .destructive(Text("OK"), action: continueRegeneratingCertificate),
                                 secondaryButton: .cancel())
                         }
                     Button("Import Certificate", action: importCertificate)
@@ -158,11 +158,11 @@ struct CertificateView: View {
         return verifyCertificateForTLS(certificate: certificate, url: "mudmouth.local")
     }
 
-    private func requestGeneratingCertificate() {
+    private func regenerateCertificate() {
         showRegenerateCertificateAlert.toggle()
     }
 
-    private func continueGeneratingCertificate() {
+    private func continueRegeneratingCertificate() {
         (certificate, privateKey) = generateCertificate()
     }
 

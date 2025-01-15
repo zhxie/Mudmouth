@@ -134,7 +134,6 @@ struct PEMFile: FileDocument {
         let privateKeyEnd = text.ranges(of: "-----END PRIVATE KEY-----").first!.upperBound
         privateKey = try P256.Signing.PrivateKey(pemRepresentation: String(text[privateKeyBegin..<privateKeyEnd]))
     }
-
     init(configuration: ReadConfiguration) throws {
         if let data = configuration.file.regularFileContents {
             try self.init(data: data)
