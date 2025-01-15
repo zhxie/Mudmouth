@@ -11,13 +11,14 @@ func scheduleNotification(requestHeaders: String, requestBody: Data?, responseHe
         NotificationService.notificationSent = true
         let content = UNMutableNotificationContent()
         content.title = "Request Captured"
-        content.body = "Please press the notification to continue in Mudmouth."
+        content.body = "Tap to continue in Mudmouth."
         content.userInfo = [
             "requestHeaders": requestHeaders,
             "requestBody": requestBody as Any,
             "responseHeaders": responseHeaders as Any,
             "responseBody": responseBody as Any,
         ]
+        content.interruptionLevel = .timeSensitive
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request) { error in
