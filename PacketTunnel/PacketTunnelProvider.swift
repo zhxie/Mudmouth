@@ -16,10 +16,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let url = URL(string: String(usernameComponents[1]))!
         switch url.scheme! {
         case "http":
-            proxySettings.httpServer = NEProxyServer(address: "127.0.0.1", port: 6836)
+            proxySettings.httpServer = NEProxyServer(address: "127.0.0.1", port: ProxyServerPort)
             proxySettings.httpEnabled = true
         case "https":
-            proxySettings.httpsServer = NEProxyServer(address: "127.0.0.1", port: 6836)
+            proxySettings.httpsServer = NEProxyServer(address: "127.0.0.1", port: ProxyServerPort)
             proxySettings.httpsEnabled = true
         default:
             fatalError("Unexpected scheme: \(url.scheme!)")

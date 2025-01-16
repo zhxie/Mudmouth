@@ -219,8 +219,8 @@ struct ContentView: View {
                 // Observes notification callback from app delegate.
                 if notificationObserver == nil {
                     notificationObserver = NotificationCenter.default.addObserver(forName: Notification.Name("notification"), object: nil, queue: .main) { notification in
-                        requestHeaders = notification.userInfo!["requestHeaders"] as! String
-                        responseHeaders = notification.userInfo!["responseHeaders"] as? String
+                        requestHeaders = notification.userInfo![RequestHeaders] as! String
+                        responseHeaders = notification.userInfo![ResponseHeaders] as? String
                         stopCapturingRequest()
                         if selectedProfile != nil {
                             triggerPostAction()

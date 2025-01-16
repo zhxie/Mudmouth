@@ -13,8 +13,8 @@ func scheduleNotification(requestHeaders: String, responseHeaders: String?) {
         content.title = "Request Captured"
         content.body = "Tap to continue in Mudmouth."
         content.userInfo = [
-            "requestHeaders": requestHeaders,
-            "responseHeaders": responseHeaders as Any,
+            RequestHeaders: requestHeaders,
+            ResponseHeaders: responseHeaders as Any,
         ]
         content.interruptionLevel = .timeSensitive
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)

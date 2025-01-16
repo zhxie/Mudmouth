@@ -53,8 +53,7 @@ func runCertificateServer() {
                         channel.pipeline.addHandler(CertificateHandler())
                     }
             }
-        // 16836 represents 1-M-U-D-M.
-        bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: 16836)).whenComplete { result in
+        bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: CertificateServerPort)).whenComplete { result in
             switch result {
             case .success:
                 os_log(.info, "Certificate server binded")

@@ -2,5 +2,8 @@
   "lineLength": 10000,
   "indentation": {
     "spaces": 4
+  },
+  "rules": {
+    "AlwaysUseLowerCamelCase": false
   }
 }

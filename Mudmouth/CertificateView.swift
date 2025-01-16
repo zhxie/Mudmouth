@@ -152,7 +152,7 @@ struct CertificateView: View {
     }
 
     private func installCertificate() {
-        UIApplication.shared.open(URL(string: "http://127.0.0.1:16836")!)
+        UIApplication.shared.open(URL(string: "http://127.0.0.1:\(CertificateServerPort)")!)
     }
 
     private func trustCertificate() {
