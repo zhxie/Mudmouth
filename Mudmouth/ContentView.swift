@@ -77,6 +77,7 @@ struct ContentView: View {
                     }
                     Button("New Profile", action: createProfile)
                 }
+                .animation(.none, value: selectedProfile)
                 if isHTTPS {
                     Section("MitM") {
                         Button("Configure Root Certificate", action: toggleCertificate)
@@ -237,41 +238,7 @@ struct ContentView: View {
                     case "add":
                         let components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
                         if let queries = components.queryItems {
-                            let profile = Profile(context: viewContext)
-                            profile.name =
-                                queries.first { item in
-                                    item.name == "name"
-                                }?.value
-                            profile.url =
-                                queries.first { item in
-                                    item.name == "url"
-                                }?.value
-                            profile.directionEnum =
-                                Direction(
-                                    rawValue: Int16(
-                                        queries.first { item in
-                                            item.name == "direction"
-                                        }?.value ?? "1") ?? 1) ?? .requestAndResponse
-                            profile.preActionEnum =
-                                Action(
-                                    rawValue: Int16(
-                                        queries.first { item in
-                                            item.name == "preAction"
-                                        }?.value ?? "0") ?? 0) ?? .none
-                            profile.preActionUrlScheme =
-                                queries.first { item in
-                                    item.name == "preActionUrlScheme"
-                                }?.value
-                            profile.postActionEnum =
-                                Action(
-                                    rawValue: Int16(
-                                        queries.first { item in
-                                            item.name == "postAction"
-                                        }?.value ?? "0") ?? 0) ?? .none
-                            profile.postActionUrlScheme =
-                                queries.first { item in
-                                    item.name == "postActionUrlScheme"
-                                }?.value
+                            let profile = Profile(context: viewContext, queries: queries)
                             if profile.isValid {
                                 save()
                                 AlertKitAPI.present(title: "Profile Added", icon: .done, style: .iOS17AppleMusic, haptic: .success)
