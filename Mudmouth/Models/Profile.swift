@@ -1,6 +1,34 @@
 import CoreData
 import Foundation
 
+enum Action: Int16, CaseIterable {
+    case none = 0
+    case urlScheme = 1
+
+    var name: String {
+        switch self {
+        case .none:
+            return "None"
+        case .urlScheme:
+            return "URL Scheme"
+        }
+    }
+}
+
+enum Direction: Int16, CaseIterable {
+    case request = 0
+    case requestAndResponse = 1
+
+    var name: String {
+        switch self {
+        case .request:
+            return "Request"
+        case .requestAndResponse:
+            return "Request & Response"
+        }
+    }
+}
+
 extension Profile {
     convenience init(context: NSManagedObjectContext, queries: [URLQueryItem]) {
         self.init(context: context)
@@ -67,5 +95,31 @@ extension Profile {
             }
         }
         return true
+    }
+
+    var preActionEnum: Action {
+        get {
+            return Action(rawValue: preAction) ?? .none
+        }
+        set {
+            preAction = newValue.rawValue
+        }
+    }
+    var postActionEnum: Action {
+        get {
+            return Action(rawValue: postAction) ?? .none
+        }
+        set {
+            postAction = newValue.rawValue
+        }
+    }
+
+    var directionEnum: Direction {
+        get {
+            return Direction(rawValue: direction) ?? .request
+        }
+        set {
+            direction = newValue.rawValue
+        }
     }
 }
