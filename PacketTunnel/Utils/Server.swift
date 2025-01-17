@@ -123,7 +123,8 @@ class ProxyHandler: ChannelDuplexHandler {
         case .end:
             let head = requests.last!.head
             if !isRequestAndResponse {
-                let record = Record(context: persistenceController.container.viewContext, url: head.uri, method: head.method, requestHeaders: head.headers.readable)
+                let recordURL = head.uri.starts(with: "http") ? head.uri : "\(url.scheme!)://\(url.host!)\(head.uri)"
+                let _ = Record(context: persistenceController.container.viewContext, url: recordURL, method: head.method, requestHeaders: head.headers.readable)
                 do {
                     try persistenceController.container.viewContext.save()
                 } catch {
@@ -151,7 +152,8 @@ class ProxyHandler: ChannelDuplexHandler {
             let request = requests.popFirst()!
             let prefix = "\(url.scheme!)://\(url.host!)"
             if isRequestAndResponse {
-                let record = Record(context: persistenceController.container.viewContext, url: request.head.uri, method: request.head.method, requestHeaders: request.head.headers.readable, status: response!.head.status, responseHeaders: response!.head.headers.readable)
+                let recordURL = request.head.uri.starts(with: "http") ? request.head.uri : "\(url.scheme!)://\(url.host!)\(request.head.uri)"
+                let _ = Record(context: persistenceController.container.viewContext, url: recordURL, method: request.head.method, requestHeaders: request.head.headers.readable, status: response!.head.status, responseHeaders: response!.head.headers.readable)
                 do {
                     try persistenceController.container.viewContext.save()
                 } catch {
