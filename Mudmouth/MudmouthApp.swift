@@ -18,6 +18,15 @@ struct MudmouthApp: App {
         } catch {
             os_log(.error, "Failed to clear records: %{public}@", error.localizedDescription)
         }
+        let purgeHistoryRequest = NSPersistentHistoryChangeRequest.deleteHistory(before: .now)
+        let backgroundContext = persistenceController.container.newBackgroundContext()
+        backgroundContext.perform {
+            do {
+                try backgroundContext.execute(purgeHistoryRequest)
+            } catch {
+                os_log(.error, "Failed to purge history: %{public}@", error.localizedDescription)
+            }
+        }
     }
 
     var body: some Scene {

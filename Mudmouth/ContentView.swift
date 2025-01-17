@@ -253,6 +253,14 @@ struct ContentView: View {
                 }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .NSPersistentStoreRemoteChange).receive(on: DispatchQueue.main)) { _ in
+            // HACK: Update fetch request forcly.
+            if records.nsPredicate == nil {
+                records.nsPredicate = NSPredicate(value: true)
+            } else {
+                records.nsPredicate = nil
+            }
+        }
         .onOpenURL { url in
             os_log(.info, "Open from URL Scheme: %{public}@", url.absoluteString)
             if url.scheme == "mudmouth" {

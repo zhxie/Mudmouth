@@ -42,7 +42,6 @@ struct RecordView: View {
                         Spacer()
                             .frame(height: 8)
                         Text(record.requestHeaders!)
-                            .font(.footnote)
                             .foregroundColor(.secondary)
                             .textSelection(.enabled)
                     }
@@ -63,7 +62,6 @@ struct RecordView: View {
                             Spacer()
                                 .frame(height: 8)
                             Text(responseHeaders)
-                                .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .textSelection(.enabled)
                         }
