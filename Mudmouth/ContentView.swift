@@ -78,6 +78,18 @@ struct ContentView: View {
                             }
                             .tint(Color(UIColor.systemOrange))
                         }
+                        .contextMenu {
+                            Button {
+                                updateProfile(profile)
+                            } label: {
+                                Label("Edit", systemImage: "square.and.pencil")
+                            }
+                            Button(role: .destructive) {
+                                deleteProfile(profile)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
                     Button("New Profile", action: createProfile)
                 }
