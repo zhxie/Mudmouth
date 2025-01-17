@@ -404,22 +404,25 @@ struct ContentView: View {
     }
 
     private func triggerPostAction() {
-        switch selectedProfile!.postActionEnum {
-        case .none:
-            break
-        case .urlScheme:
-            var scheme = URL(string: selectedProfile!.postActionUrlScheme!)!
-            let encoded = requestHeaders.data(using: .utf8)!.urlSafeBase64EncodedString()
-            var components = URLComponents(url: scheme, resolvingAgainstBaseURL: true)!
-            if components.queryItems == nil {
-                components.queryItems = []
+        if let selectedProfile = selectedProfile {
+            switch selectedProfile.postActionEnum {
+            case .none:
+                break
+            case .urlScheme:
+                var scheme = URL(string: selectedProfile.postActionUrlScheme!)!
+                let encoded = requestHeaders.data(using: .utf8)!.urlSafeBase64EncodedString()
+                var components = URLComponents(url: scheme, resolvingAgainstBaseURL: true)!
+                if components.queryItems == nil {
+                    components.queryItems = []
+                }
+                components.queryItems!.append(URLQueryItem(name: "requestHeaders", value: encoded))
+                if let responseHeaders = responseHeaders {
+                    let encoded = responseHeaders.data(using: .utf8)!.urlSafeBase64EncodedString()
+                    components.queryItems!.append(URLQueryItem(name: "responseHeaders", value: encoded))
+                }
+                scheme = components.url!
+                UIApplication.shared.open(scheme)
             }
-            components.queryItems!.append(URLQueryItem(name: "requestHeaders", value: encoded))
-            if responseHeaders != nil {
-                components.queryItems!.append(URLQueryItem(name: "responseHeaders", value: encoded))
-            }
-            scheme = components.url!
-            UIApplication.shared.open(scheme)
         }
     }
 }

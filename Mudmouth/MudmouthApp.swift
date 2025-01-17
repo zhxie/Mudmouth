@@ -59,11 +59,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let requestHeaders = response.notification.request.content.userInfo[RequestHeaders] as? String
         let responseHeaders = response.notification.request.content.userInfo[ResponseHeaders] as? String
-        if requestHeaders != nil {
+        if let requestHeaders = requestHeaders {
             NotificationCenter.default.post(
                 name: Notification.Name("notification"), object: nil,
                 userInfo: [
-                    RequestHeaders: requestHeaders!,
+                    RequestHeaders: requestHeaders,
                     ResponseHeaders: responseHeaders as Any,
                 ])
         }

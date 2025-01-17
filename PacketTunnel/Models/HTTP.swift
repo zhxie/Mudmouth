@@ -3,11 +3,11 @@ import NIOCore
 import NIOHTTP1
 
 class HTTPRequest {
-    var headers: HTTPRequestHead
+    var head: HTTPRequestHead
     var body: Data?
 
-    init(headers: HTTPRequestHead) {
-        self.headers = headers
+    init(head: HTTPRequestHead) {
+        self.head = head
     }
 
     public func appendBody(_ body: ByteBuffer) {
@@ -20,11 +20,11 @@ class HTTPRequest {
 }
 
 class HTTPResponse {
-    var headers: HTTPResponseHead
+    var head: HTTPResponseHead
     var body: Data?
 
-    init(headers: HTTPResponseHead) {
-        self.headers = headers
+    init(head: HTTPResponseHead) {
+        self.head = head
     }
 
     public func appendBody(_ body: ByteBuffer) {

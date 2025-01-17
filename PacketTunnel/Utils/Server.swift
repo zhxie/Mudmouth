@@ -115,14 +115,23 @@ class ProxyHandler: ChannelDuplexHandler {
         let httpData = unwrapInboundIn(data)
         switch httpData {
         case .head(let head):
-            requests.append(HTTPRequest(headers: head))
+            requests.append(HTTPRequest(head: head))
             context.fireChannelRead(wrapInboundOut(.head(head)))
         case .body(let body):
             requests.last!.appendBody(body)
             context.fireChannelRead(wrapInboundOut(.body(.byteBuffer(body))))
         case .end:
-            if !isRequestAndResponse && requests.last!.headers.uri == url.path {
-                scheduleNotification(requestHeaders: requests.last!.headers.headers.readable, responseHeaders: nil)
+            let head = requests.last!.head
+            if !isRequestAndResponse {
+                let record = Record(context: persistenceController.container.viewContext, url: head.uri, method: head.method, requestHeaders: head.headers.readable)
+                do {
+                    try persistenceController.container.viewContext.save()
+                } catch {
+                    os_log(.error, "Failed to save context: %{public}@", error.localizedDescription)
+                }
+                if head.uri == url.path {
+                    scheduleNotification(requestHeaders: head.headers.readable, responseHeaders: nil)
+                }
             }
             context.fireChannelRead(wrapInboundOut(.end(nil)))
         }
@@ -133,7 +142,7 @@ class ProxyHandler: ChannelDuplexHandler {
         let httpData = unwrapOutboundIn(data)
         switch httpData {
         case .head(let head):
-            response = HTTPResponse(headers: head)
+            response = HTTPResponse(head: head)
             context.write(wrapOutboundOut(.head(head)), promise: promise)
         case .body(let body):
             response!.appendBody(body)
@@ -141,8 +150,16 @@ class ProxyHandler: ChannelDuplexHandler {
         case .end:
             let request = requests.popFirst()!
             let prefix = "\(url.scheme!)://\(url.host!)"
-            if isRequestAndResponse && (request.headers.uri == url.path || request.headers.uri.hasPrefix(prefix) && String(request.headers.uri.dropFirst(prefix.count)) == url.path) {
-                scheduleNotification(requestHeaders: request.headers.headers.readable, responseHeaders: response!.headers.headers.readable)
+            if isRequestAndResponse {
+                let record = Record(context: persistenceController.container.viewContext, url: request.head.uri, method: request.head.method, requestHeaders: request.head.headers.readable, status: response!.head.status, responseHeaders: response!.head.headers.readable)
+                do {
+                    try persistenceController.container.viewContext.save()
+                } catch {
+                    os_log(.error, "Failed to save context: %{public}@", error.localizedDescription)
+                }
+                if request.head.uri == url.path || request.head.uri.hasPrefix(prefix) && String(request.head.uri.dropFirst(prefix.count)) == url.path {
+                    scheduleNotification(requestHeaders: request.head.headers.readable, responseHeaders: response!.head.headers.readable)
+                }
             }
             response = nil
             context.write(wrapOutboundOut(.end(nil)), promise: promise)
