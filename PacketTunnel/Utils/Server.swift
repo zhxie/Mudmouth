@@ -99,13 +99,15 @@ class ProxyHandler: ChannelDuplexHandler {
 
     private var url: URL
     private var isRequestAndResponse: Bool
+    private var persistenceController: PersistenceController
 
     private var requests: Deque<HTTPRequest> = []
     private var response: HTTPResponse?
 
-    init(url: URL, isRequestAndResponse: Bool) {
+    init(url: URL, isRequestAndResponse: Bool, persistenceController: PersistenceController) {
         self.url = url
         self.isRequestAndResponse = isRequestAndResponse
+        self.persistenceController = persistenceController
     }
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -318,7 +320,7 @@ class HTTPHandler: ChannelInboundHandler {
     }
 }
 
-func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, privateKey: Data, _ completion: @escaping () -> Void) {
+func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, privateKey: Data, persistenceController: PersistenceController, _ completion: @escaping () -> Void) {
     var sslContext: NIOSSLContext?
     let certificate = try! NIOSSLCertificate(bytes: [UInt8](certificate), format: .der)
     let privateKey = try! NIOSSLPrivateKey(bytes: [UInt8](privateKey), format: .der)
@@ -347,7 +349,7 @@ func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, priv
                     channel.pipeline.addHandler(HTTPResponseEncoder())
                 }
                 .flatMap { _ in
-                    channel.pipeline.addHandler(ProxyHandler(url: url, isRequestAndResponse: isRequestAndResponse))
+                    channel.pipeline.addHandler(ProxyHandler(url: url, isRequestAndResponse: isRequestAndResponse, persistenceController: persistenceController))
                 }
         }
         .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
@@ -365,7 +367,7 @@ func runMitmServer(url: URL, isRequestAndResponse: Bool, certificate: Data, priv
         }
 }
 
-func runServer(url: URL, isRequestAndResponse: Bool, _ completion: @escaping () -> Void) {
+func runServer(url: URL, isRequestAndResponse: Bool, persistenceController: PersistenceController, _ completion: @escaping () -> Void) {
     // Process packets in the tunnel.
     let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
     ServerBootstrap(group: group)
@@ -380,7 +382,7 @@ func runServer(url: URL, isRequestAndResponse: Bool, _ completion: @escaping () 
                     channel.pipeline.addHandler(HTTPResponseEncoder())
                 }
                 .flatMap { _ in
-                    channel.pipeline.addHandler(ProxyHandler(url: url, isRequestAndResponse: isRequestAndResponse))
+                    channel.pipeline.addHandler(ProxyHandler(url: url, isRequestAndResponse: isRequestAndResponse, persistenceController: persistenceController))
                 }
         }
         .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)

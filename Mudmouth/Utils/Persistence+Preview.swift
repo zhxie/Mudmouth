@@ -1,7 +1,4 @@
-import CoreData
-
-struct PersistenceController {
-    static let shared = PersistenceController()
+extension PersistenceController {
     static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
@@ -20,22 +17,19 @@ struct PersistenceController {
         duckDuckGoProfile.url = "https://www.duckduckgo.com"
         duckDuckGoProfile.preAction = Action.urlScheme.rawValue
         duckDuckGoProfile.preActionUrlScheme = "https://www.duckduckgo.com"
+        let googleRecord = Record(context: viewContext)
+        googleRecord.date = .now
+        googleRecord.url = "https://www.google.com"
+        googleRecord.method = "GET"
+        googleRecord.requestHeaders = "Connection: keep-alive"
+        let bingRecord = Record(context: viewContext)
+        bingRecord.date = .now.addingTimeInterval(1)
+        bingRecord.url = "https://www.bing.com"
+        bingRecord.method = "POST"
+        bingRecord.requestHeaders = "Connection: close"
+        bingRecord.status = 200
+        bingRecord.responseHeaders = "Cache-control: no-cache"
         try! viewContext.save()
         return result
     }()
-
-    let container: NSPersistentContainer
-
-    init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "Mudmouth")
-        if inMemory {
-            container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
-        }
-        container.loadPersistentStores { _, error in
-            if let error = error {
-                fatalError("Failed to load persistent stores: \(error.localizedDescription)")
-            }
-        }
-        container.viewContext.automaticallyMergesChangesFromParent = true
-    }
 }

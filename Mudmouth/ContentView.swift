@@ -15,6 +15,10 @@ struct ContentView: View {
     @State private var selectedProfile: Profile?
     @State private var profileOperation: DataOperation<Profile>?
 
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \Record.date, ascending: false)], animation: .default)
+    private var records: FetchedResults<Record>
+    @State private var selectedRecord: Record?
+
     @State private var showCertificate = false
 
     @State private var manager: NETunnelProviderManager?
@@ -121,30 +125,46 @@ struct ContentView: View {
                         }
                     }
                 }
-                if !requestHeaders.isEmpty {
-                    Section("Captured") {
-                        VStack(alignment: .leading) {
-                            Text("Request Headers")
-                            Spacer()
-                                .frame(height: 8)
-                            Text(requestHeaders)
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
-                                .textSelection(.enabled)
-                        }
-                        if let responseHeaders = responseHeaders {
-                            VStack(alignment: .leading) {
-                                Text("Response Headers")
-                                Spacer()
-                                    .frame(height: 8)
-                                Text(responseHeaders)
-                                    .font(.footnote)
-                                    .foregroundColor(.secondary)
-                                    .textSelection(.enabled)
+                if !records.isEmpty {
+                    Section("Record") {
+                        ForEach(records, id: \.self) { record in
+                            Button {
+                                showRecord(record)
+                            } label: {
+                                VStack(alignment: .leading) {
+                                    HStack {
+                                        Text(record.date!.format())
+                                            .font(.footnote)
+                                            .foregroundColor(.secondary)
+                                        if let method = record.method, !method.isEmpty {
+                                            Text(method)
+                                                .font(.caption2)
+                                                .bold()
+                                                .foregroundColor(Color(UIColor.systemBackground))
+                                                .padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                                                .background {
+                                                    Rectangle()
+                                                        .fill(Color.accentColor)
+                                                        .cornerRadius(4)
+                                                }
+                                        }
+                                        if record.status > 0 {
+                                            Text("\(record.status)")
+                                                .font(.caption2)
+                                                .bold()
+                                                .foregroundColor(Color(UIColor.systemBackground))
+                                                .padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                                                .background {
+                                                    Rectangle()
+                                                        .fill(statusColor(record.status))
+                                                        .cornerRadius(4)
+                                                }
+                                        }
+                                    }
+                                    Text(record.url!)
+                                        .foregroundColor(.primary)
+                                }
                             }
-                        }
-                        if selectedProfile != nil && selectedProfile!.postActionEnum != .none {
-                            Button("Continue \"\(selectedProfile!.name!)\"", action: triggerPostAction)
                         }
                     }
                 }
@@ -194,6 +214,9 @@ struct ContentView: View {
             .sheet(item: $profileOperation, onDismiss: save) { operation in
                 ProfileView(profile: operation.object)
                     .environment(\.managedObjectContext, operation.context)
+            }
+            .sheet(item: $selectedRecord) { record in
+                RecordView(record: record)
             }
             .navigationTitle("Mudmouth")
         }
@@ -304,6 +327,25 @@ struct ContentView: View {
     }
     private func createProfile() {
         profileOperation = CreateOperation(with: viewContext)
+    }
+
+    private func showRecord(_ record: Record) {
+        selectedRecord = record
+    }
+
+    private func statusColor(_ status: Int16) -> Color {
+        switch status {
+        case 100..<200:
+            .blue
+        case 200..<300:
+            .green
+        case 300..<400:
+            .yellow
+        case 400..<599:
+            .red
+        default:
+            .accentColor
+        }
     }
 
     private func toggleCertificate() {

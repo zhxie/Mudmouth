@@ -8,6 +8,18 @@ struct MudmouthApp: App {
 
     let persistenceController = PersistenceController.shared
 
+    init() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Record")
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            let context = persistenceController.container.viewContext
+            try context.execute(deleteRequest)
+            try context.save()
+        } catch {
+            os_log(.error, "Failed to clear records: %{public}@", error.localizedDescription)
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -16,7 +28,7 @@ struct MudmouthApp: App {
                     UserDefaults.standard.register(defaults: ["version": 0])
                     let version = UserDefaults.standard.integer(forKey: "version")
                     if version < 1 {
-                        let context = PersistenceController.shared.container.viewContext
+                        let context = persistenceController.container.viewContext
                         let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
                         fetchRequest.predicate = NSPredicate(value: true)
                         do {
@@ -30,8 +42,7 @@ struct MudmouthApp: App {
                             }
                             UserDefaults.standard.set(1, forKey: "version")
                         } catch {
-                            os_log(
-                                .error, "Failed to initialize default profile: %{public}@", error.localizedDescription)
+                            os_log(.error, "Failed to initialize default profile: %{public}@", error.localizedDescription)
                         }
                     }
                 }

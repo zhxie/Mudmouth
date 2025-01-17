@@ -2,6 +2,8 @@ import NetworkExtension
 import OSLog
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
+    let persistenceController = PersistenceController.shared
+
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         os_log(.info, "Start tunnel")
         // Configure tunnel.
@@ -38,7 +40,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             // Process packets in the tunnel.
             switch url.scheme! {
             case "http":
-                runServer(url: url, isRequestAndResponse: isRequestAndResponse) {
+                runServer(url: url, isRequestAndResponse: isRequestAndResponse, persistenceController: self.persistenceController) {
                     completionHandler(nil)
                 }
             case "https":
@@ -46,7 +48,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 let passwordComponents = certificateAndPrivateKey.split(separator: ":")
                 let certificate = Data(base64Encoded: passwordComponents[0].data(using: .utf8)!)!
                 let privateKey = Data(base64Encoded: passwordComponents[1].data(using: .utf8)!)!
-                runMitmServer(url: url, isRequestAndResponse: isRequestAndResponse, certificate: certificate, privateKey: privateKey) {
+                runMitmServer(url: url, isRequestAndResponse: isRequestAndResponse, certificate: certificate, privateKey: privateKey, persistenceController: self.persistenceController) {
                     completionHandler(nil)
                 }
             default:
