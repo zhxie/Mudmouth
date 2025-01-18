@@ -18,30 +18,30 @@
 "notification_permission_not_granted" = "Notification Permission Not Granted";
 "notification_permission_not_granted_message" = "Mudmouth requires notification permission to notify completion and perform post-action.";
 "root_certificate_not_installed_or_trusted" = "Root Certificate Not Installed or Trusted";
-"root_certificate_not_installed_or_trusted_message" = "Mudmouth requires root certificate to inject HTTPS requests.";
+"root_certificate_not_installed_or_trusted_message" = "Mudmouth requires root certificate to capture HTTPS requests.";
 "record" = "Record";
 
-"instruction_vpn" = "Install the VPN of Mudmouth to capture requests.";
-"instruction_notification" = "Mudmouth will notify you once the request has been captured.";
+"instruction_vpn" = "Install Mudmouth VPN to capture requests.";
+"instruction_notification" = "Mudmouth will notify you after capturing a request.";
 "instruction_privacy" = "Your connection is always secure, and Mudmouth never collects any information.";
 
 "profile_added" = "Profile Added";
 "invalid_profile" = "Invalid Profile";
-"multiple_profiles_found" = "Multiple Profiles Found";
+"duplicate_profiles_found" = "Duplicate Profiles Found";
 "profile_not_found" = "Profile Not Found";
 
 // ProfileView.
 "name" = "Name";
 "url" = "URL";
 //"profile" = "Profile";
-"profile_notice" = "Mudmouth only supports tapping on HTTP and HTTPS requests.";
+"profile_notice" = "Mudmouth only supports capturing HTTP and HTTPS requests.";
 "match" = "Match";
 "direction" = "Direction";
 "pre_action" = "Pre-Action";
 "action" = "Action";
 //"url_scheme" = "URL Scheme";
 "post_action" = "Post-Action";
-"post_action_url_scheme_notice" = "Mudmouth will trigger the URL Scheme with additional parameters on completion. Both headers and body will be encoded in the URL-safe Base64 format.";
+"post_action_url_scheme_notice" = "Mudmouth will trigger the URL Scheme with additional parameters on completion. Headers will be encoded in the URL-safe Base64 format.";
 "add" = "Add";
 "save" = "Save";
 //"new_profile" = "New Profile";
@@ -62,21 +62,21 @@
 "common_name" = "Common Name";
 "not_valid_before" = "Not Valid Before";
 "not_valid_after" = "Not Valid After";
-"key_info" = "Key Info";
+"key_information" = "Key Information";
 "algorithm" = "Algorithm";
 "public_key_data" = "Public Key Data";
 "private_key_data" = "Private Key Data";
 "generate_a_new_certificate" = "Generate a New Certificate";
-"generate_a_new_certificate_alert" = "Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?";
+"generate_a_new_certificate_alert" = "Your current certificate in Mudmouth will become invalid. Do you want to generate a new certificate?";
 "import_certificate" = "Import Certificate";
-"import_certificate_alert" = "Your current certificate will become invalid in Mudmouth, do you want to import certificate?";
+"import_certificate_alert" = "Your current certificate in Mudmouth will become invalid. Do you want to import certificate?";
 "export_certificate" = "Export Certificate";
 "install_certificate" = "Install Certificate";
 "certificate_installed" = "You have installed the certificate.";
-"certificate_not_installed" = "You should install the certificate manually after downloading in Settings > General > VPN & Device Management > Downloaded Profile.";
+"certificate_not_installed" = "After downloading the certificate, you need to manually install it in Settings > General > VPN & Device Management > Downloaded Profile.";
 "trust_certificate" = "Trust Certificate";
 "certificate_trusted" = "You have trusted the certificate.";
-"certificate_not_trusted" = "You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings > Enable Full Trust For Root Certificates.";
+"certificate_not_trusted" = "After installing the certificate, you need to manually trust it in Settings > General > About > Certificate Trust Settings > Enable Full Trust For Root Certificates.";
 "root_certificate" = "Root Certificate";
 
 "invalid_certificate" = "Invalid Certificate";

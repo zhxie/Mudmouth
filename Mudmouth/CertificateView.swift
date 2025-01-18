@@ -56,7 +56,7 @@ struct CertificateView: View {
                             .multilineTextAlignment(.trailing)
                     }
                 }
-                Section("key_info") {
+                Section("key_information") {
                     HStack {
                         Text(LocalizedStringKey("algorithm"))
                         Spacer()
