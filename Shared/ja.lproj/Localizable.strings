@@ -1,0 +1,87 @@
+// Profile.
+"none" = "なし";
+"url_scheme" = "URL Scheme";
+"request" = "リクエスト";
+"request_and_response" = "リクエストとレスポンス";
+
+// ContentView.
+"profile" = "プロファイル";
+"delete" = "削除";
+"edit" = "編集";
+"new_profile" = "新しいプロファイル";
+"configure_root_certificate" = "ルート証明書を設定";
+"install_vpn" = "VPNをインストール";
+"vpn_configuration_not_installed" = "VPN構成がインストールされていません";
+"vpn_configuration_not_installed_message" = "Mudmouthはリクエストを取得するためにVPNが必要です。";
+"stop_capturing_requests" = "リクエストの取得を停止";
+"capture_requests" = "リクエストを取得";
+"notification_permission_not_granted" = "通知権限が付与されていません";
+"notification_permission_not_granted_message" = "Mudmouthは取得完了の通知や後続操作を実行するために通知権限が必要です。";
+"root_certificate_not_installed_or_trusted" = "ルート証明書がインストールされていない、または信頼されていません";
+"root_certificate_not_installed_or_trusted_message" = "MudmouthはHTTPSリクエストを取得するためにルート証明書が必要です。";
+"record" = "記録";
+
+"instruction_vpn" = "MudmouthのVPNをインストールしてリクエストを取得してください。";
+"instruction_notification" = "Mudmouthはリクエスト取得後に通知します。";
+"instruction_privacy" = "接続は常に安全であり、Mudmouthは情報を一切収集しません。";
+
+"profile_added" = "プロファイルが追加されました";
+"invalid_profile" = "プロファイルが無効です";
+"duplicate_profiles_found" = "重複するプロファイルが見つかりました";
+"profile_not_found" = "プロファイルが見つかりませんでした";
+
+// ProfileView.
+"name" = "名前";
+"url" = "URL";
+//"profile" = "プロファイル";
+"profile_notice" = "MudmouthはHTTPおよびHTTPSリクエストのみを取得できます。";
+"match" = "マッチング";
+"direction" = "データ方向";
+"pre_action" = "取得前の操作";
+"action" = "操作";
+//"url_scheme" = "URL Scheme";
+"post_action" = "取得後の操作";
+"post_action_url_scheme_notice" = "Mudmouthは取得完了後に追加パラメーター付きのURL Schemeをトリガーします。ヘッダーはURL安全なBase64形式でエンコードされます。";
+"add" = "追加";
+"save" = "保存";
+//"new_profile" = "新しい設定";
+
+// RecordView.
+//"record" = "記録";
+"date" = "日付";
+//"url" = "URL";
+//"request" = "リクエスト";
+"method" = "メソッド";
+"headers" = "ヘッダー";
+"response" = "レスポンス";
+"status" = "ステータス";
+
+// CertificateView.
+"certificate" = "証明書";
+"organization" = "組織";
+"common_name" = "通称";
+"not_valid_before" = "有効になる日付";
+"not_valid_after" = "無効になる日付";
+"key_information" = "鍵情報";
+"algorithm" = "アルゴリズム";
+"public_key_data" = "公開鍵データ";
+"private_key_data" = "秘密鍵データ";
+"generate_a_new_certificate" = "新しい証明書を生成";
+"generate_a_new_certificate_alert" = "現在のMudmouthの証明書は無効になります。新しい証明書を生成しますか？";
+"import_certificate" = "証明書をインポート";
+"import_certificate_alert" = "現在のMudmouthの証明書は無効になります。証明書をインポートしますか？";
+"export_certificate" = "証明書をエクスポート";
+"install_certificate" = "証明書をインストール";
+"certificate_installed" = "証明書がインストールされました。";
+"certificate_not_installed" = "証明書をダウンロードした後、設定 > 一般 > VPNとデバイス管理 > ダウンロード済みプロファイル　から手動でインストールしてください。";
+"trust_certificate" = "証明書を信頼";
+"certificate_trusted" = "証明書が信頼されました。";
+"certificate_not_trusted" = "証明書をインストールした後、設定 > 一般 > 情報 > 証明書信頼設定 > ルート証明書を全面的に信頼 から手動で信頼してください。";
+"root_certificate" = "ルート証明書";
+
+"invalid_certificate" = "証明書が無効です";
+"failed_to_import" = "インポートに失敗しました";
+
+// Notification.
+"request_captured" = "リクエストを取得しました";
+"request_captured_body" = "Mudmouthで続行するにはタップしてください。";
