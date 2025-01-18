@@ -16,26 +16,26 @@ struct ProfileView: View {
         NavigationView {
             List {
                 Section {
-                    TextField("Name", text: $profile.name.defaultValue(""))
-                    TextField("URL", text: $profile.url.defaultValue(""))
+                    TextField("name", text: $profile.name.defaultValue(""))
+                    TextField("url", text: $profile.url.defaultValue(""))
                         .textContentType(.URL)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                 } header: {
-                    Text("Profile")
+                    Text(LocalizedStringKey("profile"))
                 } footer: {
-                    Text("Mudmouth only supports tapping on HTTP and HTTPS requests.")
+                    Text(LocalizedStringKey("profile_notice"))
                 }
-                Section("Match") {
-                    Picker("Direction", selection: $profile.directionEnum) {
+                Section("match") {
+                    Picker("direction", selection: $profile.directionEnum) {
                         ForEach(Direction.allCases, id: \.self) { direction in
                             Text(direction.name)
                                 .tag(direction)
                         }
                     }
                 }
-                Section("Pre-Action") {
-                    Picker("Action", selection: $profile.preActionEnum) {
+                Section("pre_action") {
+                    Picker("action", selection: $profile.preActionEnum) {
                         ForEach(Action.allCases, id: \.self) { action in
                             Text(action.name)
                                 .tag(action)
@@ -43,14 +43,14 @@ struct ProfileView: View {
                     }
                     .animation(.none, value: profile.preActionEnum)
                     if profile.preActionEnum == .urlScheme {
-                        TextField("URL Scheme", text: $profile.preActionUrlScheme.defaultValue(""))
+                        TextField("url_scheme", text: $profile.preActionUrlScheme.defaultValue(""))
                             .textContentType(.URL)
                             .keyboardType(.URL)
                             .textInputAutocapitalization(.never)
                     }
                 }
                 Section {
-                    Picker("Action", selection: $profile.postActionEnum) {
+                    Picker("action", selection: $profile.postActionEnum) {
                         ForEach(Action.allCases, id: \.self) { action in
                             Text(action.name)
                                 .tag(action)
@@ -58,26 +58,26 @@ struct ProfileView: View {
                     }
                     .animation(.none, value: profile.postActionEnum)
                     if profile.postActionEnum == .urlScheme {
-                        TextField("URL Scheme", text: $profile.postActionUrlScheme.defaultValue(""))
+                        TextField("url_scheme", text: $profile.postActionUrlScheme.defaultValue(""))
                             .textContentType(.URL)
                             .keyboardType(.URL)
                             .textInputAutocapitalization(.never)
                     }
                 } header: {
-                    Text("Post-Action")
+                    Text(LocalizedStringKey("post_action"))
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
-                        Text("MudMouth will trigger the URL Scheme with additional parameters on completion. Both headers and body will be encoded in the URL-safe Base64 format.")
+                        Text("post_action_url_scheme_notice")
                     }
                 }
                 Section {
-                    Button(title.isEmpty ? "Add" : "Save", action: save)
+                    Button(title.isEmpty ? "add" : "save", action: save)
                         .disabled(!profile.isValid)
                 }
             }
             .animation(Animation.easeInOut, value: profile.preActionEnum)
             .animation(Animation.easeInOut, value: profile.postActionEnum)
-            .navigationTitle(title.isEmpty ? "New Profile" : title)
+            .navigationTitle(title.isEmpty ? "new_profile".localizedString : title)
         }
     }
 

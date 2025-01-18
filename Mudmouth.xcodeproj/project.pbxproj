@@ -22,10 +22,14 @@
 		E42FB9402ABB2D2200670B6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42FB93F2ABB2D2200670B6C /* ContentView.swift */; };
 		E42FB9422ABB2D2400670B6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42FB9412ABB2D2400670B6C /* Assets.xcassets */; };
 		E42FB9462ABB2D2400670B6C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E42FB9452ABB2D2400670B6C /* Preview Assets.xcassets */; };
+		E447C2392D3B746000696C8F /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = E447C2382D3B745F00696C8F /* String.swift */; };
+		E447C23A2D3B746000696C8F /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = E447C2382D3B745F00696C8F /* String.swift */; };
+		E447C23B2D3B764100696C8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E447C2342D3B727200696C8F /* Localizable.strings */; };
+		E447C23D2D3B7C1F00696C8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E447C2342D3B727200696C8F /* Localizable.strings */; };
 		E4662E542AC5C362008B535D /* CertificateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E532AC5C362008B535D /* CertificateView.swift */; };
 		E4662E5A2AC5D568008B535D /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = E4662E592AC5D568008B535D /* X509 */; };
 		E4662E5E2AC6EC13008B535D /* Certificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E5D2AC6EC13008B535D /* Certificate.swift */; };
-		E4662E602AC6EE10008B535D /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E5F2AC6EE10008B535D /* String.swift */; };
+		E4662E602AC6EE10008B535D /* String+Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E5F2AC6EE10008B535D /* String+Components.swift */; };
 		E4662E622AC71D5C008B535D /* NIOHTTP1 in Frameworks */ = {isa = PBXBuildFile; productRef = E4662E612AC71D5C008B535D /* NIOHTTP1 */; };
 		E4662E642AC71DBA008B535D /* CertificateServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E632AC71DBA008B535D /* CertificateServer.swift */; };
 		E4662E662AC72676008B535D /* VPN.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4662E652AC72676008B535D /* VPN.swift */; };
@@ -92,9 +96,11 @@
 		E42FB9412ABB2D2400670B6C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E42FB9432ABB2D2400670B6C /* Mudmouth.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mudmouth.entitlements; sourceTree = "<group>"; };
 		E42FB9452ABB2D2400670B6C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E447C2352D3B727200696C8F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E447C2382D3B745F00696C8F /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		E4662E532AC5C362008B535D /* CertificateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateView.swift; sourceTree = "<group>"; };
 		E4662E5D2AC6EC13008B535D /* Certificate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Certificate.swift; sourceTree = "<group>"; };
-		E4662E5F2AC6EE10008B535D /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		E4662E5F2AC6EE10008B535D /* String+Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Components.swift"; sourceTree = "<group>"; };
 		E4662E632AC71DBA008B535D /* CertificateServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateServer.swift; sourceTree = "<group>"; };
 		E4662E652AC72676008B535D /* VPN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPN.swift; sourceTree = "<group>"; };
 		E4662E672AC7270E008B535D /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
@@ -217,7 +223,7 @@
 				E49A98A42D39549E003527B8 /* Date.swift */,
 				E4662E672AC7270E008B535D /* Notification.swift */,
 				E49A98AB2D395E65003527B8 /* Persistence+Preview.swift */,
-				E4662E5F2AC6EE10008B535D /* String.swift */,
+				E4662E5F2AC6EE10008B535D /* String+Components.swift */,
 				E4662E652AC72676008B535D /* VPN.swift */,
 			);
 			path = Utils;
@@ -239,6 +245,7 @@
 				E49A98A02D39432B003527B8 /* Models */,
 				E49A98AA2D395AE0003527B8 /* Utils */,
 				E42FB93C2ABB2D2200670B6C /* Mudmouth.xcdatamodeld */,
+				E447C2342D3B727200696C8F /* Localizable.strings */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -255,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				E42FB93A2ABB2D2200670B6C /* Persistence.swift */,
+				E447C2382D3B745F00696C8F /* String.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -376,6 +384,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E447C23D2D3B7C1F00696C8F /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,6 +393,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E42FB9462ABB2D2400670B6C /* Preview Assets.xcassets in Resources */,
+				E447C23B2D3B764100696C8F /* Localizable.strings in Resources */,
 				E42FB9422ABB2D2400670B6C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -397,6 +407,7 @@
 			files = (
 				E4AEE6652AD18390006B96EA /* HTTP.swift in Sources */,
 				E49A98A62D39585C003527B8 /* Persistence.swift in Sources */,
+				E447C23A2D3B746000696C8F /* String.swift in Sources */,
 				E49A98B02D3A25D2003527B8 /* Record.swift in Sources */,
 				E4662E8D2AC95A27008B535D /* HTTPHeaders.swift in Sources */,
 				E425B8EA2ABC27E500776F46 /* PacketTunnelProvider.swift in Sources */,
@@ -413,6 +424,7 @@
 			files = (
 				E42FB9392ABB2D2200670B6C /* MudmouthApp.swift in Sources */,
 				E42FB93E2ABB2D2200670B6C /* Mudmouth.xcdatamodeld in Sources */,
+				E447C2392D3B746000696C8F /* String.swift in Sources */,
 				E4662E662AC72676008B535D /* VPN.swift in Sources */,
 				E42FB9402ABB2D2200670B6C /* ContentView.swift in Sources */,
 				E49A98AC2D395E69003527B8 /* Persistence+Preview.swift in Sources */,
@@ -421,7 +433,7 @@
 				E4662E642AC71DBA008B535D /* CertificateServer.swift in Sources */,
 				E49A98AE2D3A1B4F003527B8 /* RecordView.swift in Sources */,
 				E425B8D22ABC035200776F46 /* DataOperation.swift in Sources */,
-				E4662E602AC6EE10008B535D /* String.swift in Sources */,
+				E4662E602AC6EE10008B535D /* String+Components.swift in Sources */,
 				E4662E5E2AC6EC13008B535D /* Certificate.swift in Sources */,
 				E49A98A12D394380003527B8 /* Constant.swift in Sources */,
 				E4662E682AC7270E008B535D /* Notification.swift in Sources */,
@@ -442,6 +454,17 @@
 			targetProxy = E425B8ED2ABC27E500776F46 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		E447C2342D3B727200696C8F /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E447C2352D3B727200696C8F /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		E425B8F12ABC27E500776F46 /* Debug */ = {

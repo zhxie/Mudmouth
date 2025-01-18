@@ -26,46 +26,46 @@ struct CertificateView: View {
     var body: some View {
         NavigationView {
             List {
-                Section("Certificate") {
+                Section("certificate") {
                     HStack {
-                        Text("Organization")
+                        Text(LocalizedStringKey("organization"))
                         Spacer()
                         Text(certificate.orgnization)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
                     HStack {
-                        Text("Common Name")
+                        Text(LocalizedStringKey("common_name"))
                         Spacer()
                         Text(certificate.commonName)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
                     HStack {
-                        Text("Not Valid Before")
+                        Text(LocalizedStringKey("not_valid_before"))
                         Spacer()
                         Text(certificate.notValidBefore.formatted())
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
                     HStack {
-                        Text("Not Valid After")
+                        Text(LocalizedStringKey("not_valid_after"))
                         Spacer()
                         Text(certificate.notValidAfter.formatted())
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
                 }
-                Section("Key Info") {
+                Section("key_info") {
                     HStack {
-                        Text("Algorithm")
+                        Text(LocalizedStringKey("algorithm"))
                         Spacer()
-                        Text("\(certificate.signature.description) Encryption")
+                        Text(certificate.signature.description)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
                     VStack(alignment: .leading) {
-                        Text("Public Key Data")
+                        Text(LocalizedStringKey("public_key_data"))
                         Spacer()
                             .frame(height: 8)
                         Text(privateKey.publicKey.rawRepresentation.hex())
@@ -74,7 +74,7 @@ struct CertificateView: View {
                             .textSelection(.enabled)
                     }
                     VStack(alignment: .leading) {
-                        Text("Private Key Data")
+                        Text(LocalizedStringKey("private_key_data"))
                         Spacer()
                             .frame(height: 8)
                         Text(privateKey.rawRepresentation.hex())
@@ -84,13 +84,13 @@ struct CertificateView: View {
                     }
                 }
                 Section {
-                    Button("Generate a New Certificate", action: regenerateCertificate)
+                    Button("generate_a_new_certificate", action: regenerateCertificate)
                         .alert(isPresented: $showRegenerateCertificateAlert) {
-                            Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to generate a new certificate?"), primaryButton: .destructive(Text("OK"), action: continueRegeneratingCertificate), secondaryButton: .cancel())
+                            Alert(title: Text(LocalizedStringKey("generate_a_new_certificate_alert")), primaryButton: .destructive(Text("OK"), action: continueRegeneratingCertificate), secondaryButton: .cancel())
                         }
-                    Button("Import Certificate", action: importCertificate)
+                    Button("import_certificate", action: importCertificate)
                         .alert(isPresented: $showImportCertificateAlert) {
-                            Alert(title: Text("Your current certificate will become invalid in Mudmouth, do you want to import certificate?"), primaryButton: .destructive(Text("OK"), action: continueImportingCertificate), secondaryButton: .cancel())
+                            Alert(title: Text(LocalizedStringKey("import_certificate_alert")), primaryButton: .destructive(Text("OK"), action: continueImportingCertificate), secondaryButton: .cancel())
                         }
                         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.x509Certificate]) { result in
                             switch result {
@@ -100,28 +100,28 @@ struct CertificateView: View {
                                     self.certificate = certificate
                                     self.privateKey = privateKey
                                 } else {
-                                    AlertKitAPI.present(title: "Invalid Certificate", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                    AlertKitAPI.present(title: "invalid_certificate".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                 }
                                 break
                             case .failure:
-                                AlertKitAPI.present(title: "Failed to Import", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                AlertKitAPI.present(title: "failed_to_import".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                             }
                         }
-                    Button("Export Certificate", action: exportCertificate)
+                    Button("export_certificate", action: exportCertificate)
                         .fileExporter(isPresented: $showExporter, document: PEMFile(certificate: certificate, privateKey: privateKey), contentType: .x509Certificate, defaultFilename: certificate.commonName) { _ in }
                 }
                 Section {
-                    Button("Install Certificate", action: installCertificate)
+                    Button("install_certificate", action: installCertificate)
                 } footer: {
-                    Text(isCertificateInstalled ? "You have installed the certificate." : "You should install the certificate manually after downloading in Settings > General > VPN & Device Management > Downloaded Profile.")
+                    Text(LocalizedStringKey(isCertificateInstalled ? "certificate_installed" : "certificate_not_installed"))
                 }
                 Section {
-                    Button("Trust Certificate", action: trustCertificate)
+                    Button("trust_certificate", action: trustCertificate)
                 } footer: {
-                    Text(isCertificateTrusted ? "You have trusted the certificate." : "You should trust the certificate manually after installation in Settings > General > About > Certificate Trust Settings > Enable Full Trust For Root Certificates.")
+                    Text(isCertificateTrusted ? "certificate_trusted" : "certificate_not_trusted")
                 }
             }
-            .navigationTitle("Root Certificate")
+            .navigationTitle("root_certificate")
         }
     }
 

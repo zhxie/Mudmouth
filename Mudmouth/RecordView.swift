@@ -10,16 +10,16 @@ struct RecordView: View {
     var body: some View {
         NavigationView {
             List {
-                Section("Record") {
+                Section("record") {
                     HStack {
-                        Text("Date")
+                        Text(LocalizedStringKey("date"))
                         Spacer()
                         Text(record.date!.format())
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
                     VStack(alignment: .leading) {
-                        Text("URL")
+                        Text(LocalizedStringKey("url"))
                         Spacer()
                             .frame(height: 8)
                         Text(record.url!)
@@ -27,10 +27,10 @@ struct RecordView: View {
                             .textSelection(.enabled)
                     }
                 }
-                Section("Request") {
+                Section("request") {
                     if let method = record.method, !method.isEmpty {
                         HStack {
-                            Text("Method")
+                            Text(LocalizedStringKey("method"))
                             Spacer()
                             Text(method)
                                 .foregroundColor(.secondary)
@@ -38,7 +38,7 @@ struct RecordView: View {
                         }
                     }
                     VStack(alignment: .leading) {
-                        Text("Headers")
+                        Text(LocalizedStringKey("headers"))
                         Spacer()
                             .frame(height: 8)
                         Text(record.requestHeaders!)
@@ -47,10 +47,10 @@ struct RecordView: View {
                     }
                 }
                 if let responseHeaders = record.responseHeaders {
-                    Section("Response") {
+                    Section("response") {
                         if record.status > 0 {
                             HStack {
-                                Text("Status")
+                                Text(LocalizedStringKey("status"))
                                 Spacer()
                                 Text("\(record.status)")
                                     .foregroundColor(.secondary)
@@ -58,7 +58,7 @@ struct RecordView: View {
                             }
                         }
                         VStack(alignment: .leading) {
-                            Text("Headers")
+                            Text(LocalizedStringKey("headers"))
                             Spacer()
                                 .frame(height: 8)
                             Text(responseHeaders)
@@ -68,7 +68,7 @@ struct RecordView: View {
                     }
                 }
             }
-            .navigationTitle("Record")
+            .navigationTitle("record")
         }
     }
 }

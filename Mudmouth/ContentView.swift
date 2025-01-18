@@ -48,7 +48,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                Section("Profile") {
+                Section("profile") {
                     ForEach(profiles, id: \.self) { profile in
                         Button {
                             withAnimation {
@@ -69,12 +69,12 @@ struct ContentView: View {
                             Button(role: .destructive) {
                                 deleteProfile(profile)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("delete", systemImage: "trash")
                             }
                             Button {
                                 updateProfile(profile)
                             } label: {
-                                Label("Edit", systemImage: "square.and.pencil")
+                                Label("edit", systemImage: "square.and.pencil")
                             }
                             .tint(Color(UIColor.systemOrange))
                         }
@@ -82,43 +82,42 @@ struct ContentView: View {
                             Button {
                                 updateProfile(profile)
                             } label: {
-                                Label("Edit", systemImage: "square.and.pencil")
+                                Label("edit", systemImage: "square.and.pencil")
                             }
                             Button(role: .destructive) {
                                 deleteProfile(profile)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("delete", systemImage: "trash")
                             }
                         }
                     }
-                    Button("New Profile", action: createProfile)
+
+                    Button("new_profile", action: createProfile)
                 }
                 .animation(.none, value: selectedProfile)
-                if isHTTPS {
-                    Section("MitM") {
-                        Button("Configure Root Certificate", action: toggleCertificate)
+                Section {
+                    if isHTTPS {
+                        Button("configure_root_certificate", action: toggleCertificate)
                             .sheet(isPresented: $showCertificate) {
                                 CertificateView()
                             }
                     }
-                }
-                Section("Tap") {
                     if manager == nil {
-                        Button("Install VPN", action: install)
+                        Button("install_vpn", action: install)
                             .alert(isPresented: $showVPNAlert) {
-                                Alert(title: Text("VPN Configuration Not Installed"), message: Text("Mudmouth requires VPN to capture requests."), dismissButton: .default(Text("OK")))
+                                Alert(title: Text(LocalizedStringKey("vpn_configuration_not_installed")), message: Text(LocalizedStringKey("vpn_configuration_not_installed_message")), dismissButton: .default(Text("OK")))
                             }
                     } else {
                         if status == .connected {
-                            Button("Stop Capturing Requests", action: stopCapturingRequest)
+                            Button("stop_capturing_requests", action: stopCapturingRequest)
                         } else {
-                            Button("Capture Requests", action: captureRequest)
+                            Button("capture_requests", action: captureRequest)
                                 .disabled(
                                     selectedProfile == nil || !selectedProfile!.isValid || status != .disconnected
                                 )
                                 .alert(isPresented: $showNotificationAlert) {
                                     Alert(
-                                        title: Text("Notification Permission Not Granted"), message: Text("Mudmouth requires notification permission to notify completion and perform post-action."),
+                                        title: Text(LocalizedStringKey("notification_permission_not_granted")), message: Text(LocalizedStringKey("notification_permission_not_granted_message")),
                                         dismissButton: .default(Text("OK")) {
                                             if #available(iOS 16, *) {
                                                 UIApplication.shared.open(URL(string: UIApplication.openNotificationSettingsURLString)!)
@@ -129,7 +128,7 @@ struct ContentView: View {
                                 }
                                 .alert(isPresented: $showRootCertificateAlert) {
                                     Alert(
-                                        title: Text("Root Certificate Not Installed or Trusted"), message: Text("Mudmouth requires root certificate to inject requests."),
+                                        title: Text(LocalizedStringKey("root_certificate_not_installed_or_trusted")), message: Text(LocalizedStringKey("root_certificate_not_installed_or_trusted_message")),
                                         dismissButton: .default(Text("OK")) {
                                             toggleCertificate()
                                         })
@@ -138,7 +137,7 @@ struct ContentView: View {
                     }
                 }
                 if !records.isEmpty {
-                    Section("Record") {
+                    Section("record") {
                         ForEach(records, id: \.self) { record in
                             Button {
                                 showRecord(record)
@@ -188,7 +187,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                                 .frame(width: 16)
-                            Text("Install the VPN of Mudmouth to capture requests.")
+                            Text(LocalizedStringKey("instruction_vpn"))
                                 .font(.system(size: 15, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -201,7 +200,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                                 .frame(width: 16)
-                            Text("Mudmouth will notify you once the request has been captured.")
+                            Text(LocalizedStringKey("instruction_notification"))
                                 .font(.system(size: 15, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -214,7 +213,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                                 .frame(width: 16)
-                            Text("Your connection is always secure, and Mudmouth never collects any information.")
+                            Text(LocalizedStringKey("instruction_privacy"))
                                 .font(.system(size: 15, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -284,11 +283,11 @@ struct ContentView: View {
                             let profile = Profile(context: viewContext, queries: queries)
                             if profile.isValid {
                                 save()
-                                AlertKitAPI.present(title: "Profile Added", icon: .done, style: .iOS17AppleMusic, haptic: .success)
+                                AlertKitAPI.present(title: "profile_added".localizedString, icon: .done, style: .iOS17AppleMusic, haptic: .success)
                             } else {
                                 viewContext.delete(profile)
                                 save()
-                                AlertKitAPI.present(title: "Invalid Profile", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                AlertKitAPI.present(title: "invalid_profile".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                             }
                         }
                     case "capture":
@@ -302,14 +301,14 @@ struct ContentView: View {
                                 let fetchedResults = try? viewContext.fetch(fetchRequest)
                                 if let profiles = fetchedResults {
                                     if profiles.count > 1 {
-                                        AlertKitAPI.present(title: "Multiple Profiles Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                        AlertKitAPI.present(title: "multiple_profiles_found".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                     } else if let profile = profiles.first {
                                         selectedProfile = profile
                                         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
                                             captureRequest()
                                         }
                                     } else {
-                                        AlertKitAPI.present(title: "Profile Not Found", icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                        AlertKitAPI.present(title: "profile_not_found".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                     }
                                 }
                             }

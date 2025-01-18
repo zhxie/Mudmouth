@@ -1,16 +1,16 @@
 import CoreData
-import Foundation
+import SwiftUI
 
 enum Action: Int16, CaseIterable {
     case none = 0
     case urlScheme = 1
 
-    var name: String {
+    var name: LocalizedStringKey {
         switch self {
         case .none:
-            return "None"
+            return "none"
         case .urlScheme:
-            return "URL Scheme"
+            return "url_scheme"
         }
     }
 }
@@ -19,12 +19,12 @@ enum Direction: Int16, CaseIterable {
     case request = 0
     case requestAndResponse = 1
 
-    var name: String {
+    var name: LocalizedStringKey {
         switch self {
         case .request:
-            return "Request"
+            return "request"
         case .requestAndResponse:
-            return "Request & Response"
+            return "request_and_response"
         }
     }
 }
