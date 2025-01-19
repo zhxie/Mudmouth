@@ -28,7 +28,7 @@
 
 "profile_added" = "配置已添加";
 "invalid_profile" = "无效配置";
-"duplicate_profiles_found" = "重复配置";
+"duplicate_profiles_found" = "配置%1$@重复";
 "profile_not_found" = "未找到配置";
 "mudmouth_is_already_capturing" = "Mudmouth已在捕获";
 

@@ -304,7 +304,7 @@ struct ContentView: View {
                                     let fetchedResults = try? viewContext.fetch(fetchRequest)
                                     if let profiles = fetchedResults {
                                         if profiles.count > 1 {
-                                            AlertKitAPI.present(title: "duplicate_profiles_found".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                            AlertKitAPI.present(title: String(format: "duplicate_profiles_found".localizedString, name), icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                         } else if let profile = profiles.first {
                                             selectedProfile = profile
                                             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
