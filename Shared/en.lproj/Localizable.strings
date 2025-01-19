@@ -30,6 +30,7 @@
 "invalid_profile" = "Invalid Profile";
 "duplicate_profiles_found" = "Duplicate Profiles Found";
 "profile_not_found" = "Profile Not Found";
+"mudmouth_is_already_capturing" = "Mudmouth is Already Capturing";
 
 // ProfileView.
 "name" = "Name";

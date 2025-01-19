@@ -4,6 +4,22 @@ import NetworkExtension
 import OSLog
 import X509
 
+extension NEVPNStatus {
+    var running: Bool {
+        switch self {
+        case .invalid:
+        case .disconnected:
+            return false
+        case .connecting:
+        case .connected:
+        case .reasserting:
+        case .disconnecting:
+        @unknown default:
+            return true
+        }
+    }
+}
+
 func installVPN(_ completion: @escaping (_ error: Error?) -> Void) {
     let manager = NETunnelProviderManager()
     manager.localizedDescription = "Mudmouth"

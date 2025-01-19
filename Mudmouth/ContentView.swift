@@ -23,7 +23,6 @@ struct ContentView: View {
 
     @State private var manager: NETunnelProviderManager?
     @State private var vpnObserver: AnyObject?
-    @State private var isEnabled: Bool = false
     @State private var status: NEVPNStatus = .invalid
 
     @State private var showVPNAlert = false
@@ -51,8 +50,10 @@ struct ContentView: View {
                 Section("profile") {
                     ForEach(profiles, id: \.self) { profile in
                         Button {
-                            withAnimation {
-                                selectedProfile = profile
+                            if !status.running {
+                                withAnimation {
+                                    selectedProfile = profile
+                                }
                             }
                         } label: {
                             HStack {
@@ -90,6 +91,7 @@ struct ContentView: View {
                                 Label("delete", systemImage: "trash")
                             }
                         }
+                        .disabled(status.running && selectedProfile == profile)
                     }
 
                     Button("new_profile", action: createProfile)
@@ -291,27 +293,31 @@ struct ContentView: View {
                             }
                         }
                     case "capture":
-                        let components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
-                        if let queries = components.queryItems {
-                            if let name = queries.first(where: { item in
-                                item.name == "name"
-                            })?.value {
-                                let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
-                                fetchRequest.predicate = NSPredicate(format: "name == %@", name)
-                                let fetchedResults = try? viewContext.fetch(fetchRequest)
-                                if let profiles = fetchedResults {
-                                    if profiles.count > 1 {
-                                        AlertKitAPI.present(title: "duplicate_profiles_found".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
-                                    } else if let profile = profiles.first {
-                                        selectedProfile = profile
-                                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
-                                            captureRequest()
+                        if !status.running {
+                            let components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+                            if let queries = components.queryItems {
+                                if let name = queries.first(where: { item in
+                                    item.name == "name"
+                                })?.value {
+                                    let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
+                                    fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+                                    let fetchedResults = try? viewContext.fetch(fetchRequest)
+                                    if let profiles = fetchedResults {
+                                        if profiles.count > 1 {
+                                            AlertKitAPI.present(title: "duplicate_profiles_found".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
+                                        } else if let profile = profiles.first {
+                                            selectedProfile = profile
+                                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                                                captureRequest()
+                                            }
+                                        } else {
+                                            AlertKitAPI.present(title: "profile_not_found".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                         }
-                                    } else {
-                                        AlertKitAPI.present(title: "profile_not_found".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                                     }
                                 }
                             }
+                        } else {
+                            AlertKitAPI.present(title: "mudmouth_is_already_capturing".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
                         }
                     default:
                         break
