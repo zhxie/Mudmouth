@@ -1,6 +1,7 @@
 // Profile.
 "none" = "なし";
 "url_scheme" = "URL Scheme";
+"shortcut" = "ショートカット";
 "request" = "リクエスト";
 "request_and_response" = "リクエストとレスポンス";
 
@@ -40,8 +41,10 @@
 "pre_action" = "取得前の操作";
 "action" = "操作";
 //"url_scheme" = "URL Scheme";
+//"shortcut" = "ショートカット";
 "post_action" = "取得後の操作";
-"post_action_url_scheme_notice" = "Mudmouthは取得完了後に追加パラメーター付きのURL Schemeをトリガーします。ヘッダーはURL安全なBase64形式でエンコードされます。";
+"post_action_url_scheme_notice" = "Mudmouthは取得完了後にrequestHeadersとresponseHeadersパラメーター付きのURL Schemeをトリガーします。ヘッダーはURL安全なBase64形式でエンコードされます。";
+"post_action_shortcut_notice" = "Mudmouthは取得完了後にtextパラメーター付きのショートカットをトリガーします。ヘッダーはJSON形式でエンコードされます。";
 "add" = "追加";
 "save" = "保存";
 //"new_profile" = "新しい設定";

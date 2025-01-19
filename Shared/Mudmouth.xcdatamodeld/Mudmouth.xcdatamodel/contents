@@ -4,8 +4,10 @@
         <attribute name="direction" optional="YES" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="postAction" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="postActionShortcut" optional="YES" attributeType="String"/>
         <attribute name="postActionUrlScheme" optional="YES" attributeType="String"/>
         <attribute name="preAction" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="preActionShortcut" optional="YES" attributeType="String"/>
         <attribute name="preActionUrlScheme" optional="YES" attributeType="String"/>
         <attribute name="url" optional="YES" attributeType="String"/>
     </entity>

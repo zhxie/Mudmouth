@@ -1,6 +1,7 @@
 // Profile.
 "none" = "无";
 "url_scheme" = "URL Scheme";
+"shortcut" = "快捷指令";
 "request" = "请求";
 "request_and_response" = "请求与响应";
 
@@ -40,8 +41,10 @@
 "pre_action" = "捕获前执行";
 "action" = "执行";
 //"url_scheme" = "URL Scheme";
+//"shortcut" = "快捷指令";
 "post_action" = "捕获后执行";
-"post_action_url_scheme_notice" = "Mudmouth将在捕获完成后触发带有额外参数的URL Scheme。标头将以URL安全的Base64格式编码。";
+"post_action_url_scheme_notice" = "Mudmouth将在捕获完成后触发带有requestHeaders与responseHeaders参数的URL Scheme。标头将以URL安全的Base64格式编码。";
+"post_action_shortcut_notice" = "Mudmouth将在捕获完成后触发带有text参数的快捷指令。标头将以JSON格式编码。";
 "add" = "添加";
 "save" = "保存";
 //"new_profile" = "新配置";

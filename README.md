@@ -22,18 +22,26 @@ mudmouth://add?name=<NAME>&url=<URL>[&direction=<DIRECTION>][&preAction=<ACTION>
 mudmouth://capture?name=<NAME>
 ```
 
-### On Completion
+### Parameters
+
+| Parameter | Options                                           |
+|-----------|---------------------------------------------------|
+| ACTION    | 0: None (Default)<br>1: URL Scheme<br>2: Shortcut |
+| DIRECTION | 0: Request<br>1: Request & Response (Default)     |
+
+## On Completion
+
+### URL Scheme
 
 ```
 <URL>?requestHeaders=<REQUEST_HEADERS>&responseHeaders=<RESPONSE_HEADERS>
 ```
 
-### Parameters
+### Shortcut
 
-| Parameter | Options                                       |
-|-----------|-----------------------------------------------|
-| ACTION    | 0: None (Default)<br>1: URL Scheme            |
-| DIRECTION | 0: Request<br>1: Request & Response (Default) |
+```
+shortcuts://run-shortcut?name=<NAME>&input=text&text={"requestHeaders":<REQUEST_HEADERS>,"responseHeaders":<RESPONSE_HEADERS>}
+```
 
 ## License
 

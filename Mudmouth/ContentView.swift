@@ -413,6 +413,10 @@ struct ContentView: View {
                     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
                         UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
                     }
+                case .shortcut:
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                        UIApplication.shared.open(URL(string: "shortcuts://run-shortcut?name=\(selectedProfile!.preActionShortcut!)")!)
+                    }
                 }
             }
         }
@@ -428,7 +432,7 @@ struct ContentView: View {
             case .none:
                 break
             case .urlScheme:
-                var scheme = URL(string: selectedProfile.postActionUrlScheme!)!
+                let scheme = URL(string: selectedProfile.postActionUrlScheme!)!
                 let encoded = requestHeaders.data(using: .utf8)!.urlSafeBase64EncodedString()
                 var components = URLComponents(url: scheme, resolvingAgainstBaseURL: true)!
                 if components.queryItems == nil {
@@ -439,8 +443,15 @@ struct ContentView: View {
                     let encoded = responseHeaders.data(using: .utf8)!.urlSafeBase64EncodedString()
                     components.queryItems!.append(URLQueryItem(name: "responseHeaders", value: encoded))
                 }
-                scheme = components.url!
-                UIApplication.shared.open(scheme)
+                UIApplication.shared.open(components.url!)
+            case .shortcut:
+                var json = ["requestHeaders": requestHeaders]
+                if let responseHeaders = responseHeaders {
+                    json.updateValue(responseHeaders, forKey: "responseHeaders")
+                }
+                let data = try! JSONSerialization.data(withJSONObject: json)
+                let text = String(data: data, encoding: .utf8)!
+                UIApplication.shared.open(URL(string: "shortcuts://run-shortcut?name=\(selectedProfile.postActionShortcut!)&input=text&text=\(text)")!)
             }
         }
     }

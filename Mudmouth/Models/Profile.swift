@@ -4,6 +4,7 @@ import SwiftUI
 enum Action: Int16, CaseIterable {
     case none = 0
     case urlScheme = 1
+    case shortcut = 2
 
     var name: LocalizedStringKey {
         switch self {
@@ -11,6 +12,8 @@ enum Action: Int16, CaseIterable {
             return "none"
         case .urlScheme:
             return "url_scheme"
+        case .shortcut:
+            return "shortcut"
         }
     }
 }
@@ -85,12 +88,20 @@ extension Profile {
             if URL(string: preActionUrlScheme ?? "") == nil {
                 return false
             }
+        case .shortcut:
+            if (preActionShortcut ?? "").isEmpty {
+                return false
+            }
         }
         switch postActionEnum {
         case .none:
             break
         case .urlScheme:
             if URL(string: postActionUrlScheme ?? "") == nil {
+                return false
+            }
+        case .shortcut:
+            if (postActionShortcut ?? "").isEmpty {
                 return false
             }
         }

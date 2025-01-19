@@ -1,6 +1,7 @@
 // Profile.
 "none" = "None";
 "url_scheme" = "URL Scheme";
+"shortcut" = "Shortcut";
 "request" = "Request";
 "request_and_response" = "Request & Response";
 
@@ -40,8 +41,10 @@
 "pre_action" = "Pre-Action";
 "action" = "Action";
 //"url_scheme" = "URL Scheme";
+//"shortcut" = "Shortcut";
 "post_action" = "Post-Action";
-"post_action_url_scheme_notice" = "Mudmouth will trigger the URL Scheme with additional parameters on completion. Headers will be encoded in the URL-safe Base64 format.";
+"post_action_url_scheme_notice" = "Mudmouth will trigger the URL Scheme with requestHeaders and responseHeaders parameters on completion. Headers will be encoded in the URL-safe Base64 format.";
+"post_action_shortcut_notice" = "Mudmouth will trigger the Shortcut with text parameter. Headers will be encoded in the JSON format.";
 "add" = "Add";
 "save" = "Save";
 //"new_profile" = "New Profile";

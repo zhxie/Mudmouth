@@ -47,6 +47,8 @@ struct ProfileView: View {
                             .textContentType(.URL)
                             .keyboardType(.URL)
                             .textInputAutocapitalization(.never)
+                    } else if profile.preActionEnum == .shortcut {
+                        TextField("shortcut", text: $profile.preActionShortcut.defaultValue(""))
                     }
                 }
                 Section {
@@ -62,12 +64,16 @@ struct ProfileView: View {
                             .textContentType(.URL)
                             .keyboardType(.URL)
                             .textInputAutocapitalization(.never)
+                    } else if profile.postActionEnum == .shortcut {
+                        TextField("shortcut", text: $profile.postActionShortcut.defaultValue(""))
                     }
                 } header: {
                     Text(LocalizedStringKey("post_action"))
                 } footer: {
                     if profile.postActionEnum == .urlScheme {
                         Text("post_action_url_scheme_notice")
+                    } else if profile.postActionEnum == .shortcut {
+                        Text("post_action_shortcut_notice")
                     }
                 }
                 Section {
