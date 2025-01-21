@@ -13,24 +13,24 @@
 "configure_root_certificate" = "配置根证书";
 "install_vpn" = "安装VPN";
 "vpn_configuration_not_installed" = "VPN配置未安装";
-"vpn_configuration_not_installed_message" = "Mudmouth需要VPN以捕获请求。";
+"vpn_configuration_not_installed_message" = "Mudmouth需要VPN才能捕获请求。";
 "stop_capturing_requests" = "停止捕获请求";
 "capture_requests" = "捕获请求";
 "notification_permission_not_granted" = "未授予通知权限";
-"notification_permission_not_granted_message" = "Mudmouth需要通知权限以通知捕获完成并执行后续操作。";
+"notification_permission_not_granted_message" = "Mudmouth需要通知权限，以便通知捕获完成并执行后续操作。";
 "root_certificate_not_installed_or_trusted" = "根证书未安装或未被信任";
-"root_certificate_not_installed_or_trusted_message" = "Mudmouth需要根证书以捕获HTTPS请求。";
+"root_certificate_not_installed_or_trusted_message" = "Mudmouth需要根证书才能捕获HTTPS请求。";
 "record" = "记录";
 
 "instruction_vpn" = "安装Mudmouth VPN以捕获请求。";
-"instruction_notification" = "Mudmouth将在捕获请求后通知您。";
-"instruction_privacy" = "您的连接始终安全，Mudmouth从不收集任何信息。";
+"instruction_notification" = "Mudmouth会在请求捕获后通知您。";
+"instruction_privacy" = "您的连接始终安全，Mudmouth不会收集任何信息。";
 
 "profile_added" = "配置已添加";
 "invalid_profile" = "无效配置";
 "duplicate_profiles_found" = "配置%1$@重复";
 "profile_not_found" = "未找到配置";
-"mudmouth_is_already_capturing" = "Mudmouth已在捕获";
+"mudmouth_is_already_capturing" = "Mudmouth已在捕获请求";
 "vpn_not_installed" = "VPN未安装";
 
 // ProfileView.
@@ -40,13 +40,13 @@
 "profile_notice" = "Mudmouth仅支持捕获HTTP与HTTPS请求。";
 "match" = "匹配";
 "direction" = "数据方向";
-"pre_action" = "捕获前执行";
-"action" = "执行";
+"pre_action" = "捕获前操作";
+"action" = "执行操作";
 //"url_scheme" = "URL Scheme";
 //"shortcut" = "快捷指令";
-"post_action" = "捕获后执行";
-"post_action_url_scheme_notice" = "Mudmouth将在捕获完成后触发带有requestHeaders与responseHeaders参数的URL Scheme。标头将以URL安全的Base64格式编码。";
-"post_action_shortcut_notice" = "Mudmouth将在捕获完成后触发带有text参数的快捷指令。标头将以JSON格式编码。";
+"post_action" = "捕获后操作";
+"post_action_url_scheme_notice" = "Mudmouth将在捕获完成后触发带有requestHeaders与responseHeaders参数的URL Scheme。标头会以URL安全的Base64格式编码。";
+"post_action_shortcut_notice" = "Mudmouth将在捕获完成后触发带有text参数的快捷指令。标头会以JSON格式编码。";
 "add" = "添加";
 "save" = "保存";
 //"new_profile" = "新配置";
@@ -72,9 +72,9 @@
 "public_key_data" = "公钥数据";
 "private_key_data" = "私钥数据";
 "generate_a_new_certificate" = "生成新证书";
-"generate_a_new_certificate_alert" = "您当前在Mudmouth中的证书将失效，是否继续生成新证书？";
+"generate_a_new_certificate_alert" = "您目前在Mudmouth中的证书将失效，是否继续生成新证书？";
 "import_certificate" = "导入证书";
-"import_certificate_alert" = "您当前在Mudmouth中的证书将失效，是否继续导入证书？";
+"import_certificate_alert" = "您目前在Mudmouth中的证书将失效，是否继续导入证书？";
 "export_certificate" = "导出证书";
 "install_certificate" = "安装证书";
 "certificate_installed" = "您已安装证书。";

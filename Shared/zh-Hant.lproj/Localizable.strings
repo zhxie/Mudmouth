@@ -12,41 +12,41 @@
 "new_profile" = "新增設定";
 "configure_root_certificate" = "設定根憑證";
 "install_vpn" = "安裝VPN";
-"vpn_configuration_not_installed" = "VPN設定未安装";
-"vpn_configuration_not_installed_message" = "Mudmouth需要VPN以捕獲請求。";
-"stop_capturing_requests" = "停止捕獲請求";
-"capture_requests" = "捕獲請求";
+"vpn_configuration_not_installed" = "VPN設定尚未安装";
+"vpn_configuration_not_installed_message" = "Mudmouth需要VPN來捕捉請求。";
+"stop_capturing_requests" = "停止捕捉請求";
+"capture_requests" = "捕捉請求";
 "notification_permission_not_granted" = "未授予通知權限";
-"notification_permission_not_granted_message" = "Mudmouth需要通知權限以通知捕獲完成並執行後續操作。";
+"notification_permission_not_granted_message" = "Mudmouth需要通知權限，以便通知捕捉完成並執行後續操作。";
 "root_certificate_not_installed_or_trusted" = "根憑證未安裝或未被信任";
-"root_certificate_not_installed_or_trusted_message" = "Mudmouth需要根憑證以捕獲HTTPS請求。";
+"root_certificate_not_installed_or_trusted_message" = "Mudmouth需要根憑證來捕捉HTTPS請求。";
 "record" = "記錄";
 
-"instruction_vpn" = "安裝Mudmouth VPN以捕獲請求。";
-"instruction_notification" = "Mudmouth會在捕獲請求後通知您。";
-"instruction_privacy" = "您的連線始終安全，Mudmouth絕不收集任何信息。";
+"instruction_vpn" = "安裝Mudmouth VPN以捕捉請求。";
+"instruction_notification" = "Mudmouth會在請求捕捉後通知您。";
+"instruction_privacy" = "您的連線始終安全，Mudmouth不會收集任何資訊。";
 
 "profile_added" = "設定已新增";
 "invalid_profile" = "無效設定";
 "duplicate_profiles_found" = "設定%1$@重複";
 "profile_not_found" = "未找到設定";
-"mudmouth_is_already_capturing" = "Mudmouth正在捕獲";
+"mudmouth_is_already_capturing" = "Mudmouth已在進行請求捕捉";
 "vpn_not_installed" = "VPN未安裝";
 
 // ProfileView.
 "name" = "名稱";
 "url" = "URL";
 //"profile" = "設定";
-"profile_notice" = "Mudmouth僅支持捕獲HTTP與HTTPS請求。";
+"profile_notice" = "Mudmouth僅支援捕捉HTTP與HTTPS請求。";
 "match" = "匹配";
 "direction" = "數據方向";
-"pre_action" = "捕獲前執行";
-"action" = "執行";
+"pre_action" = "捕捉前操作";
+"action" = "執行操作";
 //"url_scheme" = "URL Scheme";
 //"shortcut" = "捷徑";
-"post_action" = "捕獲後執行";
-"post_action_url_scheme_notice" = "Mudmouth將在捕獲完成後觸發帶有requestHeaders與responseHeaders參數的URL Scheme。標頭會以URL安全的Base64格式編碼。";
-"post_action_shortcut_notice" = "Mudmouth將在捕獲完成後觸發帶有text參數的快捷指令。標頭會以JSON格式編碼。";
+"post_action" = "捕捉後操作";
+"post_action_url_scheme_notice" = "Mudmouth將在捕捉完成後觸發帶有requestHeaders與responseHeaders參數的URL Scheme。標頭會以URL安全的Base64格式編碼。";
+"post_action_shortcut_notice" = "Mudmouth將在捕捉完成後觸發帶有text參數的快捷指令。標頭會以JSON格式編碼。";
 "add" = "新增";
 "save" = "儲存";
 //"new_profile" = "新增設定";
@@ -88,5 +88,5 @@
 "failed_to_import" = "匯入失敗";
 
 // Notification.
-"request_captured" = "請求已捕獲";
+"request_captured" = "請求已捕捉";
 "request_captured_body" = "點擊以在Mudmouth中繼續。";
