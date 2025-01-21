@@ -7,31 +7,31 @@ import SwiftUI
 import X509
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.managedObjectContext) var viewContext
+    @Environment(\.scenePhase) var scenePhase
 
     @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \Profile.name, ascending: true)], animation: .default)
-    private var profiles: FetchedResults<Profile>
-    @State private var selectedProfile: Profile?
-    @State private var profileOperation: DataOperation<Profile>?
+    var profiles: FetchedResults<Profile>
+    @State var selectedProfile: Profile?
+    @State var profileOperation: DataOperation<Profile>?
 
     @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \Record.date, ascending: false)], animation: .default)
-    private var records: FetchedResults<Record>
-    @State private var selectedRecord: Record?
+    var records: FetchedResults<Record>
+    @State var selectedRecord: Record?
 
-    @State private var showCertificate = false
+    @State var showCertificate = false
 
-    @State private var manager: NETunnelProviderManager?
-    @State private var vpnObserver: AnyObject?
-    @State private var status: NEVPNStatus = .invalid
+    @State var manager: NETunnelProviderManager?
+    @State var vpnObserver: AnyObject?
+    @State var status: NEVPNStatus = .invalid
 
-    @State private var showVPNAlert = false
-    @State private var showNotificationAlert = false
-    @State private var showRootCertificateAlert = false
+    @State var showVPNAlert = false
+    @State var showNotificationAlert = false
+    @State var showRootCertificateAlert = false
 
-    @State private var notificationObserver: AnyObject?
-    @State private var requestHeaders = ""
-    @State private var responseHeaders: String?
+    @State var notificationObserver: AnyObject?
+    @State var requestHeaders = ""
+    @State var responseHeaders: String?
 
     init() {
         let (certificate, privateKey) = loadCertificate()
@@ -336,29 +336,29 @@ struct ContentView: View {
         return false
     }
 
-    private func save() {
+    func save() {
         try! viewContext.save()
     }
 
-    private func deleteProfile(_ profile: Profile) {
+    func deleteProfile(_ profile: Profile) {
         viewContext.delete(profile)
         save()
         if profile == selectedProfile {
             selectedProfile = nil
         }
     }
-    private func updateProfile(_ profile: Profile) {
+    func updateProfile(_ profile: Profile) {
         profileOperation = UpdateOperation(withExistingObject: profile, in: viewContext)
     }
-    private func createProfile() {
+    func createProfile() {
         profileOperation = CreateOperation(with: viewContext)
     }
 
-    private func showRecord(_ record: Record) {
+    func showRecord(_ record: Record) {
         selectedRecord = record
     }
 
-    private func statusColor(_ status: Int16) -> Color {
+    func statusColor(_ status: Int16) -> Color {
         switch status {
         case 100..<200:
             .blue
@@ -373,11 +373,11 @@ struct ContentView: View {
         }
     }
 
-    private func toggleCertificate() {
+    func toggleCertificate() {
         showCertificate.toggle()
     }
 
-    private func install() {
+    func install() {
         installVPN { error in
             if error != nil {
                 showVPNAlert.toggle()
@@ -385,7 +385,7 @@ struct ContentView: View {
         }
     }
 
-    private func captureRequest() {
+    func captureRequest() {
         requestNotification { granted in
             if !granted {
                 showNotificationAlert.toggle()
@@ -431,12 +431,12 @@ struct ContentView: View {
             }
         }
     }
-    private func stopCapturingRequest() {
+    func stopCapturingRequest() {
         manager?.connection.stopVPNTunnel()
         UINotificationFeedbackGenerator().notificationOccurred(.warning)
     }
 
-    private func triggerPostAction() {
+    func triggerPostAction() {
         if let selectedProfile = selectedProfile {
             switch selectedProfile.postActionEnum {
             case .none:

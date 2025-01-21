@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.managedObjectContext) private var childContext
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.managedObjectContext) var childContext
 
     @ObservedObject var profile: Profile
     var title: String
@@ -87,7 +87,7 @@ struct ProfileView: View {
         }
     }
 
-    private func save() {
+    func save() {
         try? childContext.save()
         dismiss()
     }

@@ -133,29 +133,29 @@ struct CertificateView: View {
         return verifyCertificateForTLS(certificate: certificate, url: "mudmouth.local")
     }
 
-    private func regenerateCertificate() {
+    func regenerateCertificate() {
         showRegenerateCertificateAlert.toggle()
     }
-    private func continueRegeneratingCertificate() {
+    func continueRegeneratingCertificate() {
         (certificate, privateKey) = generateCertificate()
     }
 
-    private func importCertificate() {
+    func importCertificate() {
         showImportCertificateAlert.toggle()
     }
-    private func continueImportingCertificate() {
+    func continueImportingCertificate() {
         showImporter.toggle()
     }
 
-    private func exportCertificate() {
+    func exportCertificate() {
         showExporter.toggle()
     }
 
-    private func installCertificate() {
+    func installCertificate() {
         UIApplication.shared.open(URL(string: "http://127.0.0.1:\(CertificateServerPort)")!)
     }
 
-    private func trustCertificate() {
+    func trustCertificate() {
         UIApplication.shared.open(URL(string: "App-prefs:General&path=About/CERT_TRUST_SETTINGS")!)
     }
 }

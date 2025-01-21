@@ -12,9 +12,9 @@ class GlueHandler: ChannelDuplexHandler {
     typealias OutboundIn = NIOAny
     typealias OutboundOut = NIOAny
 
-    private var partner: GlueHandler?
-    private var context: ChannelHandlerContext?
-    private var pendingRead: Bool = false
+    var partner: GlueHandler?
+    var context: ChannelHandlerContext?
+    var pendingRead: Bool = false
 
     static func matchedPair() -> (GlueHandler, GlueHandler) {
         let first = GlueHandler()
@@ -67,26 +67,26 @@ class GlueHandler: ChannelDuplexHandler {
         }
     }
 
-    private func partnerWrite(_ data: NIOAny) {
+    func partnerWrite(_ data: NIOAny) {
         context?.write(data, promise: nil)
     }
-    private func partnerFlush() {
+    func partnerFlush() {
         context?.flush()
     }
-    private func partnerWriteEOF() {
+    func partnerWriteEOF() {
         context?.close(mode: .output, promise: nil)
     }
-    private func partnerCloseFull() {
+    func partnerCloseFull() {
         context?.close(promise: nil)
     }
-    private func partnerBecameWritable() {
+    func partnerBecameWritable() {
         if pendingRead {
             pendingRead = false
             context?.read()
         }
     }
 
-    private var partnerWritable: Bool {
+    var partnerWritable: Bool {
         context?.channel.isWritable ?? false
     }
 }
@@ -97,12 +97,12 @@ class ProxyHandler: ChannelDuplexHandler {
     typealias OutboundIn = HTTPClientResponsePart
     typealias OutboundOut = HTTPServerResponsePart
 
-    private var url: URL
-    private var isRequestAndResponse: Bool
-    private var persistenceController: PersistenceController
+    var url: URL
+    var isRequestAndResponse: Bool
+    var persistenceController: PersistenceController
 
-    private var requests: Deque<HTTPRequest> = []
-    private var response: HTTPResponse?
+    var requests: Deque<HTTPRequest> = []
+    var response: HTTPResponse?
 
     init(url: URL, isRequestAndResponse: Bool, persistenceController: PersistenceController) {
         self.url = url
@@ -177,15 +177,15 @@ class HTTPSConnectHandler: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias OutboundOut = HTTPServerResponsePart
 
-    private enum State {
+    enum State {
         case idle
         case awaitingEnd
         case established
     }
 
-    private var state: State = .idle
-    private var host: String?
-    private var port: Int?
+    var state: State = .idle
+    var host: String?
+    var port: Int?
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         switch state {
@@ -279,10 +279,10 @@ class HTTPHandler: ChannelInboundHandler {
     typealias OutboundIn = ByteBuffer
     typealias OutboundOut = ByteBuffer
 
-    private var connected: Bool = false
-    private var buffer = ByteBuffer()
-    private var host: String
-    private var port: Int
+    var connected: Bool = false
+    var buffer = ByteBuffer()
+    var host: String
+    var port: Int
 
     init(url: URL) {
         self.host = url.host!
