@@ -78,7 +78,7 @@
 "export_certificate" = "Export Certificate";
 "install_certificate" = "Install Certificate";
 "certificate_installed" = "You have installed the certificate.";
-"certificate_not_installed" = "After downloading the certificate, you need to manually install it in Settings > General > VPN & Device Management > Downloaded Profile.";
+"certificate_not_installed" = "After downloading the certificate, you need to manually install it in Settings > General > VPN & Device Management > Downloaded Profile. If you are unable to download the certificate via Safari, you can export the certificate and install it in the Files app.";
 "trust_certificate" = "Trust Certificate";
 "certificate_trusted" = "You have trusted the certificate.";
 "certificate_not_trusted" = "After installing the certificate, you need to manually trust it in Settings > General > About > Certificate Trust Settings > Enable Full Trust For Root Certificates.";

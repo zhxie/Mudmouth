@@ -78,7 +78,7 @@
 "export_certificate" = "証明書をエクスポート";
 "install_certificate" = "証明書をインストール";
 "certificate_installed" = "証明書がインストールされました。";
-"certificate_not_installed" = "証明書をダウンロードした後、設定 > 一般 > VPNとデバイス管理 > ダウンロード済みプロファイル　から手動でインストールしてください。";
+"certificate_not_installed" = "証明書をダウンロードした後、設定 > 一般 > VPNとデバイス管理 > ダウンロード済みプロファイル　から手動でインストールしてください。Safari で証明書をダウンロードできない場合、証明書をエクスポートしてファイルアプリからインストールしてください。";
 "trust_certificate" = "証明書を信頼";
 "certificate_trusted" = "証明書が信頼されました。";
 "certificate_not_trusted" = "証明書をインストールした後、設定 > 一般 > 情報 > 証明書信頼設定 > ルート証明書を全面的に信頼 から手動で信頼してください。";

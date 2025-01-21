@@ -78,7 +78,7 @@
 "export_certificate" = "匯出憑證";
 "install_certificate" = "安裝憑證";
 "certificate_installed" = "您已安裝憑證。";
-"certificate_not_installed" = "在下載憑證後，您需要在 設定 > 一般 > VPN與裝置管理 > 已下載的描述檔 中手動安裝憑證。";
+"certificate_not_installed" = "在下載憑證後，您需要在 設定 > 一般 > VPN與裝置管理 > 已下載的描述檔 中手動安裝憑證。如果您無法透過Safari下載憑證，可以嘗試匯出憑證並透過檔案App安裝。";
 "trust_certificate" = "信任憑證";
 "certificate_trusted" = "您已信任憑證。";
 "certificate_not_trusted" = "在安裝憑證後，您需要在 設定 > 一般 > 關於本機 > 憑證信任設定 > 啟用根憑證的完整信任 中手動信任憑證。";

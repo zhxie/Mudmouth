@@ -78,7 +78,7 @@
 "export_certificate" = "导出证书";
 "install_certificate" = "安装证书";
 "certificate_installed" = "您已安装证书。";
-"certificate_not_installed" = "在下载证书后，您需要在 设置 > 通用 > VPN与设备管理 > 下载的描述文件 中手动安装证书。";
+"certificate_not_installed" = "在下载证书后，您需要在 设置 > 通用 > VPN与设备管理 > 下载的描述文件 中手动安装证书。如果您无法通过Safari浏览器下载证书，可以尝试导出证书并通过文件App安装。";
 "trust_certificate" = "信任证书";
 "certificate_trusted" = "您已信任证书。";
 "certificate_not_trusted" = "在安装证书后，您需要在 设置 > 通用 > 关于本机 > 证书信任设置 > 针对根证书启用完全信任 中手动信任证书。";
