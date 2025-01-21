@@ -238,15 +238,15 @@ struct ContentView: View {
                 // Observes VPN connection status.
                 loadVPN { manager in
                     self.manager = manager
-                    if vpnObserver != nil {
-                        NotificationCenter.default.removeObserver(vpnObserver!)
-                        vpnObserver = nil
+                    if let vpnObserver = vpnObserver {
+                        NotificationCenter.default.removeObserver(vpnObserver)
+                        self.vpnObserver = nil
                     }
-                    if manager != nil {
-                        status = manager!.connection.status
+                    if let manager = manager {
+                        status = manager.connection.status
                         os_log(.info, "VPN connection status %d", status.rawValue)
-                        vpnObserver = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager!.connection, queue: .main) { _ in
-                            status = manager!.connection.status
+                        vpnObserver = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager.connection, queue: .main) { _ in
+                            status = manager.connection.status
                             os_log(.info, "VPN connection status changed to %d", status.rawValue)
                         }
                     } else {
@@ -410,20 +410,24 @@ struct ContentView: View {
                     return
                 }
             }
-            startVPN(manager: manager!, profile: selectedProfile!, certificate: certificate, privateKey: privateKey) {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
-                switch selectedProfile!.preActionEnum {
-                case .none:
-                    break
-                case .urlScheme:
-                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
-                        UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
-                    }
-                case .shortcut:
-                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
-                        UIApplication.shared.open(URL(string: "shortcuts://run-shortcut?name=\(selectedProfile!.preActionShortcut!)")!)
+            if let manager = manager {
+                startVPN(manager: manager, profile: selectedProfile!, certificate: certificate, privateKey: privateKey) {
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    switch selectedProfile!.preActionEnum {
+                    case .none:
+                        break
+                    case .urlScheme:
+                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                            UIApplication.shared.open(URL(string: selectedProfile!.preActionUrlScheme!)!)
+                        }
+                    case .shortcut:
+                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now().advanced(by: .seconds(1))) {
+                            UIApplication.shared.open(URL(string: "shortcuts://run-shortcut?name=\(selectedProfile!.preActionShortcut!)")!)
+                        }
                     }
                 }
+            } else {
+                AlertKitAPI.present(title: "vpn_not_installed".localizedString, icon: .error, style: .iOS17AppleMusic, haptic: .error)
             }
         }
     }

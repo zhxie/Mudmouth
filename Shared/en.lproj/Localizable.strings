@@ -31,6 +31,7 @@
 "duplicate_profiles_found" = "Duplicate Profiles %1$@ Found";
 "profile_not_found" = "Profile Not Found";
 "mudmouth_is_already_capturing" = "Mudmouth is Already Capturing";
+"vpn_not_installed" = "VPN Not Installed";
 
 // ProfileView.
 "name" = "Name";

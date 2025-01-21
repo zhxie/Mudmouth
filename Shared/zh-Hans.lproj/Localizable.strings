@@ -31,6 +31,7 @@
 "duplicate_profiles_found" = "配置%1$@重复";
 "profile_not_found" = "未找到配置";
 "mudmouth_is_already_capturing" = "Mudmouth已在捕获";
+"vpn_not_installed" = "VPN未安装";
 
 // ProfileView.
 "name" = "名称";

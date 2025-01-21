@@ -7,13 +7,10 @@ import X509
 extension NEVPNStatus {
     var running: Bool {
         switch self {
-        case .invalid:
-        case .disconnected:
+        case .invalid, .disconnected:
             return false
-        case .connecting:
-        case .connected:
-        case .reasserting:
-        case .disconnecting:
+        case .connecting, .connected, .reasserting, .disconnecting:
+            return true
         @unknown default:
             return true
         }

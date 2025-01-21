@@ -27,23 +27,25 @@ struct RecordView: View {
                             .textSelection(.enabled)
                     }
                 }
-                Section("request") {
-                    if let method = record.method, !method.isEmpty {
-                        HStack {
-                            Text(LocalizedStringKey("method"))
-                            Spacer()
-                            Text(method)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.trailing)
+                if let requestHeaders = record.requestHeaders {
+                    Section("request") {
+                        if let method = record.method, !method.isEmpty {
+                            HStack {
+                                Text(LocalizedStringKey("method"))
+                                Spacer()
+                                Text(method)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.trailing)
+                            }
                         }
-                    }
-                    VStack(alignment: .leading) {
-                        Text(LocalizedStringKey("headers"))
-                        Spacer()
-                            .frame(height: 8)
-                        Text(record.requestHeaders!)
-                            .foregroundColor(.secondary)
-                            .textSelection(.enabled)
+                        VStack(alignment: .leading) {
+                            Text(LocalizedStringKey("headers"))
+                            Spacer()
+                                .frame(height: 8)
+                            Text(requestHeaders)
+                                .foregroundColor(.secondary)
+                                .textSelection(.enabled)
+                        }
                     }
                 }
                 if let responseHeaders = record.responseHeaders {
