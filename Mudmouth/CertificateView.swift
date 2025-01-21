@@ -5,6 +5,8 @@ import SwiftUI
 import X509
 
 struct CertificateView: View {
+    @Environment(\.scenePhase) var scenePhase
+
     @State var certificate: Certificate
     @State var privateKey: P256.Signing.PrivateKey
 
@@ -12,6 +14,9 @@ struct CertificateView: View {
     @State var showImportCertificateAlert = false
     @State var showImporter = false
     @State var showExporter = false
+
+    @State var isCertificateInstalled: Bool = false
+    @State var isCertificateTrusted: Bool = false
 
     init() {
         let (certificate, privateKey) = loadCertificate()
@@ -123,14 +128,14 @@ struct CertificateView: View {
             }
             .navigationTitle("root_certificate")
         }
-    }
-
-    var isCertificateInstalled: Bool {
-        verifyCertificate(certificate: certificate)
-    }
-    var isCertificateTrusted: Bool {
-        let (certificate, _) = generateSiteCertificate(url: "https://mudmouth.local", caCertificate: certificate, caPrivateKey: privateKey)
-        return verifyCertificateForTLS(certificate: certificate, url: "mudmouth.local")
+        .onAppear {
+            checkCertificate()
+        }
+        .onChange(of: scenePhase) { newValue in
+            if newValue == .active {
+                checkCertificate()
+            }
+        }
     }
 
     func regenerateCertificate() {
@@ -157,6 +162,16 @@ struct CertificateView: View {
 
     func trustCertificate() {
         UIApplication.shared.open(URL(string: "App-prefs:General&path=About/CERT_TRUST_SETTINGS")!)
+    }
+
+    func checkCertificate() {
+        isCertificateInstalled = verifyCertificate(certificate: certificate)
+        if isCertificateInstalled {
+            let (certificate, _) = generateSiteCertificate(url: "https://mudmouth.local", caCertificate: certificate, caPrivateKey: privateKey)
+            isCertificateTrusted = verifyCertificateForTLS(certificate: certificate, url: "mudmouth.local")
+        } else {
+            isCertificateTrusted = false
+        }
     }
 }
 
