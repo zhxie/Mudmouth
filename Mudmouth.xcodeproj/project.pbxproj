@@ -81,6 +81,7 @@
 		E419B8E12AC97267003353A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E419B8E22AC97872003353A5 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		E419B8E32AC978AB003353A5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		E41A3FCF2D3FE30A00735895 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		E425B8D12ABC035200776F46 /* DataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataOperation.swift; sourceTree = "<group>"; };
 		E425B8E42ABC27E500776F46 /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E425B8E62ABC27E500776F46 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
@@ -365,6 +366,7 @@
 				Base,
 				ja,
 				"zh-Hans",
+				"zh-Hant",
 			);
 			mainGroup = E42FB92C2ABB2D2200670B6C;
 			packageReferences = (
@@ -466,6 +468,7 @@
 				E447C2352D3B727200696C8F /* en */,
 				E447C2402D3BC64500696C8F /* ja */,
 				E447C2412D3BC64A00696C8F /* zh-Hans */,
+				E41A3FCF2D3FE30A00735895 /* zh-Hant */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

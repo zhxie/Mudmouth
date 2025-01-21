@@ -1,0 +1,92 @@
+// Profile.
+"none" = "無";
+"url_scheme" = "URL Scheme";
+"shortcut" = "捷徑";
+"request" = "請求";
+"request_and_response" = "請求與回應";
+
+// ContentView.
+"profile" = "設定";
+"delete" = "刪除";
+"edit" = "編輯";
+"new_profile" = "新增設定";
+"configure_root_certificate" = "設定根憑證";
+"install_vpn" = "安裝VPN";
+"vpn_configuration_not_installed" = "VPN設定未安装";
+"vpn_configuration_not_installed_message" = "Mudmouth需要VPN以捕獲請求。";
+"stop_capturing_requests" = "停止捕獲請求";
+"capture_requests" = "捕獲請求";
+"notification_permission_not_granted" = "未授予通知權限";
+"notification_permission_not_granted_message" = "Mudmouth需要通知權限以通知捕獲完成並執行後續操作。";
+"root_certificate_not_installed_or_trusted" = "根憑證未安裝或未被信任";
+"root_certificate_not_installed_or_trusted_message" = "Mudmouth需要根憑證以捕獲HTTPS請求。";
+"record" = "記錄";
+
+"instruction_vpn" = "安裝Mudmouth VPN以捕獲請求。";
+"instruction_notification" = "Mudmouth會在捕獲請求後通知您。";
+"instruction_privacy" = "您的連線始終安全，Mudmouth絕不收集任何信息。";
+
+"profile_added" = "設定已新增";
+"invalid_profile" = "無效設定";
+"duplicate_profiles_found" = "設定%1$@重複";
+"profile_not_found" = "未找到設定";
+"mudmouth_is_already_capturing" = "Mudmouth正在捕獲";
+"vpn_not_installed" = "VPN未安裝";
+
+// ProfileView.
+"name" = "名稱";
+"url" = "URL";
+//"profile" = "設定";
+"profile_notice" = "Mudmouth僅支持捕獲HTTP與HTTPS請求。";
+"match" = "匹配";
+"direction" = "數據方向";
+"pre_action" = "捕獲前執行";
+"action" = "執行";
+//"url_scheme" = "URL Scheme";
+//"shortcut" = "捷徑";
+"post_action" = "捕獲後執行";
+"post_action_url_scheme_notice" = "Mudmouth將在捕獲完成後觸發帶有requestHeaders與responseHeaders參數的URL Scheme。標頭會以URL安全的Base64格式編碼。";
+"post_action_shortcut_notice" = "Mudmouth將在捕獲完成後觸發帶有text參數的快捷指令。標頭會以JSON格式編碼。";
+"add" = "新增";
+"save" = "儲存";
+//"new_profile" = "新增設定";
+
+// RecordView.
+//"record" = "記錄";
+"date" = "日期";
+//"url" = "URL";
+//"request" = "請求";
+"method" = "方法";
+"headers" = "標頭";
+"response" = "回應";
+"status" = "狀態";
+
+// CertificateView.
+"certificate" = "憑證";
+"organization" = "組織";
+"common_name" = "一般名稱";
+"not_valid_before" = "下列時間前無效";
+"not_valid_after" = "下列時間後無效";
+"key_information" = "密鑰資訊";
+"algorithm" = "演算法";
+"public_key_data" = "公鑰資料";
+"private_key_data" = "私鑰資料";
+"generate_a_new_certificate" = "生成新憑證";
+"generate_a_new_certificate_alert" = "您目前在Mudmouth中的憑證將失效，是否繼續生成新憑證？";
+"import_certificate" = "匯入憑證";
+"import_certificate_alert" = "您目前在Mudmouth中的憑證將失效，是否繼續匯入憑證？";
+"export_certificate" = "匯出憑證";
+"install_certificate" = "安裝憑證";
+"certificate_installed" = "您已安裝憑證。";
+"certificate_not_installed" = "在下載憑證後，您需要在 設定 > 一般 > VPN與裝置管理 > 已下載的描述檔 中手動安裝憑證。";
+"trust_certificate" = "信任憑證";
+"certificate_trusted" = "您已信任憑證。";
+"certificate_not_trusted" = "在安裝憑證後，您需要在 設定 > 一般 > 關於本機 > 憑證信任設定 > 啟用根憑證的完整信任 中手動信任憑證。";
+"root_certificate" = "根憑證";
+
+"invalid_certificate" = "無效憑證";
+"failed_to_import" = "匯入失敗";
+
+// Notification.
+"request_captured" = "請求已捕獲";
+"request_captured_body" = "點擊以在Mudmouth中繼續。";
